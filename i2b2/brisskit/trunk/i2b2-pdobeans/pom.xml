@@ -1,0 +1,107 @@
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+    >
+    <modelVersion>4.0.0</modelVersion>
+	<artifactId>pdobeans</artifactId>
+
+	<groupId>uk.org.briccs.i2b2</groupId>
+
+	<name>XMLBeans for i2b2 PDO. For BRISSkit.</name>
+
+	<description>Generated XMLBeans for creating and manipulating i2b2 Patient Data Objects.
+The PDO version 1.1 schema is included within this project.</description>
+	
+	
+	
+	<url>http://www.briccs.org.uk/</url>
+
+	<!--+ 
+	    | The distributionManagement element is required for deploying an artifact to a remote repository 
+	    +-->
+	<distributionManagement>
+		<repository>
+			<id>mvn.briccs.org.uk</id>
+			<name>BRICCS Maven Repository</name>
+			<url>scpexe://mvn.briccs.org.uk/var/local/briccs/maven/repo</url>
+		</repository>
+	</distributionManagement>
+
+
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.xmlbeans</groupId>
+			<artifactId>xbean</artifactId>
+			<version>2.5.0</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.5</source>
+                    <target>1.5</target>
+                </configuration>
+            </plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>xmlbeans-maven-plugin</artifactId>
+				<version>2.3.2</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>xmlbeans</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<schemaDirectory>src/xsd/hive/pdo/v1.1</schemaDirectory>
+					<!--
+						classGenerationDirectory>target/classes</classGenerationDirectory
+					-->
+					<!-- sourceGenerationDirectory>src/java</sourceGenerationDirectory -->
+					<noPvr>true</noPvr>
+					<staleFile>target/staleFlag</staleFile>
+					<verbose>true</verbose>
+					<download>true</download>
+					<outputJar>lib/${artifactId}.jar</outputJar>
+					<defaultXmlConfigDir>config</defaultXmlConfigDir>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<reporting>
+		<plugins>
+
+			<!--+
+                | JavaDoc documentation.
+                +-->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+			</plugin>
+		</plugins>
+
+	</reporting>
+
+	<repositories>
+		<repository>
+			<id>mvn.briccs.org.uk</id>
+			<name>BRICCS Maven Repo</name>
+			<url>http://mvn.briccs.org.uk</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories> 
+
+	<version>2.0</version>
+</project>

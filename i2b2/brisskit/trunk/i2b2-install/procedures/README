@@ -1,0 +1,47 @@
+#===============================================================================#
+#  Command line tools for installing an i2b2 domain and one demo project.       #
+#===============================================================================#
+Still under development.
+
+QUICK START.
+============
+
+1. Unzip this package into a convenient place on a server hosting an i2b2 domain.
+2. Set the I2B2_INSTALL_HOME environment variable and export it.
+3. Ensure the following environment variables are set within the defaults.sh config file.
+     JAVA_HOME 
+     ANT_HOME 
+     JBOSS_HOME
+4  If you wish to run procedures from any current directory,
+   run the build-symlinks script in the bin/utility directory  
+   and add the bin/symlinks to your path. 
+   But go steady; this could wait until later.
+5  Review configuration settings within the config directory.
+   Basically these files:
+    procedures/config/jboss/run.conf
+    procedures/config/jboss/server.xml
+    procedures/config/defaults.sh
+    procedures/config/config.propertie
+6. The order of completion is by number within the procedures/bin/installs directory
+
+Inspect the POM.
+================
+
+There is a production profile and a development profile.
+The build is production by default.
+Look at the enironment.type property setting, 
+which is used to produce two artifacts (development and production versions)... 
+
+To build a production artifact, the default install invocation is sufficient...
+mvn install
+
+To build a development artifact...
+mvn install -Denvironment.type=development
+
+The development version has facilities for dropping all sql artifacts. 
+Hence you must explicitly request a development build.
+
+NOTES:
+======
+
+(1) The stopping and starting of JBoss needs looking at.

@@ -1,0 +1,9 @@
+-import=/home/jl99/workspace-briccs/i2b2-procedures-trunk/procedures/work/20111101/f-pdo/onyx-4-20111116-160535964-pdo.xml
+-user=demo
+-password=demouser
+-pmurl=http://lamp-lbi-08.rcs.le.ac.uk:8080/i2b2/rest/PMService/
+-domain=LCBRU
+-project=briccs
+
+
+-Djava.endorsed.dirs=/home/jl99/workspace-i2b2wb/i2b2-importpdo-trunk/endorsed_lib

@@ -1,0 +1,38 @@
+#===============================================================================#
+#            Command line tools for administering an i2b2 project               #
+#===============================================================================#
+
+PREREQUISITES.
+==============
+If you have i2b2 installed, then the prerequisites are almost certainly present.
+Other run-time dependencies are held within the lib directory.
+
+QUICK START.
+============
+1. Unzip this package into a convenient place on a server hosting an i2b2 domain.
+2. Set the I2B2_PROCEDURES_HOME environment variable and export it.
+3. Ensure the following environment variables are set within your config file
+     JAVA_HOME 
+     ANT_HOME 
+     JBOSS_HOME
+4. Review configuration settings within the config directory.
+   Basically three files:
+   config.properties
+   defaults.sh
+   log4j.properties
+   
+DEVELOPMENT CONSIDERATIONS: Inspect the POM.
+===========================================
+There is a production profile and a development profile.
+The build is production by default.
+Look at the enironment.type property setting, 
+which is used to produce two artifacts (development and production versions)... 
+
+To build a production artifact, the default install invocation is sufficient...
+mvn install
+
+To build a development artifact...
+mvn install -Denvironment.type=development
+
+The development version has facilities for dropping all sql artifacts. 
+Hence you must explicitly request a development build.  

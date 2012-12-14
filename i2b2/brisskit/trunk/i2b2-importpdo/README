@@ -1,0 +1,47 @@
+************************************************************************************************
+* This details the build required (at least for the moment) until a maven build can be devised.*
+* In fact to some degree a maven build is problematic. Finding all of the correct artifacts in *
+* public repository is questionable, and some may have licensing implications.                 *
+************************************************************************************************
+How to build and run.
+=====================
+(A) For the moment all the "external" dependencies can be found in genlib and lib directories.
+    Just ensure all of these are included in the classpath, together with the config directory.
+(B) The source code is contained within the src and gensrc directories.
+    The .classpath has been committed to svn, so most of this should be covered already by
+    that file (for Eclipse users of course).
+(C) If you wish to execute the programme, the JVM needs to be invoked with endorsed libraries:
+    -Djava.endorsed.dirs={some path statement here}/i2b2-importpdo/endorsed_lib
+(D) See the programme itself for command line args, or just try an execution without args 
+    to see the Usage statement...
+    
+    Usage: ImportPdo {Parameters}\n" +       
+		"Parameters:\n" +
+		" -config=path to config file\n" +
+		" -import=path to i2b2 PDO file\n" +
+		" -append=true/false" ; 
+		
+The config file (a normal Java properties file) holds details of user, password, PM url,
+domain ID and project id. See the example in the config/test-resources directory.
+
+This is how the project got off the ground.
+===========================================
+(1) Within an Eclipse workspace import the following (at least) i2b2 workbench projects:
+	edu.harvard.i2b2.common
+    edu.harvard.i2b2.eclipse.plugins.webservicesAxis2
+    edu.harvard.i2b2.xml
+(2) The following separate import plugin 
+    (to generate the common, crc and fr code from schemas; use one of the ant builds):
+    edu.harvard.i2b2.eclipse.plugins.importData   
+(3) The following may help for study purposes:
+    edu.harvard.i2b2.eclipse                      (part of the workbench)
+(4) Make sure this project is sitting alongside all of the above detailed in (1) and (2)
+(5) The lib directory axis2-1.1, commons and jaxb were populated from the 
+    edu.harvard.i2b2.common/lib directory
+(6) Take a close look at the etc directory. It was composed from a number of the workbench
+    projects to get completeness.
+(7) The buildFiles directory contains basic ant builds adapted from the import plugin, but
+    the builds are not 100% there.
+    
+After the above steps you should have a clean build within Eclipse. 
+This is not ideal, of course. A maven build would be better (but this is proving problematic).

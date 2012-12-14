@@ -1,0 +1,177 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>uk.org.briccs.i2b2</groupId>
+	<artifactId>i2b2-procedures</artifactId>
+	<packaging>pom</packaging>
+	<name>i2b2 Standard Procedures. For BRISSkit</name>
+	<version>2.1-${environment.type}</version>
+
+	<description>This project brings together a set of standard i2b2 operating procedures for installing a BRICCS project  within an existing basic i2b2 install, and then for processing Onyx export data into it.
+
+v2.1 accommodated a change of folder name within the XSLT ontology related. From Participant-Entity to Participants.</description>
+
+	<!--+
+	    | The distributionManagement element is required for deploying an artifact to a remote repository
+	    +-->
+	<distributionManagement>
+		<repository>
+			<id>mvn.briccs.org.uk</id>
+			<name>BRICCS Maven Repository</name>
+			<url>scpexe://mvn.briccs.org.uk/var/local/briccs/maven/repo</url>
+		</repository>
+	</distributionManagement>
+	
+	<repositories>
+    <repository>
+      <id>mvn.briccs.org.uk</id>
+      <name>BRICCS Maven Repo</name>
+      <url>http://mvn.briccs.org.uk</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+   </repositories>
+	
+	<properties>
+		<!--+
+		    | The default environment is production. Note: there is a development profile to overwrite these settings.
+		    | The defaults are this way around because the development profile has facilities to drop all sql artifacts.
+		    | This forces a user to request these explicitly. The profile name is also included in the version number. 
+		    + -->
+		<environment.type>production</environment.type>
+	</properties>
+	
+	<build>
+
+		<plugins>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>assembly/${environment.type}-bin.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+
+	</build>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>uk.org.briccs</groupId>
+			<artifactId>config-merger</artifactId>
+			<version>2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>oracle.jdbc</groupId>
+			<artifactId>ojdbc</artifactId>
+			<version>14</version>
+		</dependency>
+		<dependency>
+			<groupId>ms.jdbc</groupId>
+			<artifactId>sqljdbc</artifactId>
+			<version>2005</version>
+		</dependency>
+		<dependency>
+            <groupId>saxon9b</groupId>
+            <artifactId>saxon</artifactId>
+            <version>9.0</version>
+        </dependency>        
+        <dependency>
+            <groupId>saxon9b</groupId>
+            <artifactId>saxon-dom</artifactId>
+            <version>9.0</version>
+        </dependency>
+
+		<!--===========================================================================================	
+		    importpdo has special requirements for dependencies which mean some of its dependencies   
+		    are stored locally (see the project within svn for this) It does mean it's pom is treated 
+		    as invalid, meaning some of its dependencies are repeated below! 
+		    ===========================================================================================-->
+		<dependency>
+			<groupId>uk.org.briccs.i2b2</groupId>
+			<artifactId>importpdo</artifactId>
+			<version>2.0</version>
+		</dependency>
+		<!-- Commons stuff: -->
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.6</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+			<version>2.1.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-dbcp</groupId>
+			<artifactId>commons-dbcp</artifactId>
+			<version>1.2.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-exec</artifactId>
+			<version>1.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-httpclient</groupId>
+			<artifactId>commons-httpclient</artifactId>
+			<version>3.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.0.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-pool</groupId>
+			<artifactId>commons-pool</artifactId>
+			<version>1.3</version>
+		</dependency>
+	
+	</dependencies>
+
+	<profiles>
+		<profile>
+			<id>development</id>
+			<activation>
+				<property>
+					<name>environment.type</name>
+					<value>development</value>
+				</property>
+			</activation>
+		</profile>
+		<profile>
+			<id>production</id>
+			<activation>
+				<property>
+					<name>environment.type</name>
+					<value>production</value>
+				</property>
+			</activation>
+		</profile>
+	</profiles>
+
+
+</project>

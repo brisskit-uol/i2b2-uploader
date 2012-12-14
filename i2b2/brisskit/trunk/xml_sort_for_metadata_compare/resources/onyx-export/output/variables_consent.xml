@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<variables xmlns:ov="http://briccs.org.uk/xml/onyxvariables/v1.0/ov"
+           xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns="http://briccs.org.uk/xml/onyxvariables/v1.0/ov">
+   <variable name="accepted" valueType="boolean" entityType="Participant">
+      <attributes>
+         <attribute name="stage" valueType="text">Consent</attribute>
+      </attributes>
+   </variable>
+   <variable name="consent_q1_signed" valueType="boolean" entityType="Participant">
+      <attributes>
+         <attribute name="label" valueType="text" locale="en"/>
+         <attribute name="script" valueType="text">
+	      	$('Consent:consent_q1').isNull().not().and($('Consent:consent_q1').any('').not())
+	      </attribute>
+      </attributes>
+   </variable>
+   <variable name="consent_q2_signed" valueType="boolean" entityType="Participant">
+      <attributes>
+         <attribute name="label" valueType="text" locale="en"/>
+         <attribute name="script" valueType="text">
+	      	$('Consent:consent_q2').isNull().not().and($('Consent:consent_q2').any('').not())
+	      </attribute>
+      </attributes>
+   </variable>
+   <variable name="consent_q3_signed" valueType="boolean" entityType="Participant">
+      <attributes>
+         <attribute name="label" valueType="text" locale="en"/>
+         <attribute name="script" valueType="text">
+	      	$('Consent:consent_q3').isNull().not().and($('Consent:consent_q3').any('').not())
+	      </attribute>
+      </attributes>
+   </variable>
+   <variable name="consent_q4_signed" valueType="boolean" entityType="Participant">
+      <attributes>
+         <attribute name="label" valueType="text" locale="en"/>
+         <attribute name="script" valueType="text">
+	      	$('Consent:consent_q4').isNull().not().and($('Consent:consent_q4').any('').not())
+	      </attribute>
+      </attributes>
+   </variable>
+   <variable name="consent_q5_signed" valueType="boolean" entityType="Participant">
+      <attributes>
+         <attribute name="label" valueType="text" locale="en"/>
+         <attribute name="script" valueType="text">
+	      	$('Consent:consent_q5').isNull().not().and($('Consent:consent_q5').any('').not())
+	      </attribute>
+      </attributes>
+   </variable>
+   <variable name="locale" valueType="locale" entityType="Participant">
+      <attributes>
+         <attribute name="stage" valueType="text">Consent</attribute>
+      </attributes>
+   </variable>
+   <variable name="mode" valueType="text" entityType="Participant">
+      <categories>
+         <category name="ELECTRONIC"/>
+         <category name="MANUAL"/>
+      </categories>
+      <attributes>
+         <attribute name="stage" valueType="text">Consent</attribute>
+      </attributes>
+   </variable>
+   <variable name="pdfForm" valueType="binary" entityType="Participant">
+      <attributes>
+         <attribute name="stage" valueType="text">Consent</attribute>
+      </attributes>
+   </variable>
+   <variable name="timeEnd" valueType="datetime" entityType="Participant">
+      <attributes>
+         <attribute name="stage" valueType="text">Consent</attribute>
+      </attributes>
+   </variable>
+   <variable name="timeStart" valueType="datetime" entityType="Participant">
+      <attributes>
+         <attribute name="stage" valueType="text">Consent</attribute>
+      </attributes>
+   </variable>
+</variables>

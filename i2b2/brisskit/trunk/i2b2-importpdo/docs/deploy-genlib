@@ -1,0 +1,20 @@
+I used the following command to install the common core jar file to my local repo
+
+mvn install:install-file -Dfile=./i2b2Common-core.jar \
+                       -DgroupId=edu.harvard.i2b2.common \
+                       -DartifactId=i2b2Common-core \
+                       -Dversion=1.5.5 \
+                       -Dpackaging=jar 
+
+I used the following command to deploy the common core jar file to the briccs remote repo
+
+mvn deploy:deploy-file -Durl=scpexe://mvn.briccs.org.uk/var/local/briccs/maven/repo \
+                       -DrepositoryId=mvn.briccs.org.uk \
+                       -Dfile=./i2b2Common-core.jar \
+                       -DgroupId=edu.harvard.i2b2.common \
+                       -DartifactId=i2b2Common-core \
+                       -Dversion=1.5.5 \
+                       -Dpackaging=jar
+                       
+                      
+                       

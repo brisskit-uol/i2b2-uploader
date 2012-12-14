@@ -1,0 +1,820 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<container xmlns:omr="http://briccs.org.uk/xml/onyxmetadata-refined/v1.0/omr"
+           xmlns="http://briccs.org.uk/xml/onyxmetadata-refined/v1.0/omr"
+           xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           name="onyx">
+   <folder name="BrissKitOntology">
+      <folder name="BrissKitQuestionnaire3">
+         <folder name="RiskFactorAlcohol">
+            <folder name="AGE_BEGAN_DRINKING">
+               <variable name="DK" type="BOOLEAN" code="CBO:ed6e3e30ccea5d508c8ed1060d56f7e5"
+                         description=""/>
+               <variable name="PNA" type="BOOLEAN" code="CBO:1a04e5fc38af550582eac049f7a7f5c3"
+                         description=""/>
+               <variable name="VALUE" type="INTEGER" code="CBO:ebdfc020cb9a3bc67cf0d5378599fcc5"
+                         description=""/>
+            </folder>
+            <folder name="BEER_CONSUMPTION_WEEK">
+               <variable name="DK" type="BOOLEAN" code="CBO:c462e22c68c7b9b82a083fa1bb4a94f1"
+                         description=""/>
+               <variable name="PNA" type="BOOLEAN" code="CBO:89171eff06645535145e25b03e5047e4"
+                         description=""/>
+               <variable name="VALUE" type="INTEGER" code="CBO:2762fda056b7a0c10724d3fcb0feba5e"
+                         description=""/>
+            </folder>
+            <folder name="DRINK_ONCE_WEEK">
+               <variable name="DK" type="BOOLEAN" code="CBO:1cd953e348972b3a63244361e5976ac4"
+                         description=""/>
+               <variable name="NO" type="BOOLEAN" code="CBO:a2c345f37d53dd275c221501bff73899"
+                         description=""/>
+               <variable name="PNA" type="BOOLEAN" code="CBO:e045718040405a44b2a2de73ec8dd364"
+                         description=""/>
+               <variable name="YES" type="BOOLEAN" code="CBO:6edeb685554cfcef2e4819132eba711c"
+                         description=""/>
+            </folder>
+            <folder name="EVER_DRUNK_ALCOHOL">
+               <variable name="DK" type="BOOLEAN" code="CBO:45a6d5328bdb6bfa450a25881f81d182"
+                         description=""/>
+               <variable name="NO" type="BOOLEAN" code="CBO:aa0bd0a7081c7a7861922a295a2d9fc7"
+                         description=""/>
+               <variable name="PNA" type="BOOLEAN" code="CBO:05efc7f664d5d7d7c428613e9e328f71"
+                         description=""/>
+               <variable name="YES" type="BOOLEAN" code="CBO:d98c2f3dd4ab1b816c6c7a3e9b2a7e23"
+                         description=""/>
+            </folder>
+            <folder name="SPIRIT_CONSUMPTION_WEEK">
+               <variable name="DK" type="BOOLEAN" code="CBO:451430876a4bd9313d2ef3dd1e0e627a"
+                         description=""/>
+               <variable name="PNA" type="BOOLEAN" code="CBO:36bc1f050006536650b1ff5ba6ec025c"
+                         description=""/>
+               <variable name="VALUE" type="INTEGER" code="CBO:0fdaadee5ea3f5512b590b3fb134a68f"
+                         description=""/>
+            </folder>
+            <folder name="WINE_CONSUMPTION_WEEK">
+               <variable name="DK" type="BOOLEAN" code="CBO:14eba852bd61f5ac9a1627e546631cff"
+                         description=""/>
+               <variable name="PNA" type="BOOLEAN" code="CBO:afd389f95de4ad0e2b18ac05e9617eaa"
+                         description=""/>
+               <variable name="VALUE" type="INTEGER" code="CBO:06de2861128dc7f819c5abd14bb7e26e"
+                         description=""/>
+            </folder>
+         </folder>
+         <folder name="RiskFactorCigars">
+            <folder name="CURRENT_SMOKE_CIGARS">
+               <variable name="DK" type="BOOLEAN" code="CBO:480391a8e3408bb26012e9126b4c06e3"
+                         description=""/>
+               <variable name="NO" type="BOOLEAN" code="CBO:3849ced9adf85ed370c11860d3d09e6c"
+                         description=""/>
+               <variable name="PNA" type="BOOLEAN" code="CBO:afcbbb51f49ee48760a27a420826c63f"
+                         description=""/>
+               <variable name="YES" type="BOOLEAN" code="CBO:e276e8caf0a63e53e742e58a07411f1b"
+                         description=""/>
+            </folder>
+         </folder>
+         <folder name="RiskFactorCigs">
+            <folder name="AGE_BEGAN_SMOKING">
+               <variable name="VALUE" type="INTEGER" code="CBO:63957422da8010527ba03666eb8edbe6"
+                         description=""/>
+            </folder>
+            <folder name="CIGS_ON_MOST_DAYS">
+               <variable name="DK" type="BOOLEAN" code="CBO:8128549e12f69d414d63a42c9a1e8d2b"
+                         description=""/>
+               <variable name="NO" type="BOOLEAN" code="CBO:4f81dca6840917da4f1adc69f400a5ef"
+                         description=""/>
+               <variable name="PNA" type="BOOLEAN" code="CBO:9790eca002902b220fef97d944360fcb"
+                         description=""/>
+               <variable name="YES" type="BOOLEAN" code="CBO:a7fda70345a9a0d33d13726d445128c8"
+                         description=""/>
+            </folder>
+            <folder name="CIGS_PER_DAY_BEFORE">
+               <variable name="HEAVY" type="BOOLEAN" code="CBO:766958f6167ac5fb0087b8f3329e4583"
+                         description=""/>
+               <variable name="LIGHT" type="BOOLEAN" code="CBO:6a6f15412505aae158526166fbda69d9"
+                         description=""/>
+               <variable name="MODERATE" type="BOOLEAN" code="CBO:8347a73200767959b19614c7ccd5a2c9"
+                         description=""/>
+               <variable name="TRIVIAL" type="BOOLEAN" code="CBO:4b22d2f1d393d420b70e85c7b48eab43"
+                         description=""/>
+               <variable name="UNKNOWN" type="BOOLEAN" code="CBO:0f26ddcfb9aaa46bb75f1655bbf1abbc"
+                         description=""/>
+               <variable name="VERY_HEAVY" type="BOOLEAN" code="CBO:038fb19cfc314463a64f8db55694d725"
+                         description=""/>
+            </folder>
+            <folder name="CURRENT_SMOKE_CIGS">
+               <variable name="DK" type="BOOLEAN" code="CBO:b379e93a0c4b53cb725645c011e73094"
+                         description=""/>
+               <variable name="NO" type="BOOLEAN" code="CBO:d85eb000514f650297a6fcd78f32b7b3"
+                         description=""/>
+               <variable name="PNA" type="BOOLEAN" code="CBO:885811a269076bd67ff7650a128290fc"
+                         description=""/>
+               <variable name="YES" type="BOOLEAN" code="CBO:526bb725e84c26c67ff33c2a1a54bf6c"
+                         description=""/>
+            </folder>
+            <folder name="NUMBER_CIGS_PER_DAY">
+               <variable name="HEAVY" type="BOOLEAN" code="CBO:28f957e3a06e6454715e968c17cee464"
+                         description=""/>
+               <variable name="LIGHT" type="BOOLEAN" code="CBO:bd4aac6e8860a0897fdd59b0742ee546"
+                         description=""/>
+               <variable name="MODERATE" type="BOOLEAN" code="CBO:119e6db7e705358037d29b91ec410133"
+                         description=""/>
+               <variable name="TRIVIAL" type="BOOLEAN" code="CBO:cdd78861728a8fcd039f78172e0a9f58"
+                         description=""/>
+               <variable name="VERY_HEAVY" type="BOOLEAN" code="CBO:69550dbd6c809103f548fc5c07dfc969"
+                         description=""/>
+            </folder>
+            <folder name="YEAR_STOPPED_SMOKING">
+               <variable name="VALUE" type="INTEGER" code="CBO:42d138df4d29a5942b2b38b1d905137e"
+                         description=""/>
+            </folder>
+         </folder>
+         <folder name="RiskFactorDietExercise">
+            <folder name="CURRENT_DIET">
+               <variable name="DK" type="BOOLEAN" code="CBO:96a8c21593f135f316c984b2bfd3b25f"
+                         description=""/>
+               <variable name="OMNIVORE" type="BOOLEAN" code="CBO:94739d3e555099a524a54b83f92c00ee"
+                         description=""/>
+               <variable name="PESCATARIAN" type="BOOLEAN" code="CBO:60bdbe17765689c7e8e2ddf494c004eb"
+                         description=""/>
+               <variable name="PNA" type="BOOLEAN" code="CBO:9904d750df06744e3dfe8f0391f574ce"
+                         description=""/>
+               <variable name="VEGAN" type="BOOLEAN" code="CBO:967dffebd0d3ac326f56bfde4d5d86d6"
+                         description=""/>
+               <variable name="VEGETARIAN" type="BOOLEAN" code="CBO:c5fe626cc79c1eeba2b9e309522ab245"
+                         description=""/>
+            </folder>
+            <folder name="EXERCISE_LEVEL">
+               <variable name="EXTREME_ACTIVITY" type="BOOLEAN"
+                         code="CBO:a1b3dd173012144ba22773f050e98a00"
+                         description=""/>
+               <variable name="HEAVY_ACTIVITY" type="BOOLEAN"
+                         code="CBO:cc8f601c3002d57b6a1b4da46d3de317"
+                         description=""/>
+               <variable name="LIGHT_ACTIVITY" type="BOOLEAN"
+                         code="CBO:889829119eeb7d56ee750d4b3dfb6350"
+                         description=""/>
+               <variable name="MODERATE_ACTIVITY" type="BOOLEAN"
+                         code="CBO:ca81b1889fdbb21596e725f9137de01f"
+                         description=""/>
+               <variable name="NO_ACTIVITY" type="BOOLEAN" code="CBO:050f1d1abbb4f309eaacbfe6f01e58a5"
+                         description=""/>
+            </folder>
+         </folder>
+         <folder name="RiskFactorOtherTobacco">
+            <folder name="CURRENT_SMOKE_PIPE">
+               <variable name="DK" type="BOOLEAN" code="CBO:5cc9eb172699ac7dc95fdbce18c01a27"
+                         description=""/>
+               <variable name="NO" type="BOOLEAN" code="CBO:d243626a33b0f978377ec367699acf9b"
+                         description=""/>
+               <variable name="PNA" type="BOOLEAN" code="CBO:3a472c090e820b1feecfc646a8c2df53"
+                         description=""/>
+               <variable name="YES" type="BOOLEAN" code="CBO:4328e20edd7e9c88e12c48c012eba737"
+                         description=""/>
+            </folder>
+            <folder name="CURRENT_SNUFF_USER">
+               <variable name="DK" type="BOOLEAN" code="CBO:4e040701219bb19c3f33a2453ac4576b"
+                         description=""/>
+               <variable name="NO" type="BOOLEAN" code="CBO:75227d0f1418e390da7e8c5202abc2d3"
+                         description=""/>
+               <variable name="PNA" type="BOOLEAN" code="CBO:caef6d3cd2970872d18de59f087bff6d"
+                         description=""/>
+               <variable name="YES" type="BOOLEAN" code="CBO:923dc46d8e9566508761370c41a20d40"
+                         description=""/>
+            </folder>
+            <folder name="CURRENT_TOBACCO_CHEWER">
+               <variable name="DK" type="BOOLEAN" code="CBO:60f66a93da1fa68fb3320303196c09af"
+                         description=""/>
+               <variable name="NO" type="BOOLEAN" code="CBO:ee12fa718931a46e2294f6723573aef6"
+                         description=""/>
+               <variable name="PNA" type="BOOLEAN" code="CBO:5244082358ddcc2b1a9e7446d31ed3c4"
+                         description=""/>
+               <variable name="YES__SM228494002" type="BOOLEAN"
+                         code="CBO:1a13f499a0892d3ba7c9a09d770670ac"
+                         description=""/>
+            </folder>
+            <folder name="PIPE_CONSUMPTION_WEEK">
+               <variable name="DK" type="BOOLEAN" code="CBO:b955f22a2ff160362481a412f7bf89f1"
+                         description=""/>
+               <variable name="PNA" type="BOOLEAN" code="CBO:7e556fd101351d905cf42e38de22cd37"
+                         description=""/>
+               <variable name="VALUE" type="INTEGER" code="CBO:24a94bff236461ea4757caf678e17401"
+                         description=""/>
+            </folder>
+            <folder name="REGULAR_SNUFF_USER">
+               <variable name="DK" type="BOOLEAN" code="CBO:028736d7e043a712680a0cdcb8e2d175"
+                         description=""/>
+               <variable name="NO" type="BOOLEAN" code="CBO:cb59a7a54c64d401d964b4e28bafa175"
+                         description=""/>
+               <variable name="PNA" type="BOOLEAN" code="CBO:94d0e2a71d319ce448c31ed4db1977d2"
+                         description=""/>
+               <variable name="YES" type="BOOLEAN" code="CBO:d570a5fd7448da48bf6edaa524ace140"
+                         description=""/>
+            </folder>
+            <folder name="REGULAR_TOBACCO_CHEWER">
+               <variable name="DK" type="BOOLEAN" code="CBO:9d2dfe6d9ab633ef264297099e71271c"
+                         description=""/>
+               <variable name="NO" type="BOOLEAN" code="CBO:c45c36c5bb47e6a49ecee873617239eb"
+                         description=""/>
+               <variable name="PNA" type="BOOLEAN" code="CBO:4044740acea570b62b80550a768ea36e"
+                         description=""/>
+               <variable name="YES" type="BOOLEAN" code="CBO:e77fc8b2bbba18c59ff20a8959d7b01a"
+                         description=""/>
+            </folder>
+            <folder name="SNUFF_CONSUMPTION_WEEK">
+               <variable name="AMOUNT" type="INTEGER" code="CBO:800f517f23354fc8485dbfae6b54e88b"
+                         description=""/>
+               <variable name="DK" type="BOOLEAN" code="CBO:76c04fb7c68d8b40de89ed767459f9b0"
+                         description=""/>
+               <variable name="PNA" type="BOOLEAN" code="CBO:c221443686da0d0e1de8f43daab8ae11"
+                         description=""/>
+            </folder>
+            <folder name="TOBACCO_CONSUMPTION_WEEK">
+               <variable name="DK" type="BOOLEAN" code="CBO:febd08144f1a3defc4d5a0e9c77661d7"
+                         description=""/>
+               <variable name="PNA" type="BOOLEAN" code="CBO:6223da53dce8e47e6fe99bb63646f5c5"
+                         description=""/>
+               <variable name="VALUE__SM228490006" type="INTEGER"
+                         code="CBO:5d39179b22d723c6ad41730c46917d94"
+                         description=""/>
+            </folder>
+         </folder>
+         <folder name="RiskFactorSocioeconomic">
+            <folder name="COHABIT">
+               <variable name="DK" type="BOOLEAN" code="CBO:9c659fc9a2fdb4f2b71877f41e8d30aa"
+                         description=""/>
+               <variable name="NO" type="BOOLEAN" code="CBO:8257d3b9f3d9cde487134b48fcb65665"
+                         description=""/>
+               <variable name="PNA" type="BOOLEAN" code="CBO:88803564a82803cc009baae07547a20a"
+                         description=""/>
+               <variable name="YES" type="BOOLEAN" code="CBO:b0a91ad87a41549583b97308fe6b74e1"
+                         description=""/>
+            </folder>
+            <folder name="EDUCATION_LEVEL">
+               <variable name="DEGREE" type="BOOLEAN" code="CBO:f71c5696903b8395a047afea69337539"
+                         description=""/>
+               <variable name="DK" type="BOOLEAN" code="CBO:61d9ddcb8f69d9846f2b62d5fe2994c5"
+                         description=""/>
+               <variable name="LEVEL1" type="BOOLEAN" code="CBO:dc05151e24aee0b4e8e4eee89502507c"
+                         description=""/>
+               <variable name="LEVEL2" type="BOOLEAN" code="CBO:3e29e9c41ecd224484800d75fa547ad5"
+                         description=""/>
+               <variable name="LEVEL3" type="BOOLEAN" code="CBO:643f8df2d28428016dd6cc19e8d73fee"
+                         description=""/>
+               <variable name="OTHER_HIGHER" type="BOOLEAN" code="CBO:829c2d367df7c0476a5b47142cdb073d"
+                         description=""/>
+               <variable name="PNA" type="BOOLEAN" code="CBO:caa5e6267a3ed9e22b2892ebfdd9b822"
+                         description=""/>
+               <variable name="TRADE" type="BOOLEAN" code="CBO:3a813a91312325b8afef95df60855382"
+                         description=""/>
+            </folder>
+            <folder name="HOUSEHOLD_NUMBER">
+               <variable name="DK" type="BOOLEAN" code="CBO:30532070ba60a0e47f8b23da9bdbb5ea"
+                         description=""/>
+               <variable name="LIVE_ALONE" type="BOOLEAN" code="CBO:e555bebd711382f69eb3d4c87037bdf6"
+                         description=""/>
+               <variable name="PEOPLE" type="INTEGER" code="CBO:c9c0e69c5eefc4a110665eac1fab6f6d"
+                         description=""/>
+               <variable name="PNA" type="BOOLEAN" code="CBO:e6ef01c425cd009ae1f5734e31cca17b"
+                         description=""/>
+            </folder>
+            <folder name="MARITAL_STATUS">
+               <variable name="DIVORCED" type="BOOLEAN" code="CBO:abc920f6ae39b5ec2ddd80f1afe03ce9"
+                         description=""/>
+               <variable name="DK" type="BOOLEAN" code="CBO:b1ab1802675e7f612697a12f956d1889"
+                         description=""/>
+               <variable name="MARRIED" type="BOOLEAN" code="CBO:24df28a732668dc74220cf13ff6eddc8"
+                         description=""/>
+               <variable name="PNA" type="BOOLEAN" code="CBO:a8c343c89f50b6877654051ed6fb64a9"
+                         description=""/>
+               <variable name="SEPARATED" type="BOOLEAN" code="CBO:1ab585cd6addfc13a3c3c742e288e674"
+                         description=""/>
+               <variable name="SINGLE" type="BOOLEAN" code="CBO:9dc4de50a6aab3cae551fdc1740a22ba"
+                         description=""/>
+               <variable name="WIDOWED" type="BOOLEAN" code="CBO:b009958dd786c809e458193af79008de"
+                         description=""/>
+            </folder>
+            <folder name="OCCUPATION">
+               <variable name="CLERICAL" type="BOOLEAN" code="CBO:810ea0c8c5b97b40ed908f84d0c568a1"
+                         description=""/>
+               <variable name="DK" type="BOOLEAN" code="CBO:bcbfdce2523380c93504b24bf136600e"
+                         description=""/>
+               <variable name="JNR_MANAGER" type="BOOLEAN" code="CBO:3399d854ba811c03f492c310dae262f8"
+                         description=""/>
+               <variable name="MOD_PROFESSIONAL" type="BOOLEAN"
+                         code="CBO:c2a331f83bf125dcdf865d12dc2dd76d"
+                         description=""/>
+               <variable name="PNA" type="BOOLEAN" code="CBO:5dbea01d4047769b96b223f0f7cb597b"
+                         description=""/>
+               <variable name="SEMI_ROUTINE" type="BOOLEAN" code="CBO:e316212dba53ca9a0f144aaf4b1d7497"
+                         description=""/>
+               <variable name="SNR_MANAGER" type="BOOLEAN" code="CBO:4d16a06d56b69f4e28c4b7ee1cf044ae"
+                         description=""/>
+               <variable name="TECHNICAL" type="BOOLEAN" code="CBO:f6c657f8b4028b549aea66fc2ab3ffb3"
+                         description=""/>
+               <variable name="TRAD_PROFESSIONAL" type="BOOLEAN"
+                         code="CBO:8099ed8ed0a6d7ef65bc449a58eda4e8"
+                         description=""/>
+            </folder>
+            <folder name="WORK_STATUS">
+               <variable name="DK" type="BOOLEAN" code="CBO:10a6d97730486207c40afba36d0cb708"
+                         description=""/>
+               <variable name="FULL_TIME" type="BOOLEAN" code="CBO:01db4a55b7338e7cf6b0b59909041cfe"
+                         description=""/>
+               <variable name="NONE" type="BOOLEAN" code="CBO:1aed8708c66cc8766762929fd0b3dc0d"
+                         description=""/>
+               <variable name="PART_TIME" type="BOOLEAN" code="CBO:b34f4f6a96cf811ab14e7f8ba52894ab"
+                         description=""/>
+               <variable name="PNA" type="BOOLEAN" code="CBO:b2fa5b95deb711bd6be2e184605133fc"
+                         description=""/>
+               <variable name="RETIRED" type="BOOLEAN" code="CBO:929c70a00b5e532736197aaf0223eb45"
+                         description=""/>
+               <variable name="SELF" type="BOOLEAN" code="CBO:c582a5149ce86b1b9fa11aeefc839368"
+                         description=""/>
+            </folder>
+         </folder>
+         <folder name="RiskFactorTobacco">
+            <folder name="EVER_SMOKED">
+               <variable name="DK" type="BOOLEAN" code="CBO:79587362dd26506b923d9fdfca3cecfa"
+                         description=""/>
+               <variable name="NO" type="BOOLEAN" code="CBO:8261adf01114c25fb6f68199b318b49e"
+                         description=""/>
+               <variable name="PNA" type="BOOLEAN" code="CBO:9153a82652e9c8d4b70e7458eaa3da02"
+                         description=""/>
+               <variable name="YES" type="BOOLEAN" code="CBO:1e3369ee92ea1c2d63092b3f2bc290e7"
+                         description=""/>
+            </folder>
+            <folder name="EVER_USED">
+               <variable name="DK" type="BOOLEAN" code="CBO:a4d2421731ce3f51e7d9111cc6cb0b3f"
+                         description=""/>
+               <variable name="NO" type="BOOLEAN" code="CBO:b2524556fcf4bc6598d1e9584417284b"
+                         description=""/>
+               <variable name="PNA" type="BOOLEAN" code="CBO:cef5c32ba2f15259e4254fe7c56dc75f"
+                         description=""/>
+               <variable name="YES" type="BOOLEAN" code="CBO:7fee54d699299f1e607a5430074c73cd"
+                         description=""/>
+            </folder>
+            <folder name="WHAT_SMOKED">
+               <variable name="CIGAR" type="BOOLEAN" code="CBO:5651fdfeacf4bcae509e7a39200e87af"
+                         description=""/>
+               <variable name="CIGARETTES" type="BOOLEAN" code="CBO:32f18f90e77dee91c15eefcc5d6f945d"
+                         description=""/>
+               <variable name="PIPE" type="BOOLEAN" code="CBO:f15df8053845e7165b6825d3598aab00"
+                         description=""/>
+               <variable name="TEXT" type="TEXT" code="CBO:94428ab8f97adda11a9ae292f2262ed3"
+                         description=""/>
+            </folder>
+            <folder name="WHAT_USED">
+               <variable name="CHEWING_TOBACCO" type="BOOLEAN"
+                         code="CBO:ff02b7b95a196b72c0a8591415a14b33"
+                         description=""/>
+               <variable name="SNUFF" type="BOOLEAN" code="CBO:d4baf62013d63f6608201e389088827f"
+                         description=""/>
+               <variable name="TEXT" type="TEXT" code="CBO:3d8d9c27e3829ba64c3f4c80da923780"
+                         description=""/>
+            </folder>
+         </folder>
+      </folder>
+      <folder name="ICD10">
+         <folder name="Diseases of the skin and subcutaneous tissue">
+            <variable name="Other disorders of the skin and subcutaneous tissue" type="BOOLEAN"
+                      code="IC:L80-L99.9"
+                      description=""/>
+         </folder>
+         <folder name="Factors influencing health status and contact with health services">
+            <folder name="Persons encountering health services in other circumstances">
+               <folder name="Problems related to life-management difficulty">
+                  <variable name="Inadequate social skills, not elsewhere classified" type="BOOLEAN"
+                            code="IC:Z73.4"
+                            description=""/>
+               </folder>
+               <folder name="Problems related to lifestyle">
+                  <variable name="Alcohol use" type="BOOLEAN" code="IC:Z72.1" description=""/>
+               </folder>
+            </folder>
+         </folder>
+         <variable name="Diseases of the circulatory system" type="BOOLEAN" code="IC:I00-I99.9"
+                   description=""/>
+      </folder>
+      <folder name="LOINC">
+         <folder name="LOINCCLASSTYPES">
+            <folder name="Clinical Class">
+               <folder name="Gastrointestinal endoscopy">
+                  <variable name="Cleaning method:Type:Point in time:Endoscopy device:Nominal"
+                            type="BOOLEAN"
+                            code="LC:19787-1"
+                            description=""/>
+               </folder>
+               <folder name="Medical Devices">
+                  <variable name="Institution inventory number:Identifier:Point in time:Body temperature device:Nominal"
+                            type="BOOLEAN"
+                            code="LC:9849-1"
+                            description=""/>
+               </folder>
+               <variable name="Functional status (e.g. Glasgow)" type="BOOLEAN" code="LC:MTHU000075"
+                         description=""/>
+            </folder>
+         </folder>
+      </folder>
+      <folder name="SNOMED-CT">
+         <folder name="Clinical finding">
+            <folder name="Clinical history and observation findings">
+               <folder name="Endocrine, nutritional and metabolic finding">
+                  <folder name="Nutritional finding">
+                     <folder name="Nutritional system finding">
+                        <folder name="Dietary finding">
+                           <folder name="Non-therapeutic diets">
+                              <variable name="Vegan" type="BOOLEAN" code="SM:24930006" description=""/>
+                              <variable name="Vegetarian diet" type="BOOLEAN" code="SM:5940000" description=""/>
+                           </folder>
+                        </folder>
+                     </folder>
+                  </folder>
+               </folder>
+               <folder name="Functional finding">
+                  <folder name="Behavior finding">
+                     <folder name="Health-related behavior finding">
+                        <folder name="Tobacco use and exposure - finding">
+                           <folder name="Snuff use - finding">
+                              <variable name="Snuff user" type="BOOLEAN" code="SM:228494002" description=""/>
+                           </folder>
+                           <folder name="Tobacco smoking behavior - finding">
+                              <folder name="Non-smoker">
+                                 <folder name="Ex-smoker">
+                                    <folder name="Ex-cigarette smoker">
+                                       <variable name="Ex-cigarette smoker amount unknown" type="BOOLEAN" code="SM:266928006"
+                                                 description=""/>
+                                       <variable name="Ex-heavy cigarette smoker (20-39/day)" type="BOOLEAN" code="SM:266924008"
+                                                 description=""/>
+                                       <variable name="Ex-light cigarette smoker (1-9/day)" type="BOOLEAN" code="SM:266922007"
+                                                 description=""/>
+                                       <variable name="Ex-moderate cigarette smoker (10-19/day)" type="BOOLEAN"
+                                                 code="SM:266923002"
+                                                 description=""/>
+                                       <variable name="Ex-trivial cigarette smoker (&lt;1/day)" type="BOOLEAN" code="SM:266921000"
+                                                 description=""/>
+                                       <variable name="Ex-very heavy cigarette smoker (40+/day)" type="BOOLEAN"
+                                                 code="SM:266925009"
+                                                 description=""/>
+                                    </folder>
+                                 </folder>
+                                 <variable name="Never smoked tobacco" type="BOOLEAN" code="SM:266919005" description=""/>
+                              </folder>
+                              <folder name="Smoker">
+                                 <folder name="Cigarette smoker">
+                                    <folder name="Heavy cigarette smoker">
+                                       <variable name="Heavy cigarette smoker (20-39 cigs/day)" type="BOOLEAN"
+                                                 code="SM:160605003"
+                                                 description=""/>
+                                    </folder>
+                                    <folder name="Moderate cigarette smoker">
+                                       <variable name="Moderate cigarette smoker (10-19 cigs/day)" type="BOOLEAN"
+                                                 code="SM:160604004"
+                                                 description=""/>
+                                    </folder>
+                                    <folder name="Very heavy cigarette smoker">
+                                       <variable name="Very heavy cigarette smoker (40+ cigs/day)" type="BOOLEAN"
+                                                 code="SM:160606002"
+                                                 description=""/>
+                                    </folder>
+                                 </folder>
+                                 <folder name="Heavy smoker (over 20 per day)">
+                                    <folder name="Heavy cigarette smoker">
+                                       <variable name="Heavy cigarette smoker (20-39 cigs/day)" type="BOOLEAN"
+                                                 code="SM:160605003"
+                                                 description=""/>
+                                    </folder>
+                                    <folder name="Very heavy cigarette smoker">
+                                       <variable name="Very heavy cigarette smoker (40+ cigs/day)" type="BOOLEAN"
+                                                 code="SM:160606002"
+                                                 description=""/>
+                                    </folder>
+                                 </folder>
+                                 <folder name="Moderate smoker (20 or less per day)">
+                                    <folder name="Moderate cigarette smoker">
+                                       <variable name="Moderate cigarette smoker (10-19 cigs/day)" type="BOOLEAN"
+                                                 code="SM:160604004"
+                                                 description=""/>
+                                    </folder>
+                                 </folder>
+                                 <variable name="Cigar smoker" type="BOOLEAN" code="SM:59978006" description=""/>
+                                 <variable name="Pipe smoker" type="BOOLEAN" code="SM:82302008" description=""/>
+                              </folder>
+                              <folder name="Tobacco smoking consumption - finding">
+                                 <folder name="Heavy smoker (over 20 per day)">
+                                    <folder name="Heavy cigarette smoker">
+                                       <variable name="Heavy cigarette smoker (20-39 cigs/day)" type="BOOLEAN"
+                                                 code="SM:160605003"
+                                                 description=""/>
+                                    </folder>
+                                    <folder name="Very heavy cigarette smoker">
+                                       <variable name="Very heavy cigarette smoker (40+ cigs/day)" type="BOOLEAN"
+                                                 code="SM:160606002"
+                                                 description=""/>
+                                    </folder>
+                                 </folder>
+                                 <folder name="Light cigarette smoker">
+                                    <variable name="Light cigarette smoker (1-9 cigs/day)" type="BOOLEAN" code="SM:160603005"
+                                              description=""/>
+                                 </folder>
+                                 <folder name="Moderate smoker (20 or less per day)">
+                                    <folder name="Moderate cigarette smoker">
+                                       <variable name="Moderate cigarette smoker (10-19 cigs/day)" type="BOOLEAN"
+                                                 code="SM:160604004"
+                                                 description=""/>
+                                    </folder>
+                                 </folder>
+                                 <folder name="Occasional cigarette smoker">
+                                    <variable name="Trivial cigarette smoker (less than one cigarette/day)" type="BOOLEAN"
+                                              code="SM:266920004"
+                                              description=""/>
+                                 </folder>
+                              </folder>
+                              <variable name="Stopped smoking" type="BOOLEAN" code="SM:160617001" description=""/>
+                           </folder>
+                           <folder name="Tobacco user">
+                              <folder name="Smoker">
+                                 <folder name="Cigarette smoker">
+                                    <folder name="Heavy cigarette smoker">
+                                       <variable name="Heavy cigarette smoker (20-39 cigs/day)" type="BOOLEAN"
+                                                 code="SM:160605003"
+                                                 description=""/>
+                                    </folder>
+                                    <folder name="Moderate cigarette smoker">
+                                       <variable name="Moderate cigarette smoker (10-19 cigs/day)" type="BOOLEAN"
+                                                 code="SM:160604004"
+                                                 description=""/>
+                                    </folder>
+                                    <folder name="Very heavy cigarette smoker">
+                                       <variable name="Very heavy cigarette smoker (40+ cigs/day)" type="BOOLEAN"
+                                                 code="SM:160606002"
+                                                 description=""/>
+                                    </folder>
+                                 </folder>
+                                 <folder name="Heavy smoker (over 20 per day)">
+                                    <folder name="Heavy cigarette smoker">
+                                       <variable name="Heavy cigarette smoker (20-39 cigs/day)" type="BOOLEAN"
+                                                 code="SM:160605003"
+                                                 description=""/>
+                                    </folder>
+                                    <folder name="Very heavy cigarette smoker">
+                                       <variable name="Very heavy cigarette smoker (40+ cigs/day)" type="BOOLEAN"
+                                                 code="SM:160606002"
+                                                 description=""/>
+                                    </folder>
+                                 </folder>
+                                 <folder name="Moderate smoker (20 or less per day)">
+                                    <folder name="Moderate cigarette smoker">
+                                       <variable name="Moderate cigarette smoker (10-19 cigs/day)" type="BOOLEAN"
+                                                 code="SM:160604004"
+                                                 description=""/>
+                                    </folder>
+                                 </folder>
+                                 <variable name="Cigar smoker" type="BOOLEAN" code="SM:59978006" description=""/>
+                                 <variable name="Pipe smoker" type="BOOLEAN" code="SM:82302008" description=""/>
+                              </folder>
+                              <variable name="Snuff user" type="BOOLEAN" code="SM:228494002" description=""/>
+                           </folder>
+                        </folder>
+                     </folder>
+                  </folder>
+                  <folder name="Eating / feeding / drinking finding">
+                     <folder name="Finding relating to alcohol drinking behavior">
+                        <folder name="Non - drinker">
+                           <variable name="Lifetime non-drinker" type="BOOLEAN" code="SM:228274009" description=""/>
+                        </folder>
+                        <variable name="Current drinker" type="BOOLEAN" code="SM:219006" description=""/>
+                     </folder>
+                  </folder>
+                  <folder name="Finding of functional performance and activity">
+                     <folder name="Activity exercise pattern">
+                        <variable name="Enjoys heavy exercise" type="BOOLEAN" code="SM:160633003" description=""/>
+                        <variable name="Enjoys light exercise" type="BOOLEAN" code="SM:160631001" description=""/>
+                        <variable name="Enjoys moderate exercise" type="BOOLEAN" code="SM:160632008"
+                                  description=""/>
+                        <variable name="Excessive exercise" type="BOOLEAN" code="SM:102533007" description=""/>
+                        <variable name="Gets no exercise" type="BOOLEAN" code="SM:228445002" description=""/>
+                     </folder>
+                  </folder>
+               </folder>
+               <folder name="General finding of observation of patient">
+                  <folder name="General body state finding">
+                     <variable name="Excessive exercise" type="BOOLEAN" code="SM:102533007" description=""/>
+                  </folder>
+               </folder>
+            </folder>
+            <folder name="Finding by method">
+               <folder name="History finding">
+                  <folder name="Social and personal history finding">
+                     <folder name="Education and/or schooling finding">
+                        <folder name="Education received in the past - finding">
+                           <variable name="Continued education to sixth form" type="BOOLEAN" code="SM:224298008"
+                                     description=""/>
+                           <variable name="Educated to secondary school level" type="BOOLEAN" code="SM:224297003"
+                                     description=""/>
+                           <variable name="Only received primary school education" type="BOOLEAN"
+                                     code="SM:224295006"
+                                     description=""/>
+                           <variable name="Received higher education" type="BOOLEAN" code="SM:224299000"
+                                     description=""/>
+                           <variable name="Received vocational training" type="BOOLEAN" code="SM:440586004"
+                                     description=""/>
+                        </folder>
+                     </folder>
+                     <folder name="Environmental finding">
+                        <folder name="Housing, local environment and transport finding">
+                           <folder name="Residence and accommodation circumstances - finding">
+                              <variable name="Lives alone" type="BOOLEAN" code="SM:105529008" description=""/>
+                           </folder>
+                        </folder>
+                     </folder>
+                     <folder name="Finding of personal status">
+                        <folder name="Finding of marital or partnership status">
+                           <folder name="Single person">
+                              <variable name="Divorced" type="BOOLEAN" code="SM:20295000" description=""/>
+                              <variable name="Single, never married" type="BOOLEAN" code="SM:125725006" description=""/>
+                              <variable name="Widowed" type="BOOLEAN" code="SM:33553000" description=""/>
+                           </folder>
+                           <variable name="Marital state unknown" type="BOOLEAN" code="SM:160504008" description=""/>
+                           <variable name="Married" type="BOOLEAN" code="SM:87915002" description=""/>
+                           <variable name="Separated" type="BOOLEAN" code="SM:13184001" description=""/>
+                        </folder>
+                     </folder>
+                     <folder name="Household, family and support network finding">
+                        <folder name="Family details and household composition - finding">
+                           <folder name="Household composition - finding">
+                              <folder name="Lives with family">
+                                 <variable name="Lives with spouse" type="BOOLEAN" code="SM:447051007" description=""/>
+                              </folder>
+                              <variable name="Lives alone" type="BOOLEAN" code="SM:105529008" description=""/>
+                           </folder>
+                        </folder>
+                     </folder>
+                     <folder name="Legal, financial, employment and/or socioeconomic history finding">
+                        <folder name="Employment finding">
+                           <folder name="Finding of employment status">
+                              <folder name="Employed">
+                                 <variable name="Self-employed" type="BOOLEAN" code="SM:160906004" description=""/>
+                              </folder>
+                              <folder name="Stopped work">
+                                 <variable name="Unemployed" type="BOOLEAN" code="SM:73438004" description=""/>
+                              </folder>
+                           </folder>
+                           <folder name="Job details - finding">
+                              <variable name="Full-time employment" type="BOOLEAN" code="SM:160903007" description=""/>
+                              <variable name="Part-time employment" type="BOOLEAN" code="SM:160904001" description=""/>
+                           </folder>
+                        </folder>
+                     </folder>
+                     <folder name="Life event finding">
+                        <variable name="Retired" type="BOOLEAN" code="SM:105493001" description=""/>
+                     </folder>
+                  </folder>
+               </folder>
+            </folder>
+         </folder>
+         <folder name="Functional finding">
+            <folder name="Behavior finding">
+               <folder name="Health-related behavior finding">
+                  <folder name="Activity exercise pattern">
+                     <variable name="Enjoys heavy exercise" type="BOOLEAN" code="SM:160633003" description=""/>
+                     <variable name="Enjoys light exercise" type="BOOLEAN" code="SM:160631001" description=""/>
+                     <variable name="Enjoys moderate exercise" type="BOOLEAN" code="SM:160632008"
+                               description=""/>
+                     <variable name="Excessive exercise" type="BOOLEAN" code="SM:102533007" description=""/>
+                     <variable name="Gets no exercise" type="BOOLEAN" code="SM:228445002" description=""/>
+                  </folder>
+                  <folder name="Finding relating to alcohol drinking behavior">
+                     <folder name="Non - drinker">
+                        <variable name="Lifetime non-drinker" type="BOOLEAN" code="SM:228274009" description=""/>
+                     </folder>
+                     <variable name="Current drinker" type="BOOLEAN" code="SM:219006" description=""/>
+                  </folder>
+               </folder>
+            </folder>
+         </folder>
+         <folder name="Observable entity">
+            <folder name="Clinical history/examination observable">
+               <folder name="Endocrine, nutritional and metabolic observable">
+                  <folder name="Nutritional observable">
+                     <folder name="Dietary intake">
+                        <folder name="Food and drink intake">
+                           <folder name="Drink intake">
+                              <folder name="Alcohol intake">
+                                 <variable name="Beer intake" type="INTEGER" code="SM:230085005" description=""/>
+                                 <variable name="Hard liquor intake" type="INTEGER" code="SM:230088007" description=""/>
+                                 <variable name="Wine intake" type="INTEGER" code="SM:230086006" description=""/>
+                              </folder>
+                           </folder>
+                        </folder>
+                     </folder>
+                  </folder>
+               </folder>
+               <folder name="Mental state, behavior / psychosocial function observable">
+                  <folder name="Behavior observable">
+                     <folder name="Health-related behavior">
+                        <folder name="Details of alcohol drinking behavior">
+                           <variable name="Age at starting drinking" type="INTEGER" code="SM:228328008"
+                                     description=""/>
+                        </folder>
+                        <folder name="Tobacco use and exposure">
+                           <folder name="Snuff use">
+                              <variable name="Snuff consumption" type="INTEGER" code="SM:228490006" description=""/>
+                           </folder>
+                           <folder name="Tobacco smoking consumption">
+                              <variable name="Pipe tobacco consumption" type="INTEGER" code="SM:230058003"
+                                        description=""/>
+                           </folder>
+                           <variable name="Age at starting smoking" type="INTEGER" code="SM:228488005"
+                                     description=""/>
+                           <variable name="Date ceased smoking" type="INTEGER" code="SM:160625004" description=""/>
+                        </folder>
+                     </folder>
+                  </folder>
+               </folder>
+            </folder>
+         </folder>
+         <folder name="Organism">
+            <folder name="Trophic life form">
+               <folder name="Heterotroph">
+                  <variable name="Omnivore" type="BOOLEAN" code="SM:284731009" description=""/>
+               </folder>
+            </folder>
+         </folder>
+         <folder name="Social and personal history finding">
+            <folder name="Legal, financial, employment and/or socioeconomic history finding">
+               <folder name="Employment finding">
+                  <folder name="Finding of employment status">
+                     <folder name="Stopped work">
+                        <variable name="Retired" type="BOOLEAN" code="SM:105493001" description=""/>
+                     </folder>
+                  </folder>
+               </folder>
+            </folder>
+         </folder>
+         <folder name="Substance">
+            <folder name="Biological substance">
+               <folder name="Organic natural material">
+                  <folder name="Plant material">
+                     <folder name="Plant product">
+                        <folder name="Tobacco">
+                           <variable name="Chewing tobacco" type="BOOLEAN" code="SM:81911001" description=""/>
+                        </folder>
+                     </folder>
+                  </folder>
+               </folder>
+            </folder>
+            <folder name="Materials">
+               <folder name="Natural material">
+                  <folder name="Organic natural material">
+                     <folder name="Plant material">
+                        <folder name="Plant product">
+                           <folder name="Tobacco">
+                              <variable name="Chewing tobacco" type="BOOLEAN" code="SM:81911001" description=""/>
+                           </folder>
+                        </folder>
+                     </folder>
+                  </folder>
+               </folder>
+            </folder>
+            <folder name="Substance of abuse">
+               <folder name="Tobacco">
+                  <variable name="Chewing tobacco" type="BOOLEAN" code="SM:81911001" description=""/>
+               </folder>
+            </folder>
+         </folder>
+         <folder name="Tobacco smoking behavior - finding">
+            <folder name="Smoker">
+               <folder name="Cigarette smoker">
+                  <folder name="Light cigarette smoker">
+                     <variable name="Light cigarette smoker (1-9 cigs/day)" type="BOOLEAN" code="SM:160603005"
+                               description=""/>
+                  </folder>
+                  <folder name="Occasional cigarette smoker">
+                     <variable name="Trivial cigarette smoker (less than one cigarette/day)" type="BOOLEAN"
+                               code="SM:266920004"
+                               description=""/>
+                  </folder>
+               </folder>
+            </folder>
+         </folder>
+         <folder name="Tobacco use and exposure - finding">
+            <folder name="Tobacco user">
+               <folder name="Smoker">
+                  <folder name="Cigarette smoker">
+                     <folder name="Light cigarette smoker">
+                        <variable name="Light cigarette smoker (1-9 cigs/day)" type="BOOLEAN" code="SM:160603005"
+                                  description=""/>
+                     </folder>
+                     <folder name="Occasional cigarette smoker">
+                        <variable name="Trivial cigarette smoker (less than one cigarette/day)" type="BOOLEAN"
+                                  code="SM:266920004"
+                                  description=""/>
+                     </folder>
+                  </folder>
+               </folder>
+            </folder>
+         </folder>
+         <variable name="Hepatorrhaphy" type="BOOLEAN" code="SM:42679009" description=""/>
+      </folder>
+   </folder>
+</container>

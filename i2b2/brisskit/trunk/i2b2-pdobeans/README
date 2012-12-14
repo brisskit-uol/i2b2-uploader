@@ -1,0 +1,13 @@
+*==============*
+*  IMPORTANT   *
+*==============*
+To build this project, always (always!) run a clean beforehand...
+
+mvn clean install
+
+or
+
+mvn clean deploy
+
+The clean cycle will remove the annoying staleFlag from the target directory.
+Otherwise, the results will not be what you expected  :-)

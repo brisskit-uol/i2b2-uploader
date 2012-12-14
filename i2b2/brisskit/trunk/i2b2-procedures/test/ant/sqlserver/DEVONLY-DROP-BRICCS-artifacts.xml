@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="DROP SQL artifacts" basedir=".">
+
+	<property environment="env" />
+
+	<!-- =================================================================== -->
+	<!-- 								INIT 								 -->
+	<!-- =================================================================== -->
+	<target name="init"  description="Prepare for dropping artifacts">
+		<path id="classpath">
+			<pathelement location="${proc.home}/lib/ojdbc-14.jar" />
+			<pathelement location="${proc.home}/lib/sqljdbc-2005.jar"/>
+		</path>
+	</target>
+
+	<!-- *************************************************************************** -->
+	<!--      Section drops all database artifacts for the BRICCS project...         -->
+	<!-- *************************************************************************** -->
+
+	<!-- =================================================================== -->
+	<!--            Dropping crc data artifacts                              -->
+	<!-- =================================================================== -->
+	<target name="drop_briccs_data" depends="init">
+		<echo message="Dropping briccs data artifacts" />
+		<sql driver="${db.driver}" 
+				 url="${db.url};port=${sqlserver.port};instanceName=${sqlserver.instanceName};DatabaseName=${db.project.data.databasename}" 
+				 userid="${db.project.data.username}" 
+				 password="${db.project.data.password}" 
+				 classpathref="classpath" 
+				 onerror="continue" 
+				 print="true">
+			<transaction src="${proc.home}/sql/${db.type}/DEVONLY-DROP-BRICCS-procedures.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/DEVONLY-DROP-BRICCS-data.sql" />
+		</sql>
+	</target>
+
+	<!-- =================================================================== -->
+	<!--            Dropping metadata artifacts                              -->
+	<!-- =================================================================== -->
+	<target name="drop_briccs_metadata" depends="init">
+		<echo message="Dropping briccs metadata artifacts" />
+		<sql driver="${db.driver}" 
+			 url="${db.url};port=${sqlserver.port};instanceName=${sqlserver.instanceName};DatabaseName=${db.project.meta.databasename}" 
+			 userid="${db.project.meta.username}" 
+			 password="${db.project.meta.password}" 
+			 classpathref="classpath" 
+			 onerror="continue" 
+			 print="true">
+			<transaction src="${proc.home}/sql/${db.type}/DEVONLY-DROP-BRICCS-metadata.sql" />
+		</sql>
+	</target>
+
+	<!-- =================================================================== -->
+	<!--            Dropping workdata artifacts                              -->
+	<!-- =================================================================== -->
+	<target name="drop_briccs_workdata" depends="init">
+		<echo message="Dropping briccs workdata artifacts" />
+		<sql driver="${db.driver}" 
+			 url="${db.url};port=${sqlserver.port};instanceName=${sqlserver.instanceName};DatabaseName=${db.project.work.databasename}" 
+			 userid="${db.project.work.username}" 
+			 password="${db.project.work.password}" 
+			 classpathref="classpath" 
+			 onerror="continue" 
+			 print="true">
+			<transaction src="${proc.home}/sql/${db.type}/DEVONLY-DROP-BRICCS-workdata.sql" />
+		</sql>
+	</target>
+
+</project>

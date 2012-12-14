@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="sql access" basedir=".">
+
+	<property environment="env" />
+
+	<!-- =================================================================== -->
+	<!-- 								INIT 								 -->
+	<!-- =================================================================== -->
+	<target name="init"  description="Prepare for accessing sql">
+		<path id="classpath">
+			<pathelement location="${proc.home}/lib/ojdbc-14.jar" />
+			<pathelement location="${proc.home}/lib/sqljdbc-2005.jar"/>
+		</path>
+	</target>
+
+	<!-- =================================================================== -->
+	<!--            accessing demo crc                                       -->
+	<!-- =================================================================== -->
+	<target name="crc-1" depends="init">
+		<echo message="accessing crc-1" />
+		<echo>db.driver=${db.driver}</echo>
+		<echo>db.url=${db.url}</echo>
+		<echo>db.i2b2demo.data.databasename=${db.i2b2demo.data.databasename}</echo>
+		<echo>db.i2b2demo.data.username=${db.i2b2demo.data.username}</echo>
+		<sql driver="${db.driver}" 
+				 url="${db.url};port=${sqlserver.port};instanceName=${sqlserver.instanceName};DatabaseName=${db.i2b2demo.data.databasename}" 
+				 userid="${db.i2b2demo.data.username}" 
+				 password="${db.i2b2demo.data.password}" 
+				 classpathref="classpath" 
+				 onerror="continue" 
+				 print="true">
+		</sql>
+	</target>
+
+	<!-- =================================================================== -->
+	<!--            accessing demo ont                                       -->
+	<!-- =================================================================== -->
+	<target name="ont-1" depends="init">
+		<echo message="accessing ont-1" />
+		<sql driver="${db.driver}" 
+			 url="${db.url};port=${sqlserver.port};instanceName=${sqlserver.instanceName};DatabaseName=${db.i2b2demo.meta.databasename}" 
+			 userid="${db.i2b2demo.meta.username}" 
+			 password="${db.i2b2demo.meta.password}" 
+			 classpathref="classpath" 
+			 onerror="continue" 
+			 print="true">
+		</sql>
+	</target>
+
+	<!-- =================================================================== -->
+	<!--            accessing demo work                                      -->
+	<!-- =================================================================== -->
+	<target name="work-1" depends="init">
+		<echo message="accessing work-1" />
+		<sql driver="${db.driver}" 
+			 url="${db.url};port=${sqlserver.port};instanceName=${sqlserver.instanceName};DatabaseName=${db.i2b2demo.work.databasename}" 
+			 userid="${db.i2b2demo.work.username}" 
+			 password="${db.i2b2demo.work.password}" 
+			 classpathref="classpath" 
+			 onerror="continue" 
+			 print="true">
+		</sql>
+	</target>
+
+	<!-- =================================================================== -->
+	<!--            accessing demo2 crc                                      -->
+	<!-- =================================================================== -->
+	<target name="crc-2" depends="init">
+		<echo message="accessing crc-2" />
+		<sql driver="${db.driver}" 
+					 url="${db.url};port=${sqlserver.port};instanceName=${sqlserver.instanceName};DatabaseName=${db.i2b2demo.work.password}" 
+					 userid="${db.i2b2demo2.data.username}" 
+					 password="${db.i2b2demo2.data.password}" 
+					 classpathref="classpath" 
+					 onerror="continue" 
+					 print="true">
+		</sql>
+	</target>
+
+	<!-- =================================================================== -->
+	<!--            accessing demo2 ont                                      -->
+	<!-- =================================================================== -->
+	<target name="ont-2" depends="init">
+		<echo message="accessing ont-2" />
+		<sql driver="${db.driver}" 
+				 url="${db.url};port=${sqlserver.port};instanceName=${sqlserver.instanceName};DatabaseName=${db.i2b2demo2.meta.databasename}" 
+				 userid="${db.i2b2demo2.meta.username}" 
+				 password="${db.i2b2demo2.meta.password}" 
+				 classpathref="classpath" 
+				 onerror="continue" 
+				 print="true">
+		</sql>
+	</target>
+
+	<!-- =================================================================== -->
+	<!--            accessing demo2 work                                     -->
+	<!-- =================================================================== -->
+	<target name="work-2" depends="init">
+		<echo message="accessing work-2" />
+		<sql driver="${db.driver}" 
+				 url="${db.url};port=${sqlserver.port};instanceName=${sqlserver.instanceName};DatabaseName=${db.i2b2demo2.work.databasename}" 
+				 userid="${db.i2b2demo2.work.username}" 
+				 password="${db.i2b2demo2.work.password}" 
+				 classpathref="classpath" 
+				 onerror="continue" 
+				 print="true">
+		</sql>
+	</target>
+	
+	<!-- =================================================================== -->
+	<!--            accessing hive                                           -->
+	<!-- =================================================================== -->
+	<target name="hive" depends="init">
+		<echo message="accessing hive" />
+		<sql driver="${db.driver}" 
+					 url="${db.url};port=${sqlserver.port};instanceName=${sqlserver.instanceName};DatabaseName=${db.i2b2hive.databasename}" 
+					 userid="${db.i2b2hive.username}" 
+					 password="${db.i2b2hive.password}" 
+					 classpathref="classpath" 
+					 onerror="continue" 
+					 print="true">
+		</sql>
+	</target>
+
+	<!-- =================================================================== -->
+	<!--            accessing pm                                             -->
+	<!-- =================================================================== -->
+	<target name="pm" depends="init">
+		<echo message="accessing pm" />
+		<sql driver="${db.driver}" 
+				 url="${db.url};port=${sqlserver.port};instanceName=${sqlserver.instanceName};DatabaseName=${db.i2b2pm.databasename}" 
+				 userid="${db.i2b2pm.username}" 
+				 password="${db.i2b2pm.password}" 
+				 classpathref="classpath" 
+				 onerror="continue" 
+				 print="true"> 
+		</sql>
+	</target>
+	
+	<!-- =================================================================== -->
+	<!--            accessing brisskit data artifacts                          -->
+	<!-- =================================================================== -->
+	<target name="crc_briccs" depends="init">
+		<echo message="accessing briccs data artifacts" />
+		<sql driver="${db.driver}" 
+				 url="${db.url};port=${sqlserver.port};instanceName=${sqlserver.instanceName};DatabaseName=${db.project.data.databasename}" 
+				 userid="${db.project.data.username}" 
+				 password="${db.project.data.password}" 
+				 classpathref="classpath" 
+				 onerror="continue" 
+				 print="true">
+		</sql>
+	</target>
+
+	<!-- =================================================================== -->
+	<!--            accessing brisskit metadata artifacts                      -->
+	<!-- =================================================================== -->
+	<target name="ont_briccs" depends="init">
+		<echo message="accessing briccs metadata artifacts" />
+		<sql driver="${db.driver}" 
+			 url="${db.url};port=${sqlserver.port};instanceName=${sqlserver.instanceName};DatabaseName=${db.project.meta.databasename}" 
+			 userid="${db.project.meta.username}" 
+			 password="${db.project.meta.password}" 
+			 classpathref="classpath" 
+			 onerror="continue" 
+			 print="true">
+		</sql>
+	</target>
+
+	<!-- =================================================================== -->
+	<!--            accessing brisskit workdata artifacts                      -->
+	<!-- =================================================================== -->
+	<target name="work_briccs" depends="init">
+		<echo message="accessing briccs workdata artifacts" />
+		<sql driver="${db.driver}" 
+			 url="${db.url};port=${sqlserver.port};instanceName=${sqlserver.instanceName};DatabaseName=${db.project.work.databasename}" 
+			 userid="${db.project.work.username}" 
+			 password="${db.project.work.password}" 
+			 classpathref="classpath" 
+			 onerror="continue" 
+			 print="true">
+		</sql>
+	</target>
+
+</project>

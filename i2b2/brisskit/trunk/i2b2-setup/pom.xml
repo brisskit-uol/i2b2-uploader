@@ -1,0 +1,111 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>uk.org.briccs.i2b2</groupId>
+	<artifactId>i2b2-setup</artifactId>
+	<packaging>pom</packaging>
+	<name>i2b2 Setup</name>
+	<version>2.0-${environment.type}</version>
+	<description>This project covers procedures for installing i2b2 cells, together with data for a domain and one demo project. </description>
+
+	<!--+
+	    | The distributionManagement element is required for deploying an artifact to a remote repository
+	    +-->
+	<distributionManagement>
+		<repository>
+			<id>mvn.briccs.org.uk</id>
+			<name>BRICCS Maven Repository</name>
+			<url>scpexe://mvn.briccs.org.uk/var/local/briccs/maven/repo</url>
+		</repository>
+	</distributionManagement>
+	
+   <repositories>
+    <repository>
+      <id>mvn.briccs.org.uk</id>
+      <name>BRICCS Maven Repo</name>
+      <url>http://mvn.briccs.org.uk</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+   </repositories>
+   
+	
+	<properties>
+		<!--+
+		    | The default environment is production. Note: there is a development profile to overwrite these settings.
+		    | The defaults are this way around because the development profile has facilities to drop all sql artifacts.
+		    | This forces a user to request these explicitly. The profile name is also included in the version number. 
+		    + -->
+		<environment.type>production</environment.type>
+	</properties>
+
+	<build>
+
+		<plugins>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>assembly/${environment.type}-bin.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+
+	</build>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>oracle.jdbc</groupId>
+			<artifactId>ojdbc</artifactId>
+			<version>14</version>
+		</dependency>
+		<dependency>
+			<groupId>ms.jdbc</groupId>
+			<artifactId>sqljdbc</artifactId>
+			<version>2005</version>
+		</dependency>
+		<dependency>
+			<groupId>uk.org.briccs</groupId>
+			<artifactId>config-merger</artifactId>
+			<version>2.0</version>
+		</dependency>
+
+	</dependencies>
+	
+	<profiles>
+		<profile>
+			<id>development</id>
+			<activation>
+				<property>
+					<name>environment.type</name>
+					<value>development</value>
+				</property>
+			</activation>
+		</profile>
+		<profile>
+			<id>production</id>
+			<activation>
+				<property>
+					<name>environment.type</name>
+					<value>production</value>
+				</property>
+			</activation>
+		</profile>
+	</profiles>
+
+</project>

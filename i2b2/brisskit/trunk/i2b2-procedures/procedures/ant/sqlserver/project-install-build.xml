@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="i2b2 project install" basedir=".">
+
+	<property environment="env" />
+
+	<!-- =================================================================== -->
+	<!-- 								INIT 								 -->
+	<!-- =================================================================== -->
+	<target name="init"  description="Prepare for build">
+		<path id="classpath">
+			<pathelement location="${proc.home}/lib/ojdbc-14.jar" />
+			<pathelement location="${proc.home}/lib/sqljdbc-2005.jar"/>
+		</path>
+	</target>
+
+	<!-- =================================================================== -->
+	<!--     METADATA CREATION AND STATIC LOAD: ONYX ONLY                    -->
+	<!-- =================================================================== -->
+	<target name="create_onyx_metadata_tables" depends="init">
+		<sql driver="${db.driver}" 
+			 url="${db.url};port=${sqlserver.port};instanceName=${sqlserver.instanceName};DatabaseName=${db.project.meta.databasename}" 
+			 userid="${db.project.meta.username}" 
+			 password="${db.project.meta.password}" 
+			 classpathref="classpath" 
+			 onerror="continue" 
+			 print="true">
+			<transaction src="${proc.home}/sql/${db.type}/meta/tables/create_generic_metadata_tables.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/meta/tables/create_onyx_metadata_table.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/meta/tables/create_ont_update.sql" />
+		</sql>
+	</target>
+
+	<target name="load_onyx_static_metadata" depends="init">
+		<echo message="Loading static metadata." />
+		<sql driver="${db.driver}"
+			 url="${db.url};port=${sqlserver.port};instanceName=${sqlserver.instanceName};DatabaseName=${db.project.meta.databasename}" 
+			 userid="${db.project.meta.username}" 
+			 password="${db.project.meta.password}" 
+			 classpathref="classpath" 
+			 onerror="continue" 
+			 print="true">
+			<transaction src="${proc.home}/sql/${db.type}/meta/inserts/schemes_insert_onyx_data.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/meta/inserts/table_access_insert_onyx_data.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/meta/inserts/expression_insert_data.sql" />			
+		</sql>
+	</target>	
+	
+	<!-- =================================================================== -->
+	<!--     METADATA CREATION AND STATIC LOAD: CATISSUE ONLY                -->
+	<!-- =================================================================== -->
+	<target name="create_catissue_metadata_tables" depends="init">
+		<sql driver="${db.driver}" 
+			 url="${db.url};port=${sqlserver.port};instanceName=${sqlserver.instanceName};DatabaseName=${db.project.meta.databasename}" 
+			 userid="${db.project.meta.username}" 
+			 password="${db.project.meta.password}" 
+			 classpathref="classpath" 
+			 onerror="continue" 
+			 print="true">
+			<transaction src="${proc.home}/sql/${db.type}/meta/tables/create_generic_metadata_tables.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/meta/tables/create_catissue_metadata_table.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/meta/tables/create_ont_update.sql" />
+		</sql>
+	</target>
+
+	<target name="load_catissue_static_metadata" depends="init">
+		<echo message="Loading static metadata." />
+		<sql driver="${db.driver}"
+			 url="${db.url};port=${sqlserver.port};instanceName=${sqlserver.instanceName};DatabaseName=${db.project.meta.databasename}" 
+			 userid="${db.project.meta.username}" 
+			 password="${db.project.meta.password}" 
+			 classpathref="classpath" 
+			 onerror="continue" 
+			 print="true">
+			<transaction src="${proc.home}/sql/${db.type}/meta/inserts/schemes_insert_catissue_data.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/meta/inserts/table_access_insert_catissue_data.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/meta/inserts/expression_insert_data.sql" />			
+		</sql>
+	</target>
+	
+	<!-- =================================================================== -->
+	<!--     METADATA CREATION AND STATIC LOAD: ONYX AND CATISSUE            -->
+	<!-- =================================================================== -->
+	<target name="create_onyx_and_catissue_metadata_tables" depends="init">
+		<sql driver="${db.driver}" 
+			 url="${db.url};port=${sqlserver.port};instanceName=${sqlserver.instanceName};DatabaseName=${db.project.meta.databasename}" 
+			 userid="${db.project.meta.username}" 
+			 password="${db.project.meta.password}" 
+			 classpathref="classpath" 
+			 onerror="continue" 
+			 print="true">
+			<transaction src="${proc.home}/sql/${db.type}/meta/tables/create_generic_metadata_tables.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/meta/tables/create_onyx_metadata_table.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/meta/tables/create_catissue_metadata_table.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/meta/tables/create_ont_update.sql" />
+		</sql>
+	</target>
+
+	<target name="load_onyx_and_catissue_static_metadata" depends="init">
+		<echo message="Loading static metadata." />
+		<sql driver="${db.driver}"
+			 url="${db.url};port=${sqlserver.port};instanceName=${sqlserver.instanceName};DatabaseName=${db.project.meta.databasename}" 
+			 userid="${db.project.meta.username}" 
+			 password="${db.project.meta.password}" 
+			 classpathref="classpath" 
+			 onerror="continue" 
+			 print="true">
+			<transaction src="${proc.home}/sql/${db.type}/meta/inserts/schemes_insert_onyx_data.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/meta/inserts/table_access_insert_onyx_data.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/meta/inserts/schemes_insert_catissue_data.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/meta/inserts/table_access_insert_catissue_data.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/meta/inserts/expression_insert_data.sql" />			
+		</sql>
+	</target>
+		
+	<!-- =================================================================== -->
+	<!--            WORKDATA CREATION AND STATIC LOAD                        -->
+	<!-- =================================================================== -->	
+	<target name="create_workdata_tables" depends="init">
+		<sql driver="${db.driver}" 
+			 url="${db.url};port=${sqlserver.port};instanceName=${sqlserver.instanceName};DatabaseName=${db.project.work.databasename}" 
+			 userid="${db.project.work.username}" 
+			 password="${db.project.work.password}" 
+			 classpathref="classpath" 
+			 onerror="continue" 
+			 print="true">
+			<transaction src="${proc.home}/sql/${db.type}/work/tables/create_${db.type}_i2b2workdata_tables.sql" />
+		</sql>
+	</target>
+		
+	<target name="load_workdata" depends="init">
+		<sql driver="${db.driver}" 
+			 url="${db.url};port=${sqlserver.port};instanceName=${sqlserver.instanceName};DatabaseName=${db.project.work.databasename}" 
+			 userid="${db.project.work.username}"  
+			 password="${db.project.work.password}" 
+			 classpathref="classpath" 
+			 onerror="continue" 
+			 print="true">
+			<transaction src="${proc.home}/sql/${db.type}/work/inserts/workplace_access_insert_data.sql" />
+		</sql>
+	</target>	
+		
+	<!-- =================================================================== -->
+	<!-- 			HIVEDATA STATIC LOAD						 			 -->
+	<!-- =================================================================== -->
+	<target name="load_hivedata" depends="init">
+		<sql driver="${db.driver}" 
+			 url="${db.url};port=${sqlserver.port};instanceName=${sqlserver.instanceName};DatabaseName=${db.i2b2hive.databasename}" 
+			 userid="${db.i2b2hive.username}" 
+			 password="${db.i2b2hive.password}" 
+			 classpathref="classpath" 
+			 onerror="continue" 
+			 print="true">
+			<transaction src="${proc.home}/sql/${db.type}/hive/inserts/work_db_lookup_${db.type}_insert_data.sql.tmp" />	
+			<transaction src="${proc.home}/sql/${db.type}/hive/inserts/ont_db_lookup_${db.type}_insert_data.sql.tmp" />
+			<transaction src="${proc.home}/sql/${db.type}/hive/inserts/crc_db_lookup_${db.type}_insert_data.sql.tmp" />
+		</sql>
+	</target>
+	
+	
+	<!-- =================================================================== -->
+	<!-- 			PMDATA STATIC LOAD  						 			 -->
+	<!-- =================================================================== -->
+	<target name="load_pmdata" depends="init">
+		<sql driver="${db.driver}" 
+			 url="${db.url};port=${sqlserver.port};instanceName=${sqlserver.instanceName};DatabaseName=${db.i2b2pm.databasename}" 
+			 userid="${db.i2b2pm.username}" 
+			 password="${db.i2b2pm.password}" 
+			 classpathref="classpath" 
+			 onerror="continue" 
+			 print="true">
+			<transaction src="${proc.home}/sql/${db.type}/pm/inserts/pm_access_insert_data.sql.tmp" />	
+		</sql>
+	</target>	
+	
+	<!-- =================================================================== -->
+	<!-- 			CRCDATA CREATION AND STATIC LOAD                         -->
+	<!-- =================================================================== -->
+	<target name="db_cleandata" depends="init">
+		<sql driver="${db.driver}" 
+			 url="${db.url};port=${sqlserver.port};instanceName=${sqlserver.instanceName};DatabaseName=${db.project.data.databasename}" 
+			 userid="${db.project.data.username}" 
+			 password="${db.project.data.password}" 
+			 classpathref="classpath" 
+			 onerror="continue" 
+			 print="true">
+			<transaction src="${proc.home}/sql/${db.type}/crc/tables/clean_i2b2data_tables.sql" />
+		</sql>
+	</target>
+
+	<target name="create_crc_tables" depends="init">
+		<sql driver="${db.driver}" 
+			 url="${db.url};port=${sqlserver.port};instanceName=${sqlserver.instanceName};DatabaseName=${db.project.data.databasename}" 
+			 userid="${db.project.data.username}" 
+			 password="${db.project.data.password}" 
+			 classpathref="classpath" 
+			 onerror="continue" 
+			 print="true">
+			<transaction src="${proc.home}/sql/${db.type}/crc/tables/crc_create_datamart_${db.type}.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/crc/tables/crc_create_query_${db.type}.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/crc/tables/crc_create_uploader_${db.type}.sql" />
+		</sql>
+	</target>
+	
+	<target name="create_procedures" depends="init">
+		<sql delimiter=";" 
+			 driver="${db.driver}" 
+			 url="${db.url};port=${sqlserver.port};instanceName=${sqlserver.instanceName};DatabaseName=${db.project.data.databasename}" 
+			 userid="${db.project.data.username}" 
+			 password="${db.project.data.password}" 
+			 classpathref="classpath" 
+			 onerror="continue" 
+			 print="true"
+			 delimitertype="row"
+			 keepformat="true" >
+			<transaction src="${proc.home}/sql/${db.type}/crc/procedures/CREATE_TEMP_CONCEPT_TABLE.sql" />
+            <transaction src="${proc.home}/sql/${db.type}/crc/procedures/CREATE_TEMP_PATIENT_TABLE.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/crc/procedures/CREATE_TEMP_PID_TABLE.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/crc/procedures/CREATE_TEMP_EID_TABLE.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/crc/procedures/CREATE_TEMP_PROVIDER_TABLE.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/crc/procedures/CREATE_TEMP_TABLE.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/crc/procedures/CREATE_TEMP_VISIT_TABLE.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/crc/procedures/INSERT_CONCEPT_FROMTEMP.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/crc/procedures/INSERT_ENCOUNTERVISIT_FROMTEMP.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/crc/procedures/INSERT_PATIENT_MAP_FROMTEMP.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/crc/procedures/INSERT_PID_MAP_FROMTEMP.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/crc/procedures/INSERT_EID_MAP_FROMTEMP.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/crc/procedures/INSERT_PROVIDER_FROMTEMP.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/crc/procedures/REMOVE_TEMP_TABLE.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/crc/procedures/UPDATE_OBSERVATION_FACT.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/crc/procedures/SYNC_CLEAR_CONCEPT_TABLE.sql" />
+		    <transaction src="${proc.home}/sql/${db.type}/crc/procedures/SYNC_CLEAR_PROVIDER_TABLE.sql" />
+			<transaction src="${proc.home}/sql/${db.type}/crc/procedures/INSERT_PATIENT_FROMTEMP.sql" />
+  		</sql>
+	</target>
+	
+</project>
+
+

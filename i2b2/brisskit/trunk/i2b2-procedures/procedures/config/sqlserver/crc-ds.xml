@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ===================================================================== -->
+<!--                                                                       -->
+<!--  JBoss Server Configuration                                           -->
+<!--                                                                       -->
+<!-- ===================================================================== -->
+
+<datasources>
+	
+	<local-tx-datasource>
+		<jndi-name>${crc.ds.jndi.name}</jndi-name>
+		<connection-url>${db.url};port=${sqlserver.port};instanceName=${sqlserver.instanceName};DatabaseName=${db.project.data.databasename}</connection-url>
+		<driver-class>${db.driver}</driver-class>
+		<user-name>${db.project.data.databasename}</user-name>
+		<password>${db.project.data.password}</password>
+		<idle-timeout-minutes>1</idle-timeout-minutes>
+		<set-tx-query-timeout>true</set-tx-query-timeout>
+		<metadata>
+			<type-mapping>MS SQLSERVER2000</type-mapping>
+		</metadata>
+	</local-tx-datasource>
+
+</datasources>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly>
+  <id></id>
+  <formats>
+    <format>zip</format>
+  </formats>
+  <includeBaseDirectory>true</includeBaseDirectory>
+  <dependencySets>
+	<dependencySet>
+		<outputDirectory>lib</outputDirectory>
+		<useProjectArtifact>false</useProjectArtifact>
+		<useTransitiveDependencies>true</useTransitiveDependencies>
+		<excludes></excludes>		
+	</dependencySet>
+  </dependencySets>
+  <files>
+  	<file>
+    	<source>procedures/README</source>
+    	<destName>README</destName>	
+    </file>
+  </files>
+  <fileSets>
+    <fileSet>
+    	<!-- includes  -->
+ 		<directory>${basedir}/locally-held-libs/classpath-libs/i2b2-genlib</directory> 
+ 		<outputDirectory>lib</outputDirectory>
+    </fileSet>
+     <fileSet>
+    	<!-- includes  -->
+ 		<directory>${basedir}/locally-held-libs/classpath-libs/axis2-1.1</directory> 
+ 		<outputDirectory>lib</outputDirectory>
+    </fileSet>
+     <fileSet>
+    	<!-- includes  -->
+ 		<directory>${basedir}/locally-held-libs/classpath-libs/jaxb</directory> 
+ 		<outputDirectory>lib</outputDirectory>
+    </fileSet>
+    <fileSet>
+    	<!-- includes  -->
+ 		<directory>${basedir}/locally-held-libs/endorsed-lib</directory> 
+ 		<outputDirectory>endorsed-lib</outputDirectory>
+    </fileSet>
+  	<fileSet>
+    	<!-- includes  -->
+ 		<directory>${basedir}/procedures/ant</directory> 
+ 		<outputDirectory>ant</outputDirectory>
+    </fileSet>
+    <fileSet>
+    	<!-- includes  -->
+ 		<directory>${basedir}/procedures/bin</directory> 
+ 		<outputDirectory>bin</outputDirectory>
+ 		<fileMode>0774</fileMode>
+    </fileSet>
+    <fileSet>
+    	<!--  -->
+ 		<directory>${basedir}/procedures/config</directory> 
+ 		<outputDirectory>config</outputDirectory>
+    </fileSet>
+    <fileSet>
+    	<!--  -->
+ 		<directory>${basedir}/procedures/ontologies</directory> 
+ 		<outputDirectory>ontologies</outputDirectory>
+    </fileSet>
+    <fileSet>
+    	<!--  -->
+ 		<directory>${basedir}/procedures/docs</directory> 
+ 		<outputDirectory>docs</outputDirectory>
+    </fileSet>
+    <fileSet>
+    	<!--  -->
+ 		<directory>${basedir}/procedures/licences</directory> 
+ 		<outputDirectory>licences</outputDirectory>
+    </fileSet>
+    <fileSet>
+    	<!--  -->
+ 		<directory>${basedir}/procedures/sql</directory> 
+ 		<outputDirectory>sql</outputDirectory>
+    </fileSet>
+    <fileSet>
+    	<!--  -->
+ 		<directory>${basedir}/procedures/work</directory> 
+ 		<outputDirectory>work</outputDirectory>
+ 		<excludes>
+  			<exclude>**/*</exclude>
+		</excludes>		
+    </fileSet>
+    <fileSet>
+    	<!--  -->
+ 		<directory>${basedir}/procedures/xslt</directory> 
+ 		<outputDirectory>xslt</outputDirectory>
+    </fileSet>
+    
+    <fileSet>
+    	<!-- Development -->
+ 		<directory>${basedir}/test/ant</directory> 
+ 		<outputDirectory>ant</outputDirectory>
+    </fileSet>
+    
+    <fileSet>
+    	<!-- Development -->
+ 		<directory>${basedir}/test/bin</directory> 
+ 		<outputDirectory>bin/utility</outputDirectory>
+ 		<fileMode>0774</fileMode>
+    </fileSet> 
+    
+    <fileSet>
+    	<!-- Development -->
+ 		<directory>${basedir}/test/config</directory> 
+ 		<outputDirectory>config</outputDirectory>
+    </fileSet>   
+    
+    <fileSet>
+    	<!-- Development -->
+ 		<directory>${basedir}/test/sql</directory> 
+ 		<outputDirectory>sql</outputDirectory>
+    </fileSet>
+    
+  </fileSets>
+</assembly>

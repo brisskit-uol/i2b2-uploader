@@ -1,0 +1,5 @@
+INSERT INTO SCHEMES(C_KEY, C_NAME, C_DESCRIPTION)
+  VALUES('CBO:', 'CBO', 'Onyx Questionnaire');
+  
+INSERT INTO SCHEMES(C_KEY, C_NAME, C_DESCRIPTION)
+  values('CAT:', 'CAT', 'Catissue');

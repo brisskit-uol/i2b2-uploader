@@ -1,0 +1,14 @@
+PLEASE NOTE.
+These schema files are copies of PDO version 1.1 available for i2b2 v1.6.02
+
+Reasons for copying:
+
+(1) For code generation it was easier to make copies. 
+    At least then we know we have the originating source for our generated code.
+    
+(2) The following changes were made to namespaces within the xsd files to facilitate code gen:
+
+    xmlns:pdo="http://www.i2b2.org/xsd/hive/pdo/1.1/pdo" 
+	targetNamespace="http://www.i2b2.org/xsd/hive/pdo/1.1/pdo"
+	
+	The change in each - the addition of "pdo" at the end.

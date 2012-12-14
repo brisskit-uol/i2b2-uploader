@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<variables xmlns:ov="http://briccs.org.uk/xml/onyxvariables/v1.0/ov"
+           xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns="http://briccs.org.uk/xml/onyxvariables/v1.0/ov">
+   <variable name="QuestionnaireMetric.duration" valueType="integer"
+             entityType="Participant"
+             repeatable="true"
+             occurrenceGroup="QuestionnaireMetric">
+      <attributes>
+         <attribute name="questionnaire" valueType="text">VerbalConsentQuestionnaire</attribute>
+         <attribute name="stage" valueType="text">VerbalConsentQuestionnaire</attribute>
+      </attributes>
+   </variable>
+   <variable name="QuestionnaireMetric.missingCount" valueType="integer"
+             entityType="Participant"
+             repeatable="true"
+             occurrenceGroup="QuestionnaireMetric">
+      <attributes>
+         <attribute name="questionnaire" valueType="text">VerbalConsentQuestionnaire</attribute>
+         <attribute name="stage" valueType="text">VerbalConsentQuestionnaire</attribute>
+      </attributes>
+   </variable>
+   <variable name="QuestionnaireMetric.page" valueType="text" entityType="Participant"
+             repeatable="true"
+             occurrenceGroup="QuestionnaireMetric">
+      <attributes>
+         <attribute name="questionnaire" valueType="text">VerbalConsentQuestionnaire</attribute>
+         <attribute name="stage" valueType="text">VerbalConsentQuestionnaire</attribute>
+      </attributes>
+   </variable>
+   <variable name="QuestionnaireMetric.questionCount" valueType="integer"
+             entityType="Participant"
+             repeatable="true"
+             occurrenceGroup="QuestionnaireMetric">
+      <attributes>
+         <attribute name="questionnaire" valueType="text">VerbalConsentQuestionnaire</attribute>
+         <attribute name="stage" valueType="text">VerbalConsentQuestionnaire</attribute>
+      </attributes>
+   </variable>
+   <variable name="QuestionnaireMetric.section" valueType="text" entityType="Participant"
+             repeatable="true"
+             occurrenceGroup="QuestionnaireMetric">
+      <attributes>
+         <attribute name="questionnaire" valueType="text">VerbalConsentQuestionnaire</attribute>
+         <attribute name="stage" valueType="text">VerbalConsentQuestionnaire</attribute>
+      </attributes>
+   </variable>
+   <variable name="QuestionnaireRun.locale" valueType="locale" entityType="Participant">
+      <attributes>
+         <attribute name="conclusion" valueType="text" locale="en">This concludes the questions for this stage. Please select 'finish' to complete the stage.</attribute>
+         <attribute name="label" valueType="text" locale="en">Acute Verbal Consent for samples collection.</attribute>
+         <attribute name="labelCancel" valueType="text" locale="en">Cancel</attribute>
+         <attribute name="labelFinish" valueType="text" locale="en">Finish</attribute>
+         <attribute name="labelInterrupt" valueType="text" locale="en">Pause</attribute>
+         <attribute name="labelNext" valueType="text" locale="en">Next</attribute>
+         <attribute name="labelPrevious" valueType="text" locale="en">Previous</attribute>
+         <attribute name="labelResume" valueType="text" locale="en">Resume</attribute>
+         <attribute name="labelStart" valueType="text" locale="en">Start</attribute>
+         <attribute name="questionnaire" valueType="text">VerbalConsentQuestionnaire</attribute>
+         <attribute name="stage" valueType="text">VerbalConsentQuestionnaire</attribute>
+      </attributes>
+   </variable>
+   <variable name="QuestionnaireRun.timeEnd" valueType="datetime" entityType="Participant">
+      <attributes>
+         <attribute name="conclusion" valueType="text" locale="en">This concludes the questions for this stage. Please select 'finish' to complete the stage.</attribute>
+         <attribute name="label" valueType="text" locale="en">Acute Verbal Consent for samples collection.</attribute>
+         <attribute name="labelCancel" valueType="text" locale="en">Cancel</attribute>
+         <attribute name="labelFinish" valueType="text" locale="en">Finish</attribute>
+         <attribute name="labelInterrupt" valueType="text" locale="en">Pause</attribute>
+         <attribute name="labelNext" valueType="text" locale="en">Next</attribute>
+         <attribute name="labelPrevious" valueType="text" locale="en">Previous</attribute>
+         <attribute name="labelResume" valueType="text" locale="en">Resume</attribute>
+         <attribute name="labelStart" valueType="text" locale="en">Start</attribute>
+         <attribute name="questionnaire" valueType="text">VerbalConsentQuestionnaire</attribute>
+         <attribute name="stage" valueType="text">VerbalConsentQuestionnaire</attribute>
+      </attributes>
+   </variable>
+   <variable name="QuestionnaireRun.timeStart" valueType="datetime" entityType="Participant">
+      <attributes>
+         <attribute name="conclusion" valueType="text" locale="en">This concludes the questions for this stage. Please select 'finish' to complete the stage.</attribute>
+         <attribute name="label" valueType="text" locale="en">Acute Verbal Consent for samples collection.</attribute>
+         <attribute name="labelCancel" valueType="text" locale="en">Cancel</attribute>
+         <attribute name="labelFinish" valueType="text" locale="en">Finish</attribute>
+         <attribute name="labelInterrupt" valueType="text" locale="en">Pause</attribute>
+         <attribute name="labelNext" valueType="text" locale="en">Next</attribute>
+         <attribute name="labelPrevious" valueType="text" locale="en">Previous</attribute>
+         <attribute name="labelResume" valueType="text" locale="en">Resume</attribute>
+         <attribute name="labelStart" valueType="text" locale="en">Start</attribute>
+         <attribute name="questionnaire" valueType="text">VerbalConsentQuestionnaire</attribute>
+         <attribute name="stage" valueType="text">VerbalConsentQuestionnaire</attribute>
+      </attributes>
+   </variable>
+   <variable name="QuestionnaireRun.user" valueType="text" entityType="Participant">
+      <attributes>
+         <attribute name="conclusion" valueType="text" locale="en">This concludes the questions for this stage. Please select 'finish' to complete the stage.</attribute>
+         <attribute name="label" valueType="text" locale="en">Acute Verbal Consent for samples collection.</attribute>
+         <attribute name="labelCancel" valueType="text" locale="en">Cancel</attribute>
+         <attribute name="labelFinish" valueType="text" locale="en">Finish</attribute>
+         <attribute name="labelInterrupt" valueType="text" locale="en">Pause</attribute>
+         <attribute name="labelNext" valueType="text" locale="en">Next</attribute>
+         <attribute name="labelPrevious" valueType="text" locale="en">Previous</attribute>
+         <attribute name="labelResume" valueType="text" locale="en">Resume</attribute>
+         <attribute name="labelStart" valueType="text" locale="en">Start</attribute>
+         <attribute name="questionnaire" valueType="text">VerbalConsentQuestionnaire</attribute>
+         <attribute name="stage" valueType="text">VerbalConsentQuestionnaire</attribute>
+      </attributes>
+   </variable>
+   <variable name="QuestionnaireRun.version" valueType="text" entityType="Participant">
+      <attributes>
+         <attribute name="conclusion" valueType="text" locale="en">This concludes the questions for this stage. Please select 'finish' to complete the stage.</attribute>
+         <attribute name="label" valueType="text" locale="en">Acute Verbal Consent for samples collection.</attribute>
+         <attribute name="labelCancel" valueType="text" locale="en">Cancel</attribute>
+         <attribute name="labelFinish" valueType="text" locale="en">Finish</attribute>
+         <attribute name="labelInterrupt" valueType="text" locale="en">Pause</attribute>
+         <attribute name="labelNext" valueType="text" locale="en">Next</attribute>
+         <attribute name="labelPrevious" valueType="text" locale="en">Previous</attribute>
+         <attribute name="labelResume" valueType="text" locale="en">Resume</attribute>
+         <attribute name="labelStart" valueType="text" locale="en">Start</attribute>
+         <attribute name="questionnaire" valueType="text">VerbalConsentQuestionnaire</attribute>
+         <attribute name="stage" valueType="text">VerbalConsentQuestionnaire</attribute>
+      </attributes>
+   </variable>
+   <variable name="brics_consent_acute_description" valueType="text"
+             entityType="Participant">
+      <attributes>
+         <attribute name="boilerplate" valueType="boolean">true</attribute>
+         <attribute name="label" valueType="text" locale="en">Acute verbal consent is to be sought from patients where they are willing to provide samples during the acute phase of a hospital admission but it is inappropriate to conduct the full written informed consent. Such consent must be witnessed by a healthcare professional or another member of the research team. Full informed consent must be obtained from the patient within 72 hours of Acute Verbal Consent.</attribute>
+         <attribute name="page" valueType="text">1</attribute>
+         <attribute name="questionName" valueType="text">brics_consent_acute_description</attribute>
+         <attribute name="questionnaire" valueType="text">VerbalConsentQuestionnaire</attribute>
+         <attribute name="required" valueType="text">true</attribute>
+         <attribute name="section" valueType="text">MAIN</attribute>
+         <attribute name="stage" valueType="text">VerbalConsentQuestionnaire</attribute>
+      </attributes>
+   </variable>
+   <variable name="consent_acute" valueType="text" entityType="Participant">
+      <categories>
+         <category name="N" code="0">
+            <attributes>
+               <attribute name="label" valueType="text" locale="en">No</attribute>
+            </attributes>
+         </category>
+         <category name="Y" code="1">
+            <attributes>
+               <attribute name="label" valueType="text" locale="en">Yes</attribute>
+            </attributes>
+         </category>
+      </categories>
+      <attributes>
+         <attribute name="label" valueType="text" locale="en">Was Acute Verbal Consent given by participant?</attribute>
+         <attribute name="page" valueType="text">2</attribute>
+         <attribute name="questionName" valueType="text">consent_acute</attribute>
+         <attribute name="questionnaire" valueType="text">VerbalConsentQuestionnaire</attribute>
+         <attribute name="required" valueType="text">true</attribute>
+         <attribute name="section" valueType="text">MAIN</attribute>
+         <attribute name="stage" valueType="text">VerbalConsentQuestionnaire</attribute>
+      </attributes>
+   </variable>
+   <variable name="consent_acute.N" valueType="boolean" entityType="Participant">
+      <attributes>
+         <attribute name="categoryName" valueType="text">N</attribute>
+         <attribute name="condition" valueType="text">Questionnaire[VerbalConsentQuestionnaire.consent_acute]</attribute>
+         <attribute name="exclusiveChoiceCategoryVariable" valueType="boolean">true</attribute>
+         <attribute name="label" valueType="text" locale="en">No</attribute>
+         <attribute name="page" valueType="text">2</attribute>
+         <attribute name="questionName" valueType="text">consent_acute</attribute>
+         <attribute name="questionnaire" valueType="text">VerbalConsentQuestionnaire</attribute>
+         <attribute name="script" valueType="text">$('consent_acute').any('N')</attribute>
+         <attribute name="section" valueType="text">MAIN</attribute>
+         <attribute name="stage" valueType="text">VerbalConsentQuestionnaire</attribute>
+      </attributes>
+   </variable>
+   <variable name="consent_acute.Y" valueType="boolean" entityType="Participant">
+      <attributes>
+         <attribute name="categoryName" valueType="text">Y</attribute>
+         <attribute name="condition" valueType="text">Questionnaire[VerbalConsentQuestionnaire.consent_acute]</attribute>
+         <attribute name="exclusiveChoiceCategoryVariable" valueType="boolean">true</attribute>
+         <attribute name="label" valueType="text" locale="en">Yes</attribute>
+         <attribute name="page" valueType="text">2</attribute>
+         <attribute name="questionName" valueType="text">consent_acute</attribute>
+         <attribute name="questionnaire" valueType="text">VerbalConsentQuestionnaire</attribute>
+         <attribute name="script" valueType="text">$('consent_acute').any('Y')</attribute>
+         <attribute name="section" valueType="text">MAIN</attribute>
+         <attribute name="stage" valueType="text">VerbalConsentQuestionnaire</attribute>
+      </attributes>
+   </variable>
+   <variable name="consent_acute.comment" valueType="text" entityType="Participant">
+      <attributes>
+         <attribute name="commentFor" valueType="text">consent_acute</attribute>
+         <attribute name="page" valueType="text">2</attribute>
+         <attribute name="questionName" valueType="text">consent_acute</attribute>
+         <attribute name="questionnaire" valueType="text">VerbalConsentQuestionnaire</attribute>
+         <attribute name="section" valueType="text">MAIN</attribute>
+         <attribute name="stage" valueType="text">VerbalConsentQuestionnaire</attribute>
+      </attributes>
+   </variable>
+   <variable name="consent_witness" valueType="text" entityType="Participant">
+      <attributes>
+         <attribute name="categoryName" valueType="text">OPEN_AN</attribute>
+         <attribute name="condition" valueType="text">Questionnaire[VerbalConsentQuestionnaire.consent_witness_cat.OPEN_AN]</attribute>
+         <attribute name="openAnswerName" valueType="text">OPEN_AN</attribute>
+         <attribute name="page" valueType="text">2</attribute>
+         <attribute name="questionName" valueType="text">consent_witness_cat</attribute>
+         <attribute name="questionnaire" valueType="text">VerbalConsentQuestionnaire</attribute>
+         <attribute name="section" valueType="text">MAIN</attribute>
+         <attribute name="stage" valueType="text">VerbalConsentQuestionnaire</attribute>
+      </attributes>
+   </variable>
+   <variable name="consent_witness_cat" valueType="text" entityType="Participant">
+      <categories>
+         <category name="OPEN_AN"/>
+      </categories>
+      <attributes>
+         <attribute name="condition" valueType="text">Questionnaire[VerbalConsentQuestionnaire.consent_acute.Y]</attribute>
+         <attribute name="instructions" valueType="text" locale="en">Enter the name of the independent witness who has signed the form to confirm the participant gave verbal consent.</attribute>
+         <attribute name="label" valueType="text" locale="en">Name of Witness</attribute>
+         <attribute name="page" valueType="text">2</attribute>
+         <attribute name="questionName" valueType="text">consent_witness_cat</attribute>
+         <attribute name="questionnaire" valueType="text">VerbalConsentQuestionnaire</attribute>
+         <attribute name="required" valueType="text">true</attribute>
+         <attribute name="section" valueType="text">MAIN</attribute>
+         <attribute name="stage" valueType="text">VerbalConsentQuestionnaire</attribute>
+      </attributes>
+   </variable>
+   <variable name="consent_witness_cat.OPEN_AN" valueType="boolean" entityType="Participant">
+      <attributes>
+         <attribute name="categoryName" valueType="text">OPEN_AN</attribute>
+         <attribute name="condition" valueType="text">Questionnaire[VerbalConsentQuestionnaire.consent_witness_cat]</attribute>
+         <attribute name="exclusiveChoiceCategoryVariable" valueType="boolean">true</attribute>
+         <attribute name="page" valueType="text">2</attribute>
+         <attribute name="questionName" valueType="text">consent_witness_cat</attribute>
+         <attribute name="questionnaire" valueType="text">VerbalConsentQuestionnaire</attribute>
+         <attribute name="script" valueType="text">$('consent_witness_cat').any('OPEN_AN')</attribute>
+         <attribute name="section" valueType="text">MAIN</attribute>
+         <attribute name="stage" valueType="text">VerbalConsentQuestionnaire</attribute>
+      </attributes>
+   </variable>
+   <variable name="consent_witness_cat.comment" valueType="text" entityType="Participant">
+      <attributes>
+         <attribute name="commentFor" valueType="text">consent_witness_cat</attribute>
+         <attribute name="page" valueType="text">2</attribute>
+         <attribute name="questionName" valueType="text">consent_witness_cat</attribute>
+         <attribute name="questionnaire" valueType="text">VerbalConsentQuestionnaire</attribute>
+         <attribute name="section" valueType="text">MAIN</attribute>
+         <attribute name="stage" valueType="text">VerbalConsentQuestionnaire</attribute>
+      </attributes>
+   </variable>
+</variables>

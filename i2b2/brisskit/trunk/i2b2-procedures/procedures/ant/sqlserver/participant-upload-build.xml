@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="i2b2 project install" basedir=".">
+
+	<property environment="env" />
+
+	<!-- =================================================================== -->
+	<!-- 								INIT 								 -->
+	<!-- =================================================================== -->
+	<target name="init"  description="Prepare for build">
+		<path id="classpath">
+			<pathelement location="${proc.home}/lib/ojdbc-14.jar" />
+			<pathelement location="${proc.home}/lib/sqljdbc-2005.jar"/>
+		</path>
+	</target>
+
+	<!-- =================================================================== -->
+	<!--            LOAD PARTICIPANT DATA INTO CRC CELL                         -->
+	<!-- =================================================================== -->
+	<target name="load_participant_data" depends="init">
+		<echo message="Loading participant data -- may take some time." />
+		<sql driver="${db.driver}" 
+			 url="${db.url};port=${sqlserver.port};instanceName=${sqlserver.instanceName};DatabaseName=${db.project.data.databasename}" 
+			 userid="${db.project.data.username}" 
+			 password="${db.project.data.password}" 
+			 classpathref="classpath" 
+			 onerror="continue" 
+			 print="true">			
+			<!--+
+			    | PDO data inserts...
+			    +-->
+			<fileset dir="${pdo.dir}/${db.type}/crccell">
+				<include name="*.sql"/>
+			</fileset>
+		</sql>
+	</target>
+	
+</project>

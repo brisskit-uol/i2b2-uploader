@@ -1,0 +1,70 @@
+<project basedir="../" default="all" name="BRICCS importpdo">
+
+	
+	<property name="Project" value="uk.org.briccs.importpdo" />
+
+	<!-- ========== Executable Targets ======================================== -->
+	<property name="Name" value="importpdo" />
+	<import file="../../edu.harvard.i2b2.common/common_build.xml" />
+	<property name="gensrc"     value="gensrc"/>
+
+	<!-- =================================================================== -->
+	<!-- 								INIT 								 -->
+	<!-- =================================================================== -->
+	<target name="gensrcInit"  description="Prepare for build">
+		<path id="classpath">
+			<path refid="common-classpath" />
+		</path>
+
+		<taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask">
+			<classpath refid="classpath" />
+		</taskdef>
+
+	</target>
+
+
+
+	<!-- =================================================================== -->
+	<!-- 								CLEAN 								 -->
+	<!-- =================================================================== -->
+	<target name="clean"  description="Clean all build products" >
+    	<delete dir="${gensrc}"/>   
+    	<delete dir="${genlib}"/>
+    	<mkdir dir="${genlib}"/>
+    	<mkdir dir="${gensrc}"/>
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- 								COMMON JAXB GENERATION 				 -->
+	<!-- =================================================================== -->
+	<target name="jaxb_gen" depends="gensrcInit">
+			 <java dir="." jar="../edu.harvard.i2b2.common/lib/jaxb/jaxb-xjc.jar" fork="true" failonerror="true" >
+			     <arg line="-quiet -nv 
+			     	-extension 
+			     	../edu.harvard.i2b2.xml/xsd/cell/pm_1.1/PM_USER.xsd 
+			     	../edu.harvard.i2b2.xml/xsd/cell/pm_1.1/i2b2_version_msg.xsd 
+			     	../edu.harvard.i2b2.xml/xsd/hive/msg_1.1/i2b2_response.xsd 
+			     	../edu.harvard.i2b2.xml/xsd/cell/crc/loader_1.1/CRC_UPLOADER_QRY.xsd 
+			     	../edu.harvard.i2b2.xml/xsd/hive/pdo_1.1/i2b2_PDO.xsd 
+			     	../edu.harvard.i2b2.xml/xsd/cell/fr_1.0/FR_QRY.xsd
+			     	-b 
+			     	etc/xsd_1.1/i2b2_pm_bindings.xjb 
+			     	etc/xsd_1.1/i2b2_pm_version_bindings.xjb 
+			     	etc/xsd_1.1/i2b2_response_message_bindings.xjb 			     	
+			     	etc/xsd_1.1/i2b2_pdo_bindings.xjb 
+			     	etc/xsd_1.1/i2b2_crc_loader_qry.xjb   
+			     	etc/xsd_1.1/fr_qry.xjb 			     	
+			     	-d ${gensrc}"/>
+			     <jvmarg value="-Djava.endorsed.dirs=../edu.harvard.i2b2.common/lib/jaxb" />
+			     <classpath refid="classpath"/>
+			</java>
+	</target>
+	
+
+	
+	<!-- =================================================================== -->
+	<!-- 								ALL 								 -->
+	<!-- =================================================================== -->
+	<target name="all" depends="jaxb_gen">
+	</target>
+</project>

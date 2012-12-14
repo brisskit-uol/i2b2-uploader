@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Catissue/Metadata data" basedir=".">
+
+    <property environment="env" />
+
+    <!-- =================================================================== -->
+    <!--                                                            INIT                                                             -->
+    <!-- =================================================================== -->
+    <target name="init"  description="Prepare for build">
+            <path id="classpath">
+                    <pathelement location="${proc.home}/lib/ojdbc-14.jar" />
+                    <pathelement location="${proc.home}/lib/sqljdbc-2005.jar"/>
+            </path>
+    </target>
+
+
+	<!-- =================================================================== -->
+    <!--                    CLEAR FACTS                                                                      -->
+    <!-- =================================================================== -->
+    <target name="clear_facts" depends="init">
+            <sql driver="${db.driver}" 
+                     url="${db.url};port=${sqlserver.port};instanceName=${sqlserver.instanceName};DatabaseName=${db.project.data.databasename}" 
+                     userid="${db.project.data.username}" 
+                     password="${db.project.data.password}"  
+                 classpathref="classpath" 
+                 onerror="continue" 
+                 print="true">
+delete FROM Observation_Fact where Concept_Cd like 'CAT%';
+delete FROM concept_dimension where concept_cd like 'CAT%';
+                </sql>
+    </target>
+
+	
+    <!-- =================================================================== -->
+    <!--                    CLEAR METADATA                                                                   -->
+    <!-- =================================================================== -->
+    <target name="clear_metadata" depends="init">
+            <sql driver="${db.driver}" 
+                     url="${db.url};port=${sqlserver.port};instanceName=${sqlserver.instanceName};DatabaseName=${db.project.meta.databasename}" 
+                     userid="${db.project.meta.username}" 
+                     password="${db.project.meta.password}"  
+                 classpathref="classpath" 
+                 onerror="continue" 
+                 print="true">
+delete FROM CATISSUE;
+            </sql>
+    </target>
+
+	
+</project>
+
+
