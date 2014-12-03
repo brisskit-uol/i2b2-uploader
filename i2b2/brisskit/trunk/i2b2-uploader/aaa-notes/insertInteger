@@ -1,0 +1,127 @@
+	private void insertInteger( Connection connection ) throws NewProjectException {
+		enterTrace( "OntologyBranch.insertInteger()" ) ;
+		try {
+			//
+			// Inserts are inserted as enumerations, so on two/three levels:
+			// The base code; eg: Age
+			// Possible ranges of values; eg: 1-10, 11-20, 21-30 etc
+			// End point values; eg: 1, 2, 3, 4, 5 etc
+			//
+			// Insert the base code...
+			String fullName = "\\" + projectName + "\\" + colName + "\\" ;
+			String sqlCmd = null ;
+			Statement st = connection.createStatement();
+			
+			if( !pathsAndCodes.contains( PATH_PREFIX + fullName ) ) {
+				sqlCmd = METADATA_SQL_INSERT_COMMAND ;
+				
+				sqlCmd = sqlCmd.replaceAll( "<project_name>", projectName ) ;
+				sqlCmd = sqlCmd.replace( "<hlevel>", "1" ) ;
+				sqlCmd = sqlCmd.replace( "<fullname>", fullName ) ;
+				sqlCmd = sqlCmd.replace( "<synonym_cd>", "N" ) ;
+				sqlCmd = sqlCmd.replace( "<visualattributes>", "FA" ) ;
+				sqlCmd = sqlCmd.replace( "<basecode>", "NULL" ) ;
+				sqlCmd = sqlCmd.replace( "<metadataxml>", "NULL" ) ;
+				sqlCmd = sqlCmd.replace( "<columndatatype>", "T" ) ;
+				sqlCmd = sqlCmd.replace( "<operator>", "LIKE" ) ;
+				sqlCmd = sqlCmd.replace( "<dimcode>", fullName ) ;
+				sqlCmd = sqlCmd.replace( "<tooltip>", toolTip ) ;
+				
+				st.execute( sqlCmd ) ;				
+				//
+				// Record the path name so we don't try and duplicate it next time...
+				pathsAndCodes.add( PATH_PREFIX + fullName ) ;
+			}
+			
+			
+			//
+			// Examine ranges...
+			int lowestValue = Integer.MAX_VALUE ;
+			int highestValue = Integer.MIN_VALUE ;
+			Iterator<String> it = values.iterator() ;
+			while( it.hasNext() ) {
+				String val = it.next() ;
+				int i = Integer.valueOf( val ) ;
+				if( i < lowestValue ) {
+					lowestValue = i ;
+				}
+				if( i > highestValue ) {
+					highestValue = i ;
+				}
+			}
+			
+			lowestValue = ( lowestValue / 10 ) ;
+					
+			if( highestValue % 10 != 0 ) {
+				highestValue = ( ( highestValue / 10 ) * 10 ) - 10;
+			}
+			else {
+				highestValue = ( ( highestValue / 10 ) * 10 )  ;
+			}
+			
+			//
+			// Insert the ranges...
+			for( int i=lowestValue; i<highestValue+1; i=i+10 ) {
+				fullName = "\\" + projectName + "\\" + colName + "\\" + i + "-" + (i+10) + "\\" ;
+				if( !pathsAndCodes.contains( PATH_PREFIX + fullName ) ) {
+					sqlCmd = METADATA_SQL_INSERT_COMMAND ;
+					
+					sqlCmd = sqlCmd.replaceAll( "<project_name>", projectName ) ;
+					sqlCmd = sqlCmd.replace( "<hlevel>", "2" ) ;
+					sqlCmd = sqlCmd.replace( "<fullname>", fullName ) ;
+					sqlCmd = sqlCmd.replace( "<synonym_cd>", "N" ) ;
+					sqlCmd = sqlCmd.replace( "<visualattributes>", "FA" ) ;
+					sqlCmd = sqlCmd.replace( "<basecode>", "NULL" ) ;
+					sqlCmd = sqlCmd.replace( "<metadataxml>", "NULL" ) ;
+					sqlCmd = sqlCmd.replace( "<columndatatype>", "T" ) ;
+					sqlCmd = sqlCmd.replace( "<operator>", "LIKE" ) ;
+					sqlCmd = sqlCmd.replace( "<dimcode>", fullName ) ;
+					sqlCmd = sqlCmd.replace( "<tooltip>", toolTip + ": " + i + "-" + (i+10) ) ;
+					
+					st.execute( sqlCmd ) ;
+					//
+					// Record the path name so we don't try and duplicate it next time...
+					pathsAndCodes.add( PATH_PREFIX + fullName ) ;
+				}
+								
+			}
+			
+			//
+			// Insert the end points...
+			for( int i=lowestValue; i<highestValue+1; i++ ) {
+				fullName = "\\" + projectName + "\\" + colName + "\\" + i + "\\" ;
+				if( !pathsAndCodes.contains( PATH_PREFIX + fullName ) ) {
+					sqlCmd = METADATA_SQL_INSERT_COMMAND ;
+					
+					sqlCmd = sqlCmd.replaceAll( "<project_name>", projectName ) ;
+					sqlCmd = sqlCmd.replace( "<hlevel>", "3" ) ;
+					sqlCmd = sqlCmd.replace( "<fullname>", fullName ) ;
+					sqlCmd = sqlCmd.replace( "<synonym_cd>", "N" ) ;
+					sqlCmd = sqlCmd.replace( "<visualattributes>", "LA" ) ;
+					sqlCmd = sqlCmd.replace( "<basecode>", "NULL" ) ;
+					sqlCmd = sqlCmd.replace( "<metadataxml>", "NULL" ) ;
+					sqlCmd = sqlCmd.replace( "<columndatatype>", "T" ) ;
+					sqlCmd = sqlCmd.replace( "<operator>", "LIKE" ) ;
+					sqlCmd = sqlCmd.replace( "<dimcode>", fullName ) ;
+					sqlCmd = sqlCmd.replace( "<tooltip>", toolTip + ": " + i ) ;
+					
+					st.execute( sqlCmd ) ;
+					
+					//
+					// Insert concept into concept dimension...
+					insertIntoConceptDimension( st, fullName, ontCode + ":" + i, colName + " " + i ) ;
+					//
+					// Record the path name so we don't try and duplicate it next time...
+					pathsAndCodes.add( PATH_PREFIX + fullName ) ;
+				}
+				
+			}
+			
+		}
+		catch( SQLException sqlx ) {
+			throw new NewProjectException( "Failed to insert integer branches into metadata table.", sqlx ) ;
+		}
+		finally {
+			exitTrace( "OntologyBranch.insertInteger()" ) ;
+		}
+	}

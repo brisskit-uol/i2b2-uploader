@@ -1,0 +1,132 @@
+(1) Web interface could be PHP, and sit alongside the i2b2 web client code.
+(2) The servlet that does all the work could sit within JBoss.
+(3) For starters assume the first sheet within the spreadsheet is the one and only relevant: but I'll think about how the others (if they existed within a single spreadsheet) could be relevant.
+(4) The first three rows of the spreadsheet will hold some form of metadata about the columns. 
+    Not in any order, but these would be 
+    (a) column name, 
+    (b) tool tip for i2b2 display 
+    (c) some code to be used within the i2b2 ontology table. 
+    The column name will be used as a node name within the ontology display.
+
+When completed, the service could could go into the i2b2 install procedures, so it is there automatically.
+
+
+
+	public static final String METADATA_SQL_INSERT_COMMAND = 
+			"INSERT INTO I2B2( C_HLEVEL" +
+			                ", C_FULLNAME" +
+			                ", C_NAME" +
+			                ", C_SYNONYM_CD" +
+			                ", C_VISUALATTRIBUTES" +
+			                ", C_TOTALNUM" +
+			                ", C_BASECODE" +
+			                ", C_METADATAXML" +
+			                ", C_FACTTABLECOLUMN" +
+			                ", C_TABLENAME" +
+			                ", C_COLUMNNAME" +
+			                ", C_COLUMNDATATYPE" +
+			                ", C_OPERATOR" +
+			                ", C_DIMCODE" +
+			                ", C_COMMENT" +
+			                ", C_TOOLTIP" +
+			                ", M_APPLIED_PATH" +
+			                ", UPDATE_DATE" +
+			                ", DOWNLOAD_DATE" +
+			                ", IMPORT_DATE" +
+			                ", SOURCESYSTEM_CD" +
+			                ", VALUETYPE_CD ) " +
+	         "VALUES( 0" +
+	               ", '\\i2b2\\'" +
+	               ", 'i2b2'" +
+	               ", 'N'" +
+	               ", 'FA '" +
+	               ", NULL" +
+	               ", NULL" +
+	               ", NULL" +
+	               ", 'concept_cd'" +
+	               ", 'concept_dimension'" +
+	               ", 'concept_path'" +
+	               ", 'T'" +
+	               ", 'LIKE'" +
+	               ", '\\i2b2\\'" +
+	               ", NULL" +
+	               ", 'i2b2'" +
+	               ", '@'" +
+	               ", '20070320 00:00:00.0'" +
+	               ", '20070320 00:00:00.0'" +
+	               ", '20070320 00:00:00.0'" +
+	               ", 'KRISTEL'" +
+	               ", NULL ) ;" ;
+	               
+ \i2b2\Demographics\Age\>= 65 years old\101\ |    CONCEPT_PATH
+ DEM|AGE:101                                 |    CONCEPT_CD
+ 101 years old                               |    NAME_CHAR
+                  |
+ 2010-09-28 11:15:00 |
+ 2010-08-18 09:50:00 |
+ 2010-09-28 11:40:00 |
+ DEMO 	
+ 
+ ========================================================
+ 
+ 
+ --------------+-----------------------------------+----------+--------------
+ i2b2metadata | birn                              | table    | i2b2metadata
+ i2b2metadata | custom_meta                       | table    | i2b2metadata
+ i2b2metadata | i2b2                              | table    | i2b2metadata
+ i2b2metadata | ont_process_status                | table    | i2b2metadata
+ i2b2metadata | ont_process_status_process_id_seq | sequence | i2b2metadata
+ i2b2metadata | schemes                           | table    | i2b2metadata
+ i2b2metadata | table_access                      | table    | i2b2metadata
+                
+ 
+ 
+ ========================================================
+ 
+drop schema project1 cascade ;
+drop user project1 ;
+
+-- ===========================================================
+set schema 'i2b2metadata';
+-- ===========================================================
+drop table project1 ;
+
+-- ===========================================================
+set schema 'i2b2hive';
+-- ===========================================================
+
+delete from i2b2hive.CRC_DB_LOOKUP where C_DB_FULLSCHEMA = 'project1' ;
+delete from i2b2hive.crc_db_lookup where c_project_path = '/project1/' ;
+delete from i2b2hive.ONT_DB_LOOKUP where C_DB_FULLSCHEMA = 'project1' ;
+delete from i2b2hive.WORK_DB_LOOKUP where C_DB_FULLSCHEMA = 'project1' ;
+delete from i2b2hive.IM_DB_LOOKUP where C_DB_FULLSCHEMA = 'project1' ;
+
+-- ===========================================================
+set schema 'i2b2pm';
+-- ===========================================================
+delete from i2b2pm.PM_HIVE_DATA where domain_id = 'BRISSKIT' ;
+DELETE FROM i2b2pm.PM_PROJECT_DATA where PROJECT_ID = 'project1' ;
+delete from i2b2pm.PM_PROJECT_USER_ROLES where PROJECT_ID = 'project1' ;
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
