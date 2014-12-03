@@ -99,7 +99,7 @@ public class PatientDimension {
 	}
 	
 	
-	public void serializeToDatabase( Connection connection ) throws NewProjectException {
+	public void serializeToDatabase( Connection connection ) throws UploaderException {
 		enterTrace( "PatientDimension.serializeToDatabase()" ) ;
 		try {
 
@@ -134,7 +134,7 @@ public class PatientDimension {
 
 		}
 		catch( SQLException sqlx ) {
-			throw new NewProjectException( "Failed to insert into patient dimension.", sqlx ) ;
+			throw new UploaderException( "Failed to insert into patient dimension.", sqlx ) ;
 		}
 		finally {
 			exitTrace( "PatientDimension.serializeToDatabase()" ) ;

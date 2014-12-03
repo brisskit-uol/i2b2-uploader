@@ -33,9 +33,9 @@ public class ProjectUtils {
 		}	
 	}
 
-	public String enfoldString( String value ) throws NewProjectException {	
+	public String enfoldString( String value ) throws UploaderException {	
 		if( value == null ) {
-			throw new NewProjectException( "Non-nullable String encountered:\n" + this.toString() ) ;
+			throw new UploaderException( "Non-nullable String encountered:\n" + this.toString() ) ;
 		}
 		else {
 			return "'" + value + "'" ;
@@ -53,9 +53,9 @@ public class ProjectUtils {
 	}
 
 
-	public String enfoldDecimal( Double value ) throws NewProjectException {
+	public String enfoldDecimal( Double value ) throws UploaderException {
 		if( value == null ) {
-			throw new NewProjectException( "Non-nullable Long encountered:\n" + this.toString() ) ;
+			throw new UploaderException( "Non-nullable Long encountered:\n" + this.toString() ) ;
 		}
 		else {
 			return decimalFormat.format( value ) ;
@@ -72,9 +72,9 @@ public class ProjectUtils {
 		}	
 	}
 
-	public String enfoldInteger( Integer value ) throws NewProjectException {
+	public String enfoldInteger( Integer value ) throws UploaderException {
 		if( value == null ) {
-			throw new NewProjectException( "Non-nullable Integer encountered:\n" + this.toString() ) ;
+			throw new UploaderException( "Non-nullable Integer encountered:\n" + this.toString() ) ;
 		}
 		else {
 			return String.valueOf( value ) ;
@@ -91,9 +91,9 @@ public class ProjectUtils {
 		}	
 	}
 
-	public String enfoldDate( Date value ) throws NewProjectException {
+	public String enfoldDate( Date value ) throws UploaderException {
 		if( value == null ) {
-			throw new NewProjectException( "Non-nullable Date encountered:\n" + this.toString() ) ;
+			throw new UploaderException( "Non-nullable Date encountered:\n" + this.toString() ) ;
 		}
 		else {
 			return "'" + dateFormat.format( value ) + "'" ;

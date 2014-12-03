@@ -100,7 +100,7 @@ public ObservationFact( ProjectUtils utils ) {
 	this.utils = utils ;
 }
 
-public void serializeToDatabase( Connection connection ) throws NewProjectException {
+public void serializeToDatabase( Connection connection ) throws UploaderException {
 	enterTrace( "ObservationFact.serializeToDatabase()" ) ;
 	
 	String sqlCmd = OBSERVATION_FACT_INSERT_COMMAND ;
@@ -140,7 +140,7 @@ public void serializeToDatabase( Connection connection ) throws NewProjectExcept
 	}
 	catch( SQLException sqlx ) {
 		log.error( sqlx.getStackTrace() ) ;
-		throw new NewProjectException( "Failed to insert into observation fact table:\n" + sqlCmd, sqlx ) ;
+		throw new UploaderException( "Failed to insert into observation fact table:\n" + sqlCmd, sqlx ) ;
 	}
 	finally {
 		exitTrace( "ObservationFact.serializeToDatabase()" ) ;

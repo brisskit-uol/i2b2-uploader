@@ -56,7 +56,7 @@ public class Base {
 	
 	public static Connection con;
 	
-	static public void setUp( String propertiesFileName ) throws NewProjectException {
+	static public void setUp( String propertiesFileName ) throws UploaderException {
 		enterTrace( "Base.setUp()" ) ; 
 		
 		InputStream inputStream = Base.class.getClassLoader().getResourceAsStream( propertiesFileName ) ;
@@ -65,7 +65,7 @@ public class Base {
 
 			if (inputStream == null) {
 				log.info("Base Class - Properties Path Not Found") ;
-				throw new NewProjectException( "property file '" + propertiesFileName + "' not found in the classpath" ) ;
+				throw new UploaderException( "property file '" + propertiesFileName + "' not found in the classpath" ) ;
 			}
 
 
@@ -106,7 +106,7 @@ public class Base {
 			log.info(env + "." + MYSQL_DB_P + "= " + mysql_db_p);
 
 		} catch (IOException e) {
-			throw new NewProjectException( e ) ;
+			throw new UploaderException( e ) ;
 		}
 		finally {
 			exitTrace( "Base.setUp()" ) ; 
@@ -144,7 +144,7 @@ public class Base {
 
 	
 	
-	static public Connection getSimpleConnectionPG() throws NewProjectException {
+	static public Connection getSimpleConnectionPG() throws UploaderException {
 		enterTrace( "getSimpleConnectionPG()" ) ;
 		
 		String DB_CONN_STRING = "jdbc:postgresql://" + pg_db_url + "/"+ pg_db_name +"?user=" + pg_db_u+ "&password=" + pg_db_p;
@@ -157,7 +157,7 @@ public class Base {
 		} 
 		catch( Exception ex ) {
 			log.error( "Check classpath. Cannot load db driver: " + DRIVER_CLASS_NAME ) ;
-			throw new NewProjectException( ex ) ;
+			throw new UploaderException( ex ) ;
 		}
 
 		if (con == null) {
@@ -166,7 +166,7 @@ public class Base {
 			} 
 			catch (SQLException sqlex) {
 				log.error( "Driver loaded, but cannot connect to db: " + DB_CONN_STRING ) ;
-				throw new NewProjectException( sqlex ) ;
+				throw new UploaderException( sqlex ) ;
 			}
 		}
 		exitTrace( "getSimpleConnectionPG()" ) ;
