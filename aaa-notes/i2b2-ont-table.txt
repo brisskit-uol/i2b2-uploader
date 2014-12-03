@@ -25,32 +25,58 @@ C_PATH  VARCHAR(700)   NULL,
 C_SYMBOL        VARCHAR(50)     NULL
   
 ===  
-C_HLEVEL:     0  
-C_FULLNAME:   \i2b2\             
-C_NAME:       i2b2       
-C_SYNONYM_CD: N        
-C_VISUALATTRIBUTES: FA      
-C_TOTALNUM: null
-C_BASECODE: null                   
-C_METADATAXML: null
-C_FACTTABLECOLUMN: concept_cd 
-C_TABLENAME: concept_dimension 
-C_COLUMNNAME: concept_path
-C_COLUMNDATATYPE: T 
-C_OPERATOR: LIKE 
-C_DIMCODE: \i2b2\               
-C_COMMENT: null
-C_TOOLTIP: i2b2 
-M_APPLIED_PATH: @ 
-UPDATE_DATE: 2007-03-20 00:00:00  
-DOWNLOAD_DATE: 2007-03-20 00:00:00
-IMPORT_DATE: 2007-03-20 00:00:00  
-SOURCESYSTEM_CD: KRISTEL
-VALUETYPE_CD: null
-M_EXCLUSION_CD: null 
-C_PATH: null
-C_SYMBOL: null                                      
+C_HLEVEL:     0  							4
+C_FULLNAME:   \i2b2\						\i2b2\Demographics\Zip codes\Arkansas\Parkdale\             
+C_NAME:       i2b2   						Parkdale    
+C_SYNONYM_CD: N        						N
+C_VISUALATTRIBUTES: FA      				FA
+C_TOTALNUM: null							null
+C_BASECODE: null                   			null
+C_METADATAXML: null							null
+C_FACTTABLECOLUMN: concept_cd				concept_cd
+C_TABLENAME: concept_dimension				concept_dimension 
+C_COLUMNNAME: concept_path					concept_path
+C_COLUMNDATATYPE: T 						T
+C_OPERATOR: LIKE 							LIKE
+C_DIMCODE: \i2b2\  							\i2b2\Demographics\Zip codes\Arkansas\Parkdale\             
+C_COMMENT: null								null
+C_TOOLTIP: i2b2 							Demographics \ Zip codes \ Arkansas \ Parkdale
+M_APPLIED_PATH: @ 							@
+UPDATE_DATE: 2007-03-20 00:00:00  			now()
+DOWNLOAD_DATE: 2007-03-20 00:00:00			now()
+IMPORT_DATE: 2007-03-20 00:00:00  			now()
+SOURCESYSTEM_CD: KRISTEL					Demo
+VALUETYPE_CD: null							null
+M_EXCLUSION_CD: null 						null
+C_PATH: null								null
+C_SYMBOL: null                              null    
 ===
+
+C_HLEVEL:     0  							5
+C_FULLNAME:   \i2b2\						\i2b2\Demographics\Zip codes\Georgia\Norcross\30071\            
+C_NAME:       i2b2   						30071    
+C_SYNONYM_CD: N        						N
+C_VISUALATTRIBUTES: FA      				LA
+C_TOTALNUM: null							null
+C_BASECODE: null                   			DEM|ZIPCODE:30071
+C_METADATAXML: null							null
+C_FACTTABLECOLUMN: concept_cd				concept_cd
+C_TABLENAME: concept_dimension				concept_dimension 
+C_COLUMNNAME: concept_path					concept_path
+C_COLUMNDATATYPE: T 						T
+C_OPERATOR: LIKE 							LIKE
+C_DIMCODE: \i2b2\  							\i2b2\Demographics\Zip codes\Georgia\Norcross\30071\             
+C_COMMENT: null								null
+C_TOOLTIP: i2b2 							Demographics \ Zip codes \ Arkansas \ Parkdale
+M_APPLIED_PATH: @ 							@
+UPDATE_DATE: 2007-03-20 00:00:00  			now()
+DOWNLOAD_DATE: 2007-03-20 00:00:00			now()
+IMPORT_DATE: 2007-03-20 00:00:00  			now()
+SOURCESYSTEM_CD: KRISTEL					Demo
+VALUETYPE_CD: null							null
+M_EXCLUSION_CD: null 						null
+C_PATH: null								null
+C_SYMBOL: null                              null    
 
         4 | \i2b2\Demographics\Zip codes\Arkansas\Parkdale\          | Parkdale  | N            | FA                 |            |       
             |               | concept_cd        | concept_dimension | concept_path | T                | LIKE       | \i2b2\Demographics\Zip codes\Arkansas\Parkdale\          |           | Demographics \ Zip codes \ Arkansas \ Parkdale            | @              | 2007-04-10 00:00:00 | 2007-04-10 00:00:00 | 2007-04-10 00:00:00 | DEMO            |              |                |        | 

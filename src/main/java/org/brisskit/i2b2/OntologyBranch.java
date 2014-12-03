@@ -271,7 +271,7 @@ public class OntologyBranch {
 		this.toolTip = toolTip ;
 		this.ontCode = ontCode ;
 		this.type = type ;
-		this.units = units.trim() ;  // ensures this MUST NOT BE null s
+		this.units = units.trim() ;  // ensures this MUST NOT BE null
 		this.lookups = lookups ;
 		this.pathsAndCodes = pathsAndCodes ;
 		this.values = values ;
@@ -322,7 +322,7 @@ public class OntologyBranch {
 				
 				sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 0 ) ) ;
 				sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( fullName ) ) ;
-				sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( fullName ) ) ;
+				sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( projectId ) ) ;
 				sqlCmd = sqlCmd.replace( "<SYNONYM_CD>", utils.enfoldString( "N" ) ) ;
 				sqlCmd = sqlCmd.replace( "<VISUALATTRIBUTES>", utils.enfoldString( "FA" ) ) ;
 				sqlCmd = sqlCmd.replace( "<BASECODE>", "NULL" ) ;
@@ -330,7 +330,7 @@ public class OntologyBranch {
 				sqlCmd = sqlCmd.replace( "<COLUMNDATATYPE>", utils.enfoldString( "T" ) ) ;
 				sqlCmd = sqlCmd.replace( "<OPERATOR>", utils.enfoldString( "LIKE" ) ) ;
 				sqlCmd = sqlCmd.replace( "<DIMCODE>", utils.enfoldString( fullName ) ) ;
-				sqlCmd = sqlCmd.replace( "<TOOLTIP>", utils.enfoldNullableString( projectId ) ) ;
+				sqlCmd = sqlCmd.replace( "<TOOLTIP>", utils.enfoldNullableString( fullName ) ) ;
 				sqlCmd = sqlCmd.replace( "<SOURCESYSTEM_CD>", utils.enfoldNullableString( projectId ) ) ;
 				
 				Statement st = connection.createStatement();
@@ -370,15 +370,15 @@ public class OntologyBranch {
 				
 				sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 1 ) ) ;
 				sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( fullName ) ) ;
-				sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( fullName ) ) ;
+				sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( colName ) ) ;
 				sqlCmd = sqlCmd.replace( "<SYNONYM_CD>", utils.enfoldString( "N" ) ) ;
 				sqlCmd = sqlCmd.replace( "<VISUALATTRIBUTES>", utils.enfoldString( "LA" ) ) ;
-				sqlCmd = sqlCmd.replace( "<BASECODE>", "NULL" ) ;
+				sqlCmd = sqlCmd.replace( "<BASECODE>", ontCode ) ;
 				sqlCmd = sqlCmd.replace( "<METADATAXML>", utils.enfoldNullableString( metadataxml ) ) ;
 				sqlCmd = sqlCmd.replace( "<COLUMNDATATYPE>", utils.enfoldString( "N" ) ) ;
 				sqlCmd = sqlCmd.replace( "<OPERATOR>", utils.enfoldString( "LIKE" ) ) ;
 				sqlCmd = sqlCmd.replace( "<DIMCODE>", utils.enfoldString( fullName ) ) ;
-				sqlCmd = sqlCmd.replace( "<TOOLTIP>", utils.enfoldNullableString( projectId ) ) ;
+				sqlCmd = sqlCmd.replace( "<TOOLTIP>", utils.enfoldNullableString( fullName ) ) ;
 				sqlCmd = sqlCmd.replace( "<SOURCESYSTEM_CD>", utils.enfoldNullableString( projectId ) ) ;
 				
 				Statement st = connection.createStatement();
@@ -419,17 +419,20 @@ public class OntologyBranch {
 			if( !pathsAndCodes.contains( PATH_PREFIX + fullName ) ) {
 				sqlCmd = METADATA_SQL_INSERT_COMMAND ;
 				
-				sqlCmd = sqlCmd.replaceAll( "<project_name>", projectId ) ;
-				sqlCmd = sqlCmd.replace( "<hlevel>", "1" ) ;
-				sqlCmd = sqlCmd.replace( "<fullname>", fullName ) ;
-				sqlCmd = sqlCmd.replace( "<synonym_cd>", "N" ) ;
-				sqlCmd = sqlCmd.replace( "<visualattributes>", "FA" ) ;
-				sqlCmd = sqlCmd.replace( "<basecode>", "NULL" ) ;
-				sqlCmd = sqlCmd.replace( "<metadataxml>", "NULL" ) ;
-				sqlCmd = sqlCmd.replace( "<columndatatype>", "T" ) ;
-				sqlCmd = sqlCmd.replace( "<operator>", "LIKE" ) ;
-				sqlCmd = sqlCmd.replace( "<dimcode>", fullName ) ;
-				sqlCmd = sqlCmd.replace( "<tooltip>", toolTip ) ;
+				sqlCmd = sqlCmd.replace( "<PROJECT_ONTOLOGY_TABLE_NAME>", projectId ) ;
+				
+				sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 1 ) ) ;
+				sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( fullName ) ) ;
+				sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( colName ) ) ;
+				sqlCmd = sqlCmd.replace( "<SYNONYM_CD>", utils.enfoldString( "N" ) ) ;
+				sqlCmd = sqlCmd.replace( "<VISUALATTRIBUTES>", utils.enfoldString( "FA" ) ) ;
+				sqlCmd = sqlCmd.replace( "<BASECODE>", "NULL" ) ;
+				sqlCmd = sqlCmd.replace( "<METADATAXML>", "NULL" ) ;
+				sqlCmd = sqlCmd.replace( "<COLUMNDATATYPE>", utils.enfoldString( "T" ) ) ;
+				sqlCmd = sqlCmd.replace( "<OPERATOR>", utils.enfoldString( "LIKE" ) ) ;
+				sqlCmd = sqlCmd.replace( "<DIMCODE>", utils.enfoldString( fullName ) ) ;
+				sqlCmd = sqlCmd.replace( "<TOOLTIP>", utils.enfoldNullableString( toolTip ) ) ;
+				sqlCmd = sqlCmd.replace( "<SOURCESYSTEM_CD>", utils.enfoldNullableString( projectId ) ) ;
 				
 				st.execute( sqlCmd ) ;				
 				//
@@ -470,17 +473,20 @@ public class OntologyBranch {
 				if( !pathsAndCodes.contains( PATH_PREFIX + fullName ) ) {
 					sqlCmd = METADATA_SQL_INSERT_COMMAND ;
 					
-					sqlCmd = sqlCmd.replaceAll( "<project_name>", projectId ) ;
-					sqlCmd = sqlCmd.replace( "<hlevel>", "2" ) ;
-					sqlCmd = sqlCmd.replace( "<fullname>", fullName ) ;
-					sqlCmd = sqlCmd.replace( "<synonym_cd>", "N" ) ;
-					sqlCmd = sqlCmd.replace( "<visualattributes>", "FA" ) ;
-					sqlCmd = sqlCmd.replace( "<basecode>", "NULL" ) ;
-					sqlCmd = sqlCmd.replace( "<metadataxml>", "NULL" ) ;
-					sqlCmd = sqlCmd.replace( "<columndatatype>", "T" ) ;
-					sqlCmd = sqlCmd.replace( "<operator>", "LIKE" ) ;
-					sqlCmd = sqlCmd.replace( "<dimcode>", fullName ) ;
-					sqlCmd = sqlCmd.replace( "<tooltip>", toolTip + ": " + i + "-" + (i+10) ) ;
+					sqlCmd = sqlCmd.replace( "<PROJECT_ONTOLOGY_TABLE_NAME>", projectId ) ;
+					
+					sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 2 ) ) ;
+					sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( fullName ) ) ;
+					sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( colName + ":" + i + "-" + (i+10) ) ) ;
+					sqlCmd = sqlCmd.replace( "<SYNONYM_CD>", utils.enfoldString( "N" ) ) ;
+					sqlCmd = sqlCmd.replace( "<VISUALATTRIBUTES>", utils.enfoldString( "FA" ) ) ;
+					sqlCmd = sqlCmd.replace( "<BASECODE>", "NULL" ) ;
+					sqlCmd = sqlCmd.replace( "<METADATAXML>", "NULL" ) ;
+					sqlCmd = sqlCmd.replace( "<COLUMNDATATYPE>", utils.enfoldString( "T" ) ) ;
+					sqlCmd = sqlCmd.replace( "<OPERATOR>", utils.enfoldString( "LIKE" ) ) ;
+					sqlCmd = sqlCmd.replace( "<DIMCODE>", utils.enfoldString( fullName ) ) ;
+					sqlCmd = sqlCmd.replace( "<TOOLTIP>", utils.enfoldNullableString( toolTip + ": " + i + "-" + (i+10) ) ) ;
+					sqlCmd = sqlCmd.replace( "<SOURCESYSTEM_CD>", utils.enfoldNullableString( projectId ) ) ;
 					
 					st.execute( sqlCmd ) ;
 					//
@@ -497,17 +503,20 @@ public class OntologyBranch {
 				if( !pathsAndCodes.contains( PATH_PREFIX + fullName ) ) {
 					sqlCmd = METADATA_SQL_INSERT_COMMAND ;
 					
-					sqlCmd = sqlCmd.replaceAll( "<project_name>", projectId ) ;
-					sqlCmd = sqlCmd.replace( "<hlevel>", "3" ) ;
-					sqlCmd = sqlCmd.replace( "<fullname>", fullName ) ;
-					sqlCmd = sqlCmd.replace( "<synonym_cd>", "N" ) ;
-					sqlCmd = sqlCmd.replace( "<visualattributes>", "LA" ) ;
-					sqlCmd = sqlCmd.replace( "<basecode>", "NULL" ) ;
-					sqlCmd = sqlCmd.replace( "<metadataxml>", "NULL" ) ;
-					sqlCmd = sqlCmd.replace( "<columndatatype>", "T" ) ;
-					sqlCmd = sqlCmd.replace( "<operator>", "LIKE" ) ;
-					sqlCmd = sqlCmd.replace( "<dimcode>", fullName ) ;
-					sqlCmd = sqlCmd.replace( "<tooltip>", toolTip + ": " + i ) ;
+					sqlCmd = sqlCmd.replace( "<PROJECT_ONTOLOGY_TABLE_NAME>", projectId ) ;
+					
+					sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 3 ) ) ;
+					sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( fullName ) ) ;
+					sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( colName + ":" + i ) ) ;
+					sqlCmd = sqlCmd.replace( "<SYNONYM_CD>", utils.enfoldString( "N" ) ) ;
+					sqlCmd = sqlCmd.replace( "<VISUALATTRIBUTES>", utils.enfoldString( "FA" ) ) ;
+					sqlCmd = sqlCmd.replace( "<BASECODE>", utils.enfoldString( ontCode + ":" + i ) ) ;
+					sqlCmd = sqlCmd.replace( "<METADATAXML>", "NULL" ) ;
+					sqlCmd = sqlCmd.replace( "<COLUMNDATATYPE>", utils.enfoldString( "T" ) ) ;
+					sqlCmd = sqlCmd.replace( "<OPERATOR>", utils.enfoldString( "LIKE" ) ) ;
+					sqlCmd = sqlCmd.replace( "<DIMCODE>", utils.enfoldString( fullName ) ) ;
+					sqlCmd = sqlCmd.replace( "<TOOLTIP>", utils.enfoldNullableString( toolTip + ": " + i ) ) ;
+					sqlCmd = sqlCmd.replace( "<SOURCESYSTEM_CD>", utils.enfoldNullableString( projectId ) ) ;
 					
 					st.execute( sqlCmd ) ;
 					
@@ -583,10 +592,10 @@ public class OntologyBranch {
 				
 				sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 1 ) ) ;
 				sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( fullName ) ) ;
-				sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( fullName ) ) ;
+				sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( colName ) ) ;
 				sqlCmd = sqlCmd.replace( "<SYNONYM_CD>", utils.enfoldString( "N" ) ) ;
 				sqlCmd = sqlCmd.replace( "<VISUALATTRIBUTES>", utils.enfoldString( "LA" ) ) ;
-				sqlCmd = sqlCmd.replace( "<BASECODE>", "NULL" ) ;
+				sqlCmd = sqlCmd.replace( "<BASECODE>", ontCode ) ;
 				sqlCmd = sqlCmd.replace( "<METADATAXML>", "NULL" ) ;
 				sqlCmd = sqlCmd.replace( "<COLUMNDATATYPE>", utils.enfoldString( "T" ) ) ;
 				sqlCmd = sqlCmd.replace( "<OPERATOR>", utils.enfoldString( "LIKE" ) ) ;
@@ -636,7 +645,7 @@ public class OntologyBranch {
 				
 				sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 1 ) ) ;
 				sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( fullName ) ) ;
-				sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( fullName ) ) ;
+				sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( colName ) ) ;
 				sqlCmd = sqlCmd.replace( "<SYNONYM_CD>", utils.enfoldString( "N" ) ) ;
 				sqlCmd = sqlCmd.replace( "<VISUALATTRIBUTES>", utils.enfoldString( "FA" ) ) ;
 				sqlCmd = sqlCmd.replace( "<BASECODE>", "NULL" ) ;
@@ -670,10 +679,10 @@ public class OntologyBranch {
 					
 					sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 2 ) ) ;
 					sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( fullName ) ) ;
-					sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( fullName ) ) ;
+					sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( subCategory ) ) ;
 					sqlCmd = sqlCmd.replace( "<SYNONYM_CD>", utils.enfoldString( "N" ) ) ;
 					sqlCmd = sqlCmd.replace( "<VISUALATTRIBUTES>", utils.enfoldString( "LA" ) ) ;
-					sqlCmd = sqlCmd.replace( "<BASECODE>", "NULL" ) ;
+					sqlCmd = sqlCmd.replace( "<BASECODE>", ontCode + ":" + subCategory ) ;
 					sqlCmd = sqlCmd.replace( "<METADATAXML>", "NULL" ) ;
 					sqlCmd = sqlCmd.replace( "<COLUMNDATATYPE>", utils.enfoldString( "T" ) ) ;
 					sqlCmd = sqlCmd.replace( "<OPERATOR>", utils.enfoldString( "LIKE" ) ) ;

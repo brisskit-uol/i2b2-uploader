@@ -202,20 +202,27 @@ public class I2B2Project {
 		    if( noSheets == 0 ) {
 		    	throw new UploaderException( "Spreadsheet has no contents" ) ;
 		    }
-		    else if( noSheets == 1 ) {
-		    	//
-		    	// Just a data sheet (nothing else) 
-		    	dataSheet = workbook.getSheetAt( DATA_SHEET_INDEX ) ;
-		    }
-		    else {
-		    	//
-		    	// A work sheet and we expect a code lookup sheet ...
-		    	dataSheet = workbook.getSheetAt( DATA_SHEET_INDEX ) ;
-		    	lookupSheet = workbook.getSheetAt( LOOKUP_SHEET_INDEX ) ;
-		    	injestLookupTables() ;
+		    //
+	    	// Get the data sheet, which must be the first sheet... 
+	    	dataSheet = workbook.getSheetAt( DATA_SHEET_INDEX ) ;
+		    if( noSheets > 1 ) {		    	
+		       	//
+			    // Check we have sufficient rows for a lookup sheet (as the 2nd sheet)...
+		    	// ( Many spreadsheets have 2nd and 3rd sheets present but empty by default! )		    	
+			    int numberRows = workbook.getSheetAt( LOOKUP_SHEET_INDEX ).getLastRowNum() + 1 ;
+				if( numberRows > 2 ) {				
+					//
+			    	// The lookup sheet is to map column coded values to some meaningful description
+			    	//  eg: 1 = Coronary hd
+			    	//      2 = Coronary and hypertensive hd and so on)
+			    	// The vision is to use the code as an enumerated value, but place a meaningful
+			    	// description in the ontology tree.
+					lookupSheet = workbook.getSheetAt( LOOKUP_SHEET_INDEX ) ;
+			    	injestLookupTables() ;
+				}
 		    }		    
 		    //
-		    // Check we have sufficient rows...
+		    // Check we have sufficient data rows...
 		    int numberDataRows = dataSheet.getLastRowNum() - FIRST_DATA_ROW_INDEX + 1;
 			if( numberDataRows < 1 ) {
 				throw new UploaderException( "The workbook has insufficient data rows: " + numberDataRows ) ;
@@ -271,23 +278,24 @@ public class I2B2Project {
 			}
 			Iterator<Row> rowIt = lookupSheet.rowIterator() ;
 			//
-			// Tab past description row...
+			// Tab past column headings' row...
 			rowIt.next() ;
 			//
 			// Process code lookup rows...
 			while( rowIt.hasNext() ) {
 				Row lookupRow = rowIt.next() ;	
-				String conceptName = utils.getValueAsString( lookupRow.getCell( I2B2Project.CONCEPT_COLUMN_INDEX ) ) ;
-				String conceptCode = utils.getValueAsString( lookupRow.getCell( I2B2Project.CODE_COLUMN_INDEX ) ) ;
-				String conceptDescription = utils.getValueAsString( lookupRow.getCell( I2B2Project.DESCRIPTION_COLUMN_INDEX ) ) ;
+				String name = utils.getValueAsString( lookupRow.getCell( I2B2Project.CONCEPT_COLUMN_INDEX ) ) ;
+				String code = utils.getValueAsString( lookupRow.getCell( I2B2Project.CODE_COLUMN_INDEX ) ) ;
+				String description = utils.getValueAsString( lookupRow.getCell( I2B2Project.DESCRIPTION_COLUMN_INDEX ) ) ;
 				//
-				// Place a tag within the collection....
-				if( !lookups.containsKey( conceptName ) ) {
-					lookups.put( conceptName, conceptName ) ;
+				// Place a special singular name tag within the collection.
+				// (Really to make it easier to see whether the collection contains mappings for one column)
+				if( !lookups.containsKey( name ) ) {
+					lookups.put( name, name ) ;
 				}
 				//
-				//
-				lookups.put( conceptName + ":" + conceptCode, conceptDescription ) ;
+				// Place a suitable name/code to description mapping in the collection...
+				lookups.put( name + ":" + code, description ) ;
 			}
 			
 		}
@@ -446,6 +454,13 @@ public class I2B2Project {
 		enterTrace( "produceOntology()" ) ;
 		try {
 			Row codesRow = dataSheet.getRow( ONTOLOGY_CODES_ROW_INDEX ) ;
+			//
+			// pathsAndCodes is a collection to help us write out
+			// hierarchical ontology paths in the DB without
+			// attempting to (erroneously) insert duplicated nodes.
+			// For example: path root-node/demographics/age involves
+			// writing three nodes, but the first two will be repeated
+			// for some other path, for example: root-node/demographics/marital-status
 			HashSet<String> pathsAndCodes = new HashSet<String>() ;
 			String colName = null ;
 			String toolTip = null ;
@@ -487,7 +502,7 @@ public class I2B2Project {
 					log.debug( "concept column value: " + ontCode ) ;
 					int firstBracket = ontCode.indexOf( "[" ) ;
 					int secondBracket = ontCode.indexOf( "]" ) ;
-					units = ontCode.substring( firstBracket, secondBracket+1 ) ;
+					units = ontCode.substring( firstBracket, secondBracket ) ;
 					ontCode = ontCode.substring( firstBracket ) ;
 					log.debug( "which yields concept: " + ontCode + " with units: " + units ) ;
 				}
