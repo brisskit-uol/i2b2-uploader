@@ -279,7 +279,7 @@ public class OntologyBranch {
 	}
 	
 	
-	public void serializeToDatabase( Connection connection ) throws NewProjectException {
+	public void serializeToDatabase( Connection connection ) throws UploaderException {
 		enterTrace( "OntologyBranch.serializeToDatabase()" ) ;
 		try {			
 			insertRoot( connection) ;
@@ -309,7 +309,7 @@ public class OntologyBranch {
 	}
 	
 	
-	private void insertRoot( Connection connection ) throws NewProjectException {
+	private void insertRoot( Connection connection ) throws UploaderException {
 		enterTrace( "OntologyBranch.insertRoot()" ) ;
 		try {
 			String fullName = "\\" + projectId + "\\" ;		
@@ -344,14 +344,14 @@ public class OntologyBranch {
 		}
 		catch( SQLException sqlx ) {
 			sqlx.printStackTrace() ;
-			throw new NewProjectException( "OntologyBranch.insertRoot(): Failed to create metadata table root.", sqlx ) ;
+			throw new UploaderException( "OntologyBranch.insertRoot(): Failed to create metadata table root.", sqlx ) ;
 		}
 		finally {
 			exitTrace( "OntologyBranch.insertRoot()" ) ;
 		}
 	}
 	
-	private void insertNumeric( Connection connection ) throws NewProjectException {
+	private void insertNumeric( Connection connection ) throws UploaderException {
 		enterTrace( "OntologyBranch.insertNumeric()" ) ;
 		try {
 			String fullName = "\\" + projectId + "\\" + colName + "\\" ;
@@ -394,7 +394,7 @@ public class OntologyBranch {
 			
 		}
 		catch( SQLException sqlx ) {
-			throw new NewProjectException( "Failed to insert decimal branches into metadata table.", sqlx ) ;
+			throw new UploaderException( "Failed to insert decimal branches into metadata table.", sqlx ) ;
 		}
 		finally {
 			exitTrace( "OntologyBranch.insertNumeric()" ) ;
@@ -402,7 +402,7 @@ public class OntologyBranch {
 	}
 	
 	
-	private void insertEnumeratedNumeric( Connection connection ) throws NewProjectException {
+	private void insertEnumeratedNumeric( Connection connection ) throws UploaderException {
 		enterTrace( "OntologyBranch.insertEnumeratedNumeric()" ) ;
 		try {
 			//
@@ -523,7 +523,7 @@ public class OntologyBranch {
 			
 		}
 		catch( SQLException sqlx ) {
-			throw new NewProjectException( "Failed to insert integer branches into metadata table.", sqlx ) ;
+			throw new UploaderException( "Failed to insert integer branches into metadata table.", sqlx ) ;
 		}
 		finally {
 			exitTrace( "OntologyBranch.insertEnumeratedNumeric()" ) ;
@@ -539,7 +539,7 @@ public class OntologyBranch {
 	private void insertIntoConceptDimension( Statement statement
 			                               , String conceptPath
 			                               , String conceptCode
-			                               , String conceptName ) throws NewProjectException {
+			                               , String conceptName ) throws UploaderException {
 		enterTrace( "OntologyBranch.insertIntoConceptDimension()" ) ;
 		try {
 			String sqlCmd = CONCEPT_DIM_SQL_INSERT_COMMAND ;
@@ -555,7 +555,7 @@ public class OntologyBranch {
 			statement.execute( sqlCmd ) ;			
 		}
 		catch( SQLException sqlx ) {
-			throw new NewProjectException( "Failed to insert concept into concept dimension.", sqlx ) ;
+			throw new UploaderException( "Failed to insert concept into concept dimension.", sqlx ) ;
 		}
 		finally {
 			exitTrace( "OntologyBranch.insertIntoConceptDimension()" ) ;
@@ -563,7 +563,7 @@ public class OntologyBranch {
 	}
 	
 	
-	private void insertDate( Connection connection ) throws NewProjectException {
+	private void insertDate( Connection connection ) throws UploaderException {
 		enterTrace( "OntologyBranch.insertDate()" ) ;
 		try {
 			//
@@ -607,7 +607,7 @@ public class OntologyBranch {
 			
 		}
 		catch( SQLException sqlx ) {
-			throw new NewProjectException( "Failed to insert date branches into metadata table.", sqlx ) ;
+			throw new UploaderException( "Failed to insert date branches into metadata table.", sqlx ) ;
 		}
 		finally {
 			exitTrace( "OntologyBranch.insertDate()" ) ;
@@ -615,7 +615,7 @@ public class OntologyBranch {
 	}
 	
 	
-	private void insertString( Connection connection ) throws NewProjectException {
+	private void insertString( Connection connection ) throws UploaderException {
 		enterTrace( "OntologyBranch.insertString()" ) ;
 		try {
 			//
@@ -693,7 +693,7 @@ public class OntologyBranch {
 			}
 		}
 		catch( SQLException sqlx ) {
-			throw new NewProjectException( "Failed to insert string branches into metadata table.", sqlx ) ;
+			throw new UploaderException( "Failed to insert string branches into metadata table.", sqlx ) ;
 		}
 		finally {
 			exitTrace( "OntologyBranch.insertString()" ) ;

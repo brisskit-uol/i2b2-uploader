@@ -14,7 +14,7 @@ public class CreateDBPG extends Base {
 	
 	private static Log log = LogFactory.getLog( CreateDBPG.class ) ;
 	
-	public static void createI2B2Database() throws NewProjectException {
+	public static void createI2B2Database() throws UploaderException {
 		enterTrace( "CreateDBPG.createI2B2Database()" ) ;
 		
 		String s = new String();
@@ -124,7 +124,7 @@ public class CreateDBPG extends Base {
 			
 		} catch (Exception e) {
 			log.error( "*** Outer Error : ", e ) ;
-			throw new NewProjectException( "*** Outer Error : ", e ) ;
+			throw new UploaderException( "*** Outer Error : ", e ) ;
 		}		
 		finally {
 			exitTrace( "CreateDBPG.createI2B2Database()" ) ;

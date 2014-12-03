@@ -101,7 +101,7 @@ public class I2B2Project {
     }
     
     
-    public void processSpreadsheet() throws NewProjectException {
+    public void processSpreadsheet() throws UploaderException {
     	enterTrace( "I2B2Project.processSpreadsheet" ) ;
     	try {
     		readSpreadsheet() ;
@@ -135,7 +135,7 @@ public class I2B2Project {
 //		}
 //	}
 
-	public void createDBArtifacts() throws NewProjectException {
+	public void createDBArtifacts() throws UploaderException {
 		enterTrace( "I2B2Project.createDBArtifacts()" ) ;
 		try {
 			CreateDBPG.setUp( "db_full.properties" ) ;
@@ -146,7 +146,7 @@ public class I2B2Project {
 		}
 	}
 	
-	public boolean populateProject() throws NewProjectException {
+	public boolean populateProject() throws UploaderException {
 		enterTrace( "populateProject()" ) ;
 		Connection connection = null ;
 		try {
@@ -189,7 +189,7 @@ public class I2B2Project {
 		return false ;
 	}
 	
-	protected void readSpreadsheet() throws NewProjectException {
+	protected void readSpreadsheet() throws UploaderException {
 		enterTrace( "readSpreadsheet()" ) ;
 		try {
 			//
@@ -200,7 +200,7 @@ public class I2B2Project {
 		    // Check we have enough sheets...
 		    int noSheets = workbook.getNumberOfSheets() ;
 		    if( noSheets == 0 ) {
-		    	throw new NewProjectException( "Spreadsheet has no contents" ) ;
+		    	throw new UploaderException( "Spreadsheet has no contents" ) ;
 		    }
 		    else if( noSheets == 1 ) {
 		    	//
@@ -218,7 +218,7 @@ public class I2B2Project {
 		    // Check we have sufficient rows...
 		    int numberDataRows = dataSheet.getLastRowNum() - FIRST_DATA_ROW_INDEX + 1;
 			if( numberDataRows < 1 ) {
-				throw new NewProjectException( "The workbook has insufficient data rows: " + numberDataRows ) ;
+				throw new UploaderException( "The workbook has insufficient data rows: " + numberDataRows ) ;
 			}
 		    //
 		    // The first three rows contain required metadata...
@@ -232,7 +232,7 @@ public class I2B2Project {
 		    numberColumns = columnNames.getLastCellNum() ;
 		}
 		catch( Exception ex ) {
-			throw new NewProjectException( ex ) ;
+			throw new UploaderException( ex ) ;
 		}
 		finally {
 			exitTrace( "readSpreadsheet()" ) ;
@@ -240,21 +240,21 @@ public class I2B2Project {
 	}
 	
 	
-	private void injestLookupTables() throws NewProjectException {
+	private void injestLookupTables() throws UploaderException {
 		enterTrace( "i2b2Project.injestLookupTables()" ) ;
 		try {			
 			//
 		    // Check we have sufficient rows...
 		    int numberRows = lookupSheet.getLastRowNum() + 1 ;
 			if( numberRows < 2 ) {
-				throw new NewProjectException( "The lookup sheet has insufficient rows: " + numberRows ) ;
+				throw new UploaderException( "The lookup sheet has insufficient rows: " + numberRows ) ;
 			}
 			//
 			// Check we have sufficient columns...
 			Row columnNameRow = lookupSheet.getRow( I2B2Project.LOOKUP_COLUMN_NAME_ROW_INDEX ) ;
 			int numberCols = columnNameRow.getLastCellNum() ;
 			if( numberCols != 3 ) {
-				throw new NewProjectException( "The lookup sheet has insufficient rows: " + numberCols ) ;
+				throw new UploaderException( "The lookup sheet has insufficient rows: " + numberCols ) ;
 			}
 			//
 			// Check the format of the first row...
@@ -267,7 +267,7 @@ public class I2B2Project {
 				||
 				!descriptionHeading.equalsIgnoreCase( I2B2Project.DESCRIPTION_COLNAME ) ) {
 				
-				throw new NewProjectException( "Lookup sheet incorrectly formatted: first row has incorrect column headings." ) ;
+				throw new UploaderException( "Lookup sheet incorrectly formatted: first row has incorrect column headings." ) ;
 			}
 			Iterator<Row> rowIt = lookupSheet.rowIterator() ;
 			//
@@ -297,7 +297,7 @@ public class I2B2Project {
 	}
 	
 	
-	protected void producePatientMapping() throws NewProjectException {
+	protected void producePatientMapping() throws UploaderException {
 		enterTrace( "producePatientMapping()" ) ;
 		String value = null ;
 		String code = null ;
@@ -356,7 +356,7 @@ public class I2B2Project {
 	}
 	
 	
-	protected void producePatientDimension() throws NewProjectException {
+	protected void producePatientDimension() throws UploaderException {
 		enterTrace( "producePatientDimension()" ) ;
 		String value = null ;
 		String code = null ;	
@@ -434,7 +434,7 @@ public class I2B2Project {
 			} // end of outer while - processing row
 		}
 		catch( ParseException pex ) {
-			throw new NewProjectException( "Failed to parse date: " + value, pex ) ;
+			throw new UploaderException( "Failed to parse date: " + value, pex ) ;
 		}
 		finally {
 			exitTrace( "producePatientDimension()" ) ;
@@ -442,7 +442,7 @@ public class I2B2Project {
 	}
 	
 	
-	protected void produceOntology() throws NewProjectException {
+	protected void produceOntology() throws UploaderException {
 		enterTrace( "produceOntology()" ) ;
 		try {
 			Row codesRow = dataSheet.getRow( ONTOLOGY_CODES_ROW_INDEX ) ;
@@ -611,7 +611,7 @@ public class I2B2Project {
 	}
 	
 	
-	protected void produceFacts() throws NewProjectException {
+	protected void produceFacts() throws UploaderException {
 		enterTrace( "I2B2Project.produceFacts()" ) ;
 		try {
 			Iterator<Row> rowIt = dataSheet.iterator() ;
@@ -673,7 +673,7 @@ public class I2B2Project {
 	
 	private ObservationFact produceDateFact( int patientNumber
 			                               , String ontCode
-			                               , Cell cell ) throws NewProjectException {
+			                               , Cell cell ) throws UploaderException {
 		enterTrace( "I2B2Project.produceDateFact()" ) ;
 		try {
 			ObservationFact of = new ObservationFact( utils ) ;				
@@ -698,7 +698,7 @@ public class I2B2Project {
 			return of ;
 		}
 		catch( ParseException pex ) {
-			throw new NewProjectException( "Could not parse start date", pex ) ;
+			throw new UploaderException( "Could not parse start date", pex ) ;
 		}
 		finally {
 			exitTrace( "I2B2Project.produceDateFact()" ) ;
@@ -708,7 +708,7 @@ public class I2B2Project {
 	
 	private ObservationFact produceNumericFact( int patientNumber
                                               , String ontCode
-                                              , Cell cell ) throws NewProjectException {
+                                              , Cell cell ) throws UploaderException {
 		enterTrace( "I2B2Project.produceNumericFact()" ) ;
 		try {
 			ObservationFact of = new ObservationFact( utils ) ;				
@@ -737,7 +737,7 @@ public class I2B2Project {
 	
 	private ObservationFact produceStringFact( int patientNumber
                                              , String ontCode
-                                             , Cell cell ) throws NewProjectException {
+                                             , Cell cell ) throws UploaderException {
 		enterTrace( "I2B2Project.produceStringFact()" ) ;
 		try {
 			ObservationFact of = new ObservationFact( utils ) ;				
