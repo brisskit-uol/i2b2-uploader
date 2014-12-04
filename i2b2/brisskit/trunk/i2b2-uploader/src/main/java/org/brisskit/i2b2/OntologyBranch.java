@@ -509,7 +509,7 @@ public class OntologyBranch {
 					sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( fullName ) ) ;
 					sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( colName + ":" + i ) ) ;
 					sqlCmd = sqlCmd.replace( "<SYNONYM_CD>", utils.enfoldString( "N" ) ) ;
-					sqlCmd = sqlCmd.replace( "<VISUALATTRIBUTES>", utils.enfoldString( "FA" ) ) ;
+					sqlCmd = sqlCmd.replace( "<VISUALATTRIBUTES>", utils.enfoldString( "LA" ) ) ;
 					sqlCmd = sqlCmd.replace( "<BASECODE>", utils.enfoldString( ontCode + ":" + i ) ) ;
 					sqlCmd = sqlCmd.replace( "<METADATAXML>", "NULL" ) ;
 					sqlCmd = sqlCmd.replace( "<COLUMNDATATYPE>", utils.enfoldString( "T" ) ) ;
