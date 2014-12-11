@@ -130,6 +130,10 @@ public class PatientMapping {
 	public void setPatient_ide(String patient_ide) {
 		this.patient_ide = patient_ide;
 	}
+	
+	public String getPatient_ide() {
+		return this.patient_ide ;
+	}
 
 
 	public void setPatient_ide_source(String patient_ide_source) {
@@ -139,6 +143,10 @@ public class PatientMapping {
 
 	public void setPatient_num(Integer patient_num) {
 		this.patient_num = patient_num;
+	}
+	
+	public Integer getPatient_num() {
+		return this.patient_num ;
 	}
 
 

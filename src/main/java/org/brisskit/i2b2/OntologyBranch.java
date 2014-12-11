@@ -623,7 +623,9 @@ public class OntologyBranch {
 		}
 	}
 	
-	
+	//
+	// Need to cater for lookups for bottom leaves
+	// The subcategory would be replaced
 	private void insertString( Connection connection ) throws UploaderException {
 		enterTrace( "OntologyBranch.insertString()" ) ;
 		try {
@@ -669,8 +671,13 @@ public class OntologyBranch {
 			Iterator<String> it = values.iterator() ;
 			while( it.hasNext() ) {
 				String subCategory = it.next() ;
+				String lookup = subCategory ; // default to what is there
 				
-				fullName = "\\" + projectId + "\\" + colName + "\\" + subCategory + "\\" ;
+				if( lookups.containsKey( colName ) ) {
+					lookup = lookups.get( colName + ":" + subCategory ) ;
+				}
+				
+				fullName = "\\" + projectId + "\\" + colName + "\\" + lookup + "\\" ;
 				if( !pathsAndCodes.contains( PATH_PREFIX + fullName ) ) {
 					
 					sqlCmd = METADATA_SQL_INSERT_COMMAND ;
@@ -679,7 +686,7 @@ public class OntologyBranch {
 					
 					sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 2 ) ) ;
 					sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( fullName ) ) ;
-					sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( subCategory ) ) ;
+					sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( lookup ) ) ;
 					sqlCmd = sqlCmd.replace( "<SYNONYM_CD>", utils.enfoldString( "N" ) ) ;
 					sqlCmd = sqlCmd.replace( "<VISUALATTRIBUTES>", utils.enfoldString( "LA" ) ) ;
 					sqlCmd = sqlCmd.replace( "<BASECODE>", ontCode + ":" + subCategory ) ;
@@ -687,13 +694,13 @@ public class OntologyBranch {
 					sqlCmd = sqlCmd.replace( "<COLUMNDATATYPE>", utils.enfoldString( "T" ) ) ;
 					sqlCmd = sqlCmd.replace( "<OPERATOR>", utils.enfoldString( "LIKE" ) ) ;
 					sqlCmd = sqlCmd.replace( "<DIMCODE>", utils.enfoldString( fullName ) ) ;
-					sqlCmd = sqlCmd.replace( "<TOOLTIP>", utils.enfoldNullableString( toolTip + ":" + subCategory ) ) ;
+					sqlCmd = sqlCmd.replace( "<TOOLTIP>", utils.enfoldNullableString( toolTip + ":" + lookup ) ) ;
 					sqlCmd = sqlCmd.replace( "<SOURCESYSTEM_CD>", utils.enfoldNullableString( projectId ) ) ;
 					
 					st.execute( sqlCmd ) ;
 					//
 					// Insert concept into concept dimension...
-					insertIntoConceptDimension( st, fullName, ontCode + ":" + subCategory, colName + " " + subCategory ) ;
+					insertIntoConceptDimension( st, fullName, ontCode + ":" + subCategory, colName + " " + lookup ) ;
 					//
 					// Record the path name so we don't try and duplicate it next time...
 					pathsAndCodes.add( PATH_PREFIX + fullName ) ;
