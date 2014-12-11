@@ -71,6 +71,9 @@ public class I2B2Project {
     private int numberColumns ;
     
     private int encounterNumber = 0 ;
+    private int patientNumber = 0 ;
+    
+    private Map<String,Integer> patientMappings = new HashMap<String,Integer>() ;
     
     private Map<String,String> lookups = new HashMap<String,String>() ;
     
@@ -106,8 +109,8 @@ public class I2B2Project {
     	try {
     		readSpreadsheet() ;
 			produceOntology() ;
-			producePatientDimension() ;	
-			producePatientMapping() ;	
+			producePatientMapping() ;
+			producePatientDimension() ;		
 			produceFacts() ;
     	}
     	finally {
@@ -332,23 +335,20 @@ public class I2B2Project {
 				while( cellIt.hasNext() ) {
 					value = utils.getValueAsString( cellIt.next() ) ;
 					code = utils.getValueAsString( codeIt.next() ) ;
-					if( code.startsWith( "p_map:" ) ) {
-						String[] parts = code.split( ":" ) ;
-						if( parts[1].equalsIgnoreCase( "source_id" ) ) {
+					if( code.equalsIgnoreCase( "id" ) ) {
 							pMap.setPatient_ide( value ) ;
 							pMap.setPatient_ide_source( projectId ) ;
 							pMap.setProject_id( projectId ) ;
-							pMap.setPatient_ide_status( "?" ) ;
-						}				
-					}
-					else if( code.startsWith( "p_dim:" ) ) {
-						String[] parts = code.split( ":" ) ;
-						if( parts[1].equalsIgnoreCase( "id" ) ) {
-							pMap.setPatient_num( Integer.valueOf( value ) ) ;
-						}
+							pMap.setPatient_ide_status( "?" ) ;			
 					}
 					
 				} // end of inner while - processing cell	
+				
+				//
+				// We set the internal i2b2 number for the mapping to source...
+				// NB: patientNumber must only be changed in the current method!!!!
+				pMap.setPatient_num( patientNumber++ ) ;
+				this.patientMappings.put( pMap.getPatient_ide(), pMap.getPatient_num() ) ;
 				
 				//
 				// For the moment we are saving in memory until all is ready
@@ -367,7 +367,8 @@ public class I2B2Project {
 	protected void producePatientDimension() throws UploaderException {
 		enterTrace( "producePatientDimension()" ) ;
 		String value = null ;
-		String code = null ;	
+		String code = null ;
+		String sourceSystemPatientID = null ;
 		try {
 			Iterator<Row> rowIt = dataSheet.rowIterator() ;
 			//
@@ -395,10 +396,7 @@ public class I2B2Project {
 					code = utils.getValueAsString( codeIt.next() ) ;
 					if( code.startsWith( "p_dim:" ) ) {
 						String[] parts = code.split( ":" ) ;
-						if( parts[1].equalsIgnoreCase( "id" ) ) {
-							pDim.setPatient_num( Integer.valueOf( value ) ) ;
-						}
-						else if( parts[1].equalsIgnoreCase( "age" ) ) {
+						if( parts[1].equalsIgnoreCase( "age" ) ) {
 							pDim.setAge_in_years( Integer.valueOf( value ) ) ;
 						}
 						else if( parts[1].equalsIgnoreCase( "vital_status" ) ) {
@@ -431,9 +429,16 @@ public class I2B2Project {
 							// for the moment we are not concentrating on queries using patient dimension.
 						}
 					}
+					else if( code.equalsIgnoreCase( "id" ) ) {
+						sourceSystemPatientID = value ;
+					}
 					
 				} // end of inner while - processing cell	
 				
+				//
+				// We do not expect the spreadsheet to contain the i2b2 internal patient number.
+				pDim.setPatient_num( this.patientMappings.get( sourceSystemPatientID ) ) ;
+								
 				//
 				// For the moment we are saving in memory until all is ready
 				// (We need to think how we can back out or restart if doing things incrementally) 
@@ -510,53 +515,60 @@ public class I2B2Project {
 				int colIndex = codeCell.getColumnIndex() ;
 				colName = utils.getValueAsString( dataSheet.getRow( I2B2Project.COLUMN_NAME_ROW_INDEX ).getCell( colIndex ) ) ;
 				toolTip = utils.getValueAsString( dataSheet.getRow( I2B2Project.TOOLTIPS_ROW_INDEX ).getCell( colIndex ) ) ;
-				values = new HashSet<String>() ;
+				//
+				// If there is a code lookup, we must treat this as of type STRING.
+				// Thus we examine the range of values to determine numerics or dates 
+				// ONLY if there is not a code lookup for this column...
+				if( !lookups.containsKey( colName ) ) {
+										
+					values = new HashSet<String>() ;
+					log.debug( "Processing column with colName: [" + colName + "] toolTip: [" + toolTip + "] ontCode: [" + ontCode + "]" ) ;
 
-				log.debug( "Processing column with colName: [" + colName + "] toolTip: [" + toolTip + "] ontCode: [" + ontCode + "]" ) ;
+					Iterator<Row> rowIt = dataSheet.rowIterator() ;
+					rowIt.next() ; // tab past column names
+					rowIt.next() ; // tab past tool tips
+					rowIt.next() ; // tab past codes
 
-				Iterator<Row> rowIt = dataSheet.rowIterator() ;
-				rowIt.next() ; // tab past column names
-				rowIt.next() ; // tab past tool tips
-				rowIt.next() ; // tab past codes
+					while( rowIt.hasNext() ) {
+						Row row = rowIt.next() ;
+						Cell dataCell = row.getCell( colIndex ) ;
+						String value = utils.getValueAsString( dataCell ) ;
+						if( utils.isNull( value ) ) {
+							log.debug( "Encountered a cell with null value" ) ;
+							continue ;
+						}
+						//
+						// Add to the range of values encountered...
+						values.add( value ) ;
+						//
+						// Decide whether numeric, date or string...
+						if( utils.isNumeric( value ) ) {
+							log.debug( "Cell with numeric value: " + value ) ;
+							if( type == Type.STRING ) {
+								type = Type.NUMERIC ;
+							}
+							else if( type == Type.NUMERIC ) {
+								// If type has already been established as a decimal, do nothing
+							}
+						}
+						else if( utils.isDate( value ) ) {
+							log.debug( "Cell with date value: " + value ) ;
+							if( type == Type.STRING ) {
+								type = Type.DATE ;
+							}
+							else if( type != Type.DATE ) {
+								log.error( "Cells with incompatible values; current value: " + value ) ;
+							}
+						}
+						else {
+							// We assume a string
+							log.debug( "Cell with string value: " + value ) ;
+						}
 
-				while( rowIt.hasNext() ) {
-					Row row = rowIt.next() ;
-					Cell dataCell = row.getCell( colIndex ) ;
-					String value = utils.getValueAsString( dataCell ) ;
-					if( utils.isNull( value ) ) {
-						log.debug( "Encountered a cell with null value" ) ;
-						continue ;
-					}
-					//
-					// Add to the range of values encountered...
-					values.add( value ) ;
-					//
-					// Decide whether numeric, date or string...
-					if( utils.isNumeric( value ) ) {
-						log.debug( "Cell with numeric value: " + value ) ;
-						if( type == Type.STRING ) {
-							type = Type.NUMERIC ;
-						}
-						else if( type == Type.NUMERIC ) {
-							// If type has already been established as a decimal, do nothing
-						}
-					}
-					else if( utils.isDate( value ) ) {
-						log.debug( "Cell with date value: " + value ) ;
-						if( type == Type.STRING ) {
-							type = Type.DATE ;
-						}
-						else if( type != Type.DATE ) {
-							log.error( "Cells with incompatible values; current value: " + value ) ;
-						}
-					}
-					else {
-						// We assume a string
-						log.debug( "Cell with string value: " + value ) ;
-					}
-
-				} // end inner while
+					} // end inner while
 					
+				} // endif
+									
 				//
 				// We build each branch in memory and save it in a collection 
 				OntologyBranch 
@@ -575,6 +587,10 @@ public class I2B2Project {
 				
 			} // end outer while 
 			
+			
+			//
+			// Indicates that we are creating the project's ontology
+			// here for the very first time, as derived from the spreadsheet.
 			if( isVirginOntology() ) {
 				Iterator<OntologyBranch> itOb = ontBranches.values().iterator() ;
 				while( itOb.hasNext() ) {
@@ -598,7 +614,7 @@ public class I2B2Project {
 	// we are simply processing the spreadsheet for data (observation facts etc)
 	// and we need ontology data simply for producing observation facts.
 	//
-	// This method required more work, or at least some experimentation.
+	// This method requires more work, or at least some experimentation.
 	private boolean isVirginOntology() {
 		boolean virginOntology = true ;
 		//
@@ -791,17 +807,22 @@ public class I2B2Project {
 		int patientNumberIndex = -1 ;
 		while( cellIt.hasNext() ) {
 			Cell cell = cellIt.next() ;
-			String value = utils.getValueAsString( cell ) ;			
-			if( value.equals( "p_dim:id" ) ) {
+			String value = utils.getValueAsString( cell ) ;
+			//
+			// Search for the source systems id...
+			if( value.equalsIgnoreCase( "id" ) ) {
 				patientNumberIndex =  cell.getColumnIndex() ;
 				break ;
 			}			
 		}
-		String patientNumberAsString = utils.getValueAsString( dataRow.getCell( patientNumberIndex ) )  ;		
-		return Integer.valueOf( patientNumberAsString ) ; 
+		String sourcePatientNoAsString = utils.getValueAsString( dataRow.getCell( patientNumberIndex ) )  ;		
+		//
+		// Given the source system patient identifier (as a string), 
+		// we use the mappings to get the i2b2 internal id...		
+		return this.patientMappings.get( sourcePatientNoAsString ) ;
 	}
 	
-	
+
 	
 	/**
 	 * Utility routine to enter a structured message in the trace log that the given method 
@@ -910,5 +931,6 @@ public class I2B2Project {
 	public ArrayList<ObservationFact> getObservatonFacts() {
 		return observatonFacts;
 	}
+
 	
 }

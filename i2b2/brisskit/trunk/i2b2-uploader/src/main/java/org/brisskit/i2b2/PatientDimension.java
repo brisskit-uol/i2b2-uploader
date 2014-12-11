@@ -171,6 +171,10 @@ public class PatientDimension {
 	public void setPatient_num(Integer patient_num) {
 		this.patient_num = patient_num;
 	}
+	
+	public Integer getPatient_num() {
+		return this.patient_num ;
+	}
 
 
 	public void setVital_status_cd(String vital_status_cd) {
