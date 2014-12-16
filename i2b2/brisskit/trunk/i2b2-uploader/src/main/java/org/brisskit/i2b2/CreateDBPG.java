@@ -14,26 +14,31 @@ public class CreateDBPG extends Base {
 	
 	private static Log log = LogFactory.getLog( CreateDBPG.class ) ;
 	
-	public static void createI2B2Database() throws UploaderException {
+	public static void createI2B2Database( String projectId ) throws UploaderException {
 		enterTrace( "CreateDBPG.createI2B2Database()" ) ;
 		
 		String s = new String();
 		StringBuffer sb = new StringBuffer();
 		Connection connection = null ;
 		try {
-
+			
+			//
+			// Create project specific tables and insert project info into hive and pm tables...
+			
 			FileReader fr = new FileReader( new File( scripts_location + "createDB_PG.sql" ) );
-//			FileReader fr = new FileReader( new File( scripts_location + "reinit.sql" ) );
 			BufferedReader br = new BufferedReader(fr);
 
 			while ((s = br.readLine()) != null) {
 
-				s = s.replaceAll("<SCHEMA_NAME>", pg_db_schema);
-				s = s.replaceAll("<PROJECT_NAME>", project_name);
-				s = s.replaceAll("<QTProject1DS>", "QT" + pg_db_schema + "DS");
-				s = s.replaceAll("<WProject1DS>", "W" + pg_db_schema + "DS");
-				s = s.replaceAll("<OProject1DS>", "O" + pg_db_schema + "DS");
-				s = s.replaceAll("<IMProject1DS>", "IM" + pg_db_schema + "DS");
+				s = s.replaceAll("<SCHEMA_NAME>", projectId );
+				s = s.replaceAll("<PROJECT_NAME>", projectId );
+				//
+				// NB: The following are the DB inserts for the JBoss dataset definitions.
+				// The actual DS definitions themselves are deployed into JBoss later (see below)
+				s = s.replaceAll("<QTProject1DS>", "QT" + projectId + "DS");
+				s = s.replaceAll("<WProject1DS>", "W" + projectId + "DS");
+				s = s.replaceAll("<OProject1DS>", "O" + projectId + "DS");
+				s = s.replaceAll("<IMProject1DS>", "IM" + projectId + "DS");
 
 				sb.append(s);
 
@@ -66,6 +71,9 @@ public class CreateDBPG extends Base {
 				}
 			}
 
+			//
+			// Create project specific database procedures...
+			
 			st.setEscapeProcessing(false);
 						
 			log.debug("Procedure 1");
@@ -121,6 +129,36 @@ public class CreateDBPG extends Base {
 			log.debug("Procedure 26");
 			st.execute("CREATE OR REPLACE FUNCTION istableexists (tableName IN text)  RETURNS varchar AS $body$ DECLARE  flag varchar(10); countTableCur REFCURSOR; countTable varchar(1);   BEGIN      open countTableCur for EXECUTE 'SELECT count(1) FROM pg_catalog.pg_class WHERE relname = '''||tableName||''' ' ;     LOOP         FETCH countTableCur INTO countTable;         IF countTable = '0'             THEN              flag := 'FALSE';             EXIT;         ELSE             flag := 'TRUE';             EXIT;     END IF;          END LOOP;     close countTableCur ;     return flag;      EXCEPTION WHEN OTHERS THEN     RAISE EXCEPTION 'An error was encountered - % -ERROR- %',SQLSTATE,SQLERRM;                     END;     $body$     LANGUAGE PLPGSQL; ");
 			log.debug("Procedure 27");
+			
+			//
+			// Deploy the JBoss dataset definitions required by new project...
+			
+			sb.delete( 0, sb.length() ) ;	// clear the buffer.
+			//
+			// Process the template into the buffer...
+			fr = new FileReader( new File( jboss_dsfile_template ) ) ;
+			br = new BufferedReader(fr) ;
+
+			while( ( s = br.readLine()) != null ) {
+
+				s = s.replaceAll( "${projectId}", projectId ) ;
+				s = s.replaceAll( "${pg_db_url}", pg_db_url ) ;
+				s = s.replaceAll( "${pg_db_name}", pg_db_name ) ;
+				s = s.replaceAll( "${pg_db_u}", pg_db_u ) ;
+				s = s.replaceAll( "${pg_db_p}", pg_db_p ) ;
+
+				sb.append(s).append( "\n" ) ;
+
+			}
+			br.close();
+			
+			//
+			// Write the processed template into the JBoss deployment directory...
+			
+			
+			
+			//
+			// Write the control file which will trigger deployment...
 			
 		} catch (Exception e) {
 			log.error( "*** Outer Error : ", e ) ;

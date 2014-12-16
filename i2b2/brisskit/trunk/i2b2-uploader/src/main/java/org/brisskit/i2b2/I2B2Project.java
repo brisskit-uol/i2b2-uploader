@@ -141,8 +141,8 @@ public class I2B2Project {
 	public void createDBArtifacts() throws UploaderException {
 		enterTrace( "I2B2Project.createDBArtifacts()" ) ;
 		try {
-			CreateDBPG.setUp( "db_full.properties" ) ;
-			CreateDBPG.createI2B2Database();
+			CreateDBPG.setUp( "configpointer.properties" ) ;
+			CreateDBPG.createI2B2Database( projectId );
 		}
 		finally {
 			exitTrace( "I2B2Project.createDBArtifacts()" ) ;
