@@ -54,7 +54,7 @@ public class Base {
 
 			Properties propsPointer = new Properties() ;
 			propsPointer.load( pointerInputStream ) ;
-			String configFilePath = (String)propsPointer.get( "dbfull.properties.path" ) ;
+			String configFilePath = ((String)propsPointer.get( "dbfull.properties.path" )).trim() ;
 			
 			InputStream configPropertiesStream = new FileInputStream( configFilePath ) ;
 			
