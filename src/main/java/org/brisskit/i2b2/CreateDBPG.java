@@ -3,8 +3,8 @@ package org.brisskit.i2b2 ;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.apache.commons.logging.Log;
@@ -141,11 +141,11 @@ public class CreateDBPG extends Base {
 
 			while( ( s = br.readLine()) != null ) {
 
-				s = s.replaceAll( "${projectId}", projectId ) ;
-				s = s.replaceAll( "${pg_db_url}", pg_db_url ) ;
-				s = s.replaceAll( "${pg_db_name}", pg_db_name ) ;
-				s = s.replaceAll( "${pg_db_u}", pg_db_u ) ;
-				s = s.replaceAll( "${pg_db_p}", pg_db_p ) ;
+				s = s.replaceAll( "\\${projectId}", projectId ) ;
+				s = s.replaceAll( "\\${pg_db_url}", pg_db_url ) ;
+				s = s.replaceAll( "\\${pg_db_name}", pg_db_name ) ;
+				s = s.replaceAll( "\\${pg_db_u}", pg_db_u ) ;
+				s = s.replaceAll( "\\${pg_db_p}", pg_db_p ) ;
 
 				sb.append(s).append( "\n" ) ;
 
@@ -154,11 +154,24 @@ public class CreateDBPG extends Base {
 			
 			//
 			// Write the processed template into the JBoss deployment directory...
+			String fileName = projectId + "-ds.xml" ;
+			FileWriter fw = new FileWriter( jboss_deploy_dir 
+					                      + System.getProperty( "file.separator") 
+					                      + fileName ) ;
 			
-			
+			fw.write( sb.toString() ) ;
+			fw.flush() ;
+			fw.close() ;
 			
 			//
 			// Write the control file which will trigger deployment...
+			fw = new FileWriter( jboss_deploy_dir 
+					           + System.getProperty( "file.separator") 
+					           + fileName 
+					           + ".dodeploy" ) ;
+			fw.write( " " ) ;
+			fw.flush() ;
+			fw.close() ;
 			
 		} catch (Exception e) {
 			log.error( "*** Outer Error : ", e ) ;
