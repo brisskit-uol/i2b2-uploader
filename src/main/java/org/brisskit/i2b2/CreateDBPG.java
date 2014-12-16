@@ -141,11 +141,11 @@ public class CreateDBPG extends Base {
 
 			while( ( s = br.readLine()) != null ) {
 
-				s = s.replaceAll( "\\${projectId}", projectId ) ;
-				s = s.replaceAll( "\\${pg_db_url}", pg_db_url ) ;
-				s = s.replaceAll( "\\${pg_db_name}", pg_db_name ) ;
-				s = s.replaceAll( "\\${pg_db_u}", pg_db_u ) ;
-				s = s.replaceAll( "\\${pg_db_p}", pg_db_p ) ;
+				s = s.replaceAll( "<<projectId>>", projectId ) ;
+				s = s.replaceAll( "<<pg_db_url>>", pg_db_url ) ;
+				s = s.replaceAll( "<<pg_db_name>>", pg_db_name ) ;
+				s = s.replaceAll( "<<pg_db_u>>", pg_db_u ) ;
+				s = s.replaceAll( "<<pg_db_p>>", pg_db_p ) ;
 
 				sb.append(s).append( "\n" ) ;
 
