@@ -373,7 +373,7 @@ public class OntologyBranch {
 				sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( colName ) ) ;
 				sqlCmd = sqlCmd.replace( "<SYNONYM_CD>", utils.enfoldString( "N" ) ) ;
 				sqlCmd = sqlCmd.replace( "<VISUALATTRIBUTES>", utils.enfoldString( "LA" ) ) ;
-				sqlCmd = sqlCmd.replace( "<BASECODE>", ontCode ) ;
+				sqlCmd = sqlCmd.replace( "<BASECODE>", utils.enfoldString( ontCode ) ) ;
 				sqlCmd = sqlCmd.replace( "<METADATAXML>", utils.enfoldNullableString( metadataxml ) ) ;
 				sqlCmd = sqlCmd.replace( "<COLUMNDATATYPE>", utils.enfoldString( "N" ) ) ;
 				sqlCmd = sqlCmd.replace( "<OPERATOR>", utils.enfoldString( "LIKE" ) ) ;
@@ -595,7 +595,7 @@ public class OntologyBranch {
 				sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( colName ) ) ;
 				sqlCmd = sqlCmd.replace( "<SYNONYM_CD>", utils.enfoldString( "N" ) ) ;
 				sqlCmd = sqlCmd.replace( "<VISUALATTRIBUTES>", utils.enfoldString( "LA" ) ) ;
-				sqlCmd = sqlCmd.replace( "<BASECODE>", ontCode ) ;
+				sqlCmd = sqlCmd.replace( "<BASECODE>", utils.enfoldString( ontCode ) ) ;
 				sqlCmd = sqlCmd.replace( "<METADATAXML>", "NULL" ) ;
 				sqlCmd = sqlCmd.replace( "<COLUMNDATATYPE>", utils.enfoldString( "T" ) ) ;
 				sqlCmd = sqlCmd.replace( "<OPERATOR>", utils.enfoldString( "LIKE" ) ) ;
@@ -689,7 +689,7 @@ public class OntologyBranch {
 					sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( lookup ) ) ;
 					sqlCmd = sqlCmd.replace( "<SYNONYM_CD>", utils.enfoldString( "N" ) ) ;
 					sqlCmd = sqlCmd.replace( "<VISUALATTRIBUTES>", utils.enfoldString( "LA" ) ) ;
-					sqlCmd = sqlCmd.replace( "<BASECODE>", ontCode + ":" + subCategory ) ;
+					sqlCmd = sqlCmd.replace( "<BASECODE>", utils.enfoldString( ontCode + ":" + subCategory ) ) ;
 					sqlCmd = sqlCmd.replace( "<METADATAXML>", "NULL" ) ;
 					sqlCmd = sqlCmd.replace( "<COLUMNDATATYPE>", utils.enfoldString( "T" ) ) ;
 					sqlCmd = sqlCmd.replace( "<OPERATOR>", utils.enfoldString( "LIKE" ) ) ;
