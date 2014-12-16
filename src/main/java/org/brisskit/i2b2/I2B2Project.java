@@ -114,29 +114,17 @@ public class I2B2Project {
 			produceFacts() ;
     	}
     	finally {
+    		Connection connection = Base.getSimpleConnectionPG() ;
+    		if( connection != null ) {
+				try{ connection.close() ; }
+				catch( SQLException sqlx ) {
+					log.warn( "Failed to close SQL connection" ) ;
+				}
+			}
     		exitTrace( "I2B2Project.processSpreadsheet" ) ;
     	}
     }
 
-    
-//	public void create() throws NewProjectException {
-//		enterTrace( "create()" ) ;
-//		try {
-//			readSpreadsheet() ;
-//			produceOntology() ;
-//			producePatientDimension() ;	
-//			producePatientMapping() ;	
-//			produceFacts() ;
-//			//
-//			// So far everything is in memory.
-//			// Only if we get this far do we start on creating db artifacts and inserting data...
-//			createDBArtifacts() ;
-//			populateProject() ;
-//		}
-//		finally {
-//			exitTrace( "create()" ) ;
-//		}
-//	}
 
 	public void createDBArtifacts() throws UploaderException {
 		enterTrace( "I2B2Project.createDBArtifacts()" ) ;
@@ -149,48 +137,48 @@ public class I2B2Project {
 		}
 	}
 	
-	public boolean populateProject() throws UploaderException {
-		enterTrace( "populateProject()" ) ;
-		Connection connection = null ;
-		try {
-			connection = Base.getSimpleConnectionPG() ;
-			
-			Iterator<OntologyBranch> itOb = ontBranches.values().iterator() ;
-			while( itOb.hasNext() ) {
-				OntologyBranch ob = itOb.next() ;
-				ob.serializeToDatabase( connection ) ;
-			}
-			//
-			// Patient stuff ...
-			Iterator<PatientDimension> itPd = patientDims.listIterator() ;
-			while( itPd.hasNext() ) {
-				PatientDimension pd = itPd.next() ;
-				pd.serializeToDatabase( connection ) ;
-			}
-			Iterator<PatientMapping> itPm = patientMaps.listIterator() ;
-			while( itPm.hasNext() ) {
-				PatientMapping pm = itPm.next() ;
-				pm.serializeToDatabase( connection ) ;
-			}
-			//
-			// Observation facts...
-			Iterator<ObservationFact> itOf = observatonFacts.listIterator() ;
-			while( itOf.hasNext() ) {
-				ObservationFact of = itOf.next() ;
-				of.serializeToDatabase( connection ) ;
-			}
-		}
-		finally {
-			if( connection != null ) {
-				try{ connection.close() ; }
-				catch( SQLException sqlx ) {
-					log.warn( "Failed to close SQL connection" ) ;
-				}
-			}
-			exitTrace( "populateProject()" ) ;
-		}
-		return false ;
-	}
+//	public boolean populateProject() throws UploaderException {
+//		enterTrace( "populateProject()" ) ;
+//		Connection connection = null ;
+//		try {
+//			connection = Base.getSimpleConnectionPG() ;
+//			
+//			Iterator<OntologyBranch> itOb = ontBranches.values().iterator() ;
+//			while( itOb.hasNext() ) {
+//				OntologyBranch ob = itOb.next() ;
+//				ob.serializeToDatabase( connection ) ;
+//			}
+//			//
+//			// Patient stuff ...
+//			Iterator<PatientDimension> itPd = patientDims.listIterator() ;
+//			while( itPd.hasNext() ) {
+//				PatientDimension pd = itPd.next() ;
+//				pd.serializeToDatabase( connection ) ;
+//			}
+//			Iterator<PatientMapping> itPm = patientMaps.listIterator() ;
+//			while( itPm.hasNext() ) {
+//				PatientMapping pm = itPm.next() ;
+//				pm.serializeToDatabase( connection ) ;
+//			}
+//			//
+//			// Observation facts...
+//			Iterator<ObservationFact> itOf = observatonFacts.listIterator() ;
+//			while( itOf.hasNext() ) {
+//				ObservationFact of = itOf.next() ;
+//				of.serializeToDatabase( connection ) ;
+//			}
+//		}
+//		finally {
+//			if( connection != null ) {
+//				try{ connection.close() ; }
+//				catch( SQLException sqlx ) {
+//					log.warn( "Failed to close SQL connection" ) ;
+//				}
+//			}
+//			exitTrace( "populateProject()" ) ;
+//		}
+//		return false ;
+//	}
 	
 	protected void readSpreadsheet() throws UploaderException {
 		enterTrace( "readSpreadsheet()" ) ;
@@ -311,7 +299,7 @@ public class I2B2Project {
 	protected void producePatientMapping() throws UploaderException {
 		enterTrace( "producePatientMapping()" ) ;
 		String value = null ;
-		String code = null ;
+		String name = null ;
 		try {
 			Iterator<Row> rowIt = dataSheet.rowIterator() ;
 			//
@@ -329,17 +317,18 @@ public class I2B2Project {
 				pMap.setSourcesystem_id( projectId ) ;
 				
 				Iterator<Cell> cellIt = dataRow.cellIterator() ;
-				Iterator<Cell> codeIt = ontologyCodes.cellIterator() ;
+				Iterator<Cell> namesIt = columnNames.cellIterator() ;
 				//
 				// We process each cell according to its code...
 				while( cellIt.hasNext() ) {
 					value = utils.getValueAsString( cellIt.next() ) ;
-					code = utils.getValueAsString( codeIt.next() ) ;
-					if( code.equalsIgnoreCase( "id" ) ) {
+					name = utils.getValueAsString( namesIt.next() ) ;
+					if( name.equalsIgnoreCase( "id" ) ) {
 							pMap.setPatient_ide( value ) ;
 							pMap.setPatient_ide_source( projectId ) ;
 							pMap.setProject_id( projectId ) ;
-							pMap.setPatient_ide_status( "?" ) ;			
+							pMap.setPatient_ide_status( "?" ) ;
+							break ;
 					}
 					
 				} // end of inner while - processing cell	
@@ -351,9 +340,13 @@ public class I2B2Project {
 				this.patientMappings.put( pMap.getPatient_ide(), pMap.getPatient_num() ) ;
 				
 				//
+				// Write mapping to i2b2
+				pMap.serializeToDatabase( Base.getSimpleConnectionPG() ) ;
+				
+				//
 				// For the moment we are saving in memory until all is ready
 				// (We need to think how we can back out or restart if doing things incrementally) 				
-				patientMaps.add( pMap ) ;
+				// patientMaps.add( pMap ) ;
 				
 			} // end of outer while - processing row
 			
@@ -368,7 +361,8 @@ public class I2B2Project {
 		enterTrace( "producePatientDimension()" ) ;
 		String value = null ;
 		String code = null ;
-		String sourceSystemPatientID = null ;
+		String name = null ;
+
 		try {
 			Iterator<Row> rowIt = dataSheet.rowIterator() ;
 			//
@@ -390,10 +384,12 @@ public class I2B2Project {
 				// We process each cell according to its code...
 				Iterator<Cell> cellIt = dataRow.cellIterator() ;
 				Iterator<Cell> codeIt = ontologyCodes.cellIterator() ;
+				Iterator<Cell> namesIt = columnNames.cellIterator() ;
 								
 				while( cellIt.hasNext() ) {
 					value = utils.getValueAsString( cellIt.next() ) ;
 					code = utils.getValueAsString( codeIt.next() ) ;
+					name = utils.getValueAsString( namesIt.next() ) ;
 					if( code.startsWith( "p_dim:" ) ) {
 						String[] parts = code.split( ":" ) ;
 						if( parts[1].equalsIgnoreCase( "age" ) ) {
@@ -429,20 +425,24 @@ public class I2B2Project {
 							// for the moment we are not concentrating on queries using patient dimension.
 						}
 					}
-					else if( code.equalsIgnoreCase( "id" ) ) {
-						sourceSystemPatientID = value ;
+					else if( name.equalsIgnoreCase( "id" ) ) {
+						//
+						// We do not expect the spreadsheet to contain the i2b2 internal patient number,
+						// but we can use the source-system id to retrieve the internal number we gave 
+						// the patient at patient mapping time...
+						String sourceSystemPatientID = value ;
+						pDim.setPatient_num( patientMappings.get( sourceSystemPatientID ) ) ;
 					}
 					
 				} // end of inner while - processing cell	
 				
 				//
-				// We do not expect the spreadsheet to contain the i2b2 internal patient number.
-				pDim.setPatient_num( this.patientMappings.get( sourceSystemPatientID ) ) ;
-								
+				// Write patient dimension to i2b2...
+				pDim.serializeToDatabase( Base.getSimpleConnectionPG() ) ;
 				//
 				// For the moment we are saving in memory until all is ready
 				// (We need to think how we can back out or restart if doing things incrementally) 
-				patientDims.add( pDim ) ;
+				// patientDims.add( pDim ) ;
 								
 			} // end of outer while - processing row
 		}
@@ -508,7 +508,7 @@ public class I2B2Project {
 					int firstBracket = ontCode.indexOf( "[" ) ;
 					int secondBracket = ontCode.indexOf( "]" ) ;
 					units = ontCode.substring( firstBracket, secondBracket ) ;
-					ontCode = ontCode.substring( firstBracket ) ;
+					ontCode = ontCode.substring( 0, firstBracket ) ;
 					log.debug( "which yields concept: " + ontCode + " with units: " + units ) ;
 				}
 								
@@ -666,8 +666,14 @@ public class I2B2Project {
 					}
 					String ontCode = getOntCode( cell ) ;
 					//
-					// We bypass any columns which are patient mapping or patient dimension...
-					if( ontCode.startsWith( "p_map:" ) || ontCode.startsWith( "p_dim:" ) ) {
+					// We bypass any columns which are not connected to ontological facts
+					if( ontCode == null ) {
+						continue ;
+					}
+					else if( ontCode.equalsIgnoreCase( "null" ) ) {
+						continue ;
+					}
+					else if( ontCode.startsWith( "p_map:" ) || ontCode.startsWith( "p_dim:" ) ) {
 						continue ;
 					}
 					else {
@@ -686,10 +692,14 @@ public class I2B2Project {
 							of = produceStringFact( patientNumber, ontCode, cell ) ;
 							break;
 						}
+						
+						//
+						// Write fact to i2b2...
+						of.serializeToDatabase( Base.getSimpleConnectionPG() ) ;
 						//
 						// For the moment we are saving in memory until all is ready
 						// (We need to think how we can back out or restart if doing things incrementally) 
-						observatonFacts.add( of ) ;
+						// observatonFacts.add( of ) ;
 					}
 					
 				} // end of inner while - processing cell	
@@ -803,7 +813,7 @@ public class I2B2Project {
 	
 	
 	public int getPatientNumber( Row dataRow ) {
-		Iterator<Cell> cellIt = dataRow.getSheet().getRow( I2B2Project.ONTOLOGY_CODES_ROW_INDEX ).cellIterator() ;
+		Iterator<Cell> cellIt = dataRow.getSheet().getRow( I2B2Project.COLUMN_NAME_ROW_INDEX ).cellIterator() ;
 		int patientNumberIndex = -1 ;
 		while( cellIt.hasNext() ) {
 			Cell cell = cellIt.next() ;
