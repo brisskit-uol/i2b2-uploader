@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ====================================================================== -->
+<!--                                                                        -->
+<!--  JBoss Server Configuration                                            -->
+<!--                                                                        -->
+<!-- ====================================================================== -->
+<datasources>
+
+	<datasource jta="false" jndi-name="java:/QT<<projectId>>DS"
+		pool-name="QT<<projectId>>DS" enabled="true" use-ccm="false">
+		<connection-url><<pg_db_url>>/<<pg_db_name>>?searchpath=<<projectId>></connection-url>
+		<driver-class>org.postgresql.Driver</driver-class>
+		<driver>postgresql-9.2-1002.jdbc4.jar</driver>
+		<security>
+			<user-name><<pg_db_u>></user-name>
+			<password><<pg_db_p>></password>
+		</security>
+		<validation>
+			<validate-on-match>false</validate-on-match>
+			<background-validation>false</background-validation>
+		</validation>
+		<statement>
+			<share-prepared-statements>false</share-prepared-statements>
+		</statement>
+	</datasource>
+	
+	<datasource jta="false" jndi-name="java:/O<<projectId>>DS"
+		pool-name="O<<projectId>>DS" enabled="true" use-ccm="false">
+		<connection-url><<pg_db_url>>/<<pg_db_name>>?searchpath=i2b2metadata</connection-url>
+		<driver-class>org.postgresql.Driver</driver-class>
+		<driver>postgresql-9.2-1002.jdbc4.jar</driver>
+		<security>
+			<user-name><<pg_db_u>></user-name>
+			<password><<pg_db_p>></password>
+		</security>
+		<validation>
+			<validate-on-match>false</validate-on-match>
+			<background-validation>false</background-validation>
+		</validation>
+		<statement>
+			<share-prepared-statements>false</share-prepared-statements>
+		</statement>
+	</datasource>
+	
+	<datasource jta="false" jndi-name="java:/I<<projectId>>DS"
+		pool-name="I<<projectId>>DS" enabled="true" use-ccm="false">
+		<connection-url><<pg_db_url>>/<<pg_db_name>>?searchpath=i2b2im</connection-url>
+		<driver-class>org.postgresql.Driver</driver-class>
+		<driver>postgresql-9.2-1002.jdbc4.jar</driver>
+		<security>
+			<user-name><<pg_db_u>></user-name>
+			<password><<pg_db_p>></password>
+		</security>
+		<validation>
+			<validate-on-match>false</validate-on-match>
+			<background-validation>false</background-validation>
+		</validation>
+		<statement>
+			<share-prepared-statements>false</share-prepared-statements>
+		</statement>
+	</datasource>
+	
+	<datasource jta="false" jndi-name="java:/W<<projectId>>DS"
+		pool-name="W<<projectId>>DS" enabled="true" use-ccm="false">
+		<connection-url><<pg_db_url>>/<<pg_db_name>>?searchpath=i2b2workdata</connection-url>
+		<driver-class>org.postgresql.Driver</driver-class>
+		<driver>postgresql-9.2-1002.jdbc4.jar</driver>
+		<security>
+			<user-name><<pg_db_u>></user-name>
+			<password><<pg_db_p>></password>
+		</security>
+		<validation>
+			<validate-on-match>false</validate-on-match>
+			<background-validation>false</background-validation>
+		</validation>
+		<statement>
+			<share-prepared-statements>false</share-prepared-statements>
+		</statement>
+	</datasource>
+
+</datasources>
