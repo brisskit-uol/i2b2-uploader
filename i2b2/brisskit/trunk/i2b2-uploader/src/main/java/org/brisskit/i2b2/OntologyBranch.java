@@ -725,6 +725,11 @@ public class OntologyBranch {
 	public String getOntCode() {
 		return ontCode;
 	}
+	
+	
+	public String getUnits() {
+		return units ;
+	}
 		
 	
 	/**
