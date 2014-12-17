@@ -70,8 +70,12 @@ public class I2B2Project {
     private Row ontologyCodes ;
     private int numberColumns ;
     
-    private int encounterNumber = 0 ;
-    private int patientNumber = 0 ;
+    //
+    // Initial encounter number
+    private int encounterNumber = 1 ;
+    //
+    // Initial patient number
+    private int patientNumber = 1 ;
     
     private Map<String,Integer> patientMappings = new HashMap<String,Integer>() ;
     
@@ -484,6 +488,14 @@ public class I2B2Project {
 			Iterator<Cell> cellIt = codesRow.cellIterator() ;
 			while( cellIt.hasNext() ) {
 				Cell codeCell = cellIt.next() ;
+				int colIndex = codeCell.getColumnIndex() ;
+				colName = utils.getValueAsString( dataSheet.getRow( I2B2Project.COLUMN_NAME_ROW_INDEX ).getCell( colIndex ) ) ;
+				toolTip = utils.getValueAsString( dataSheet.getRow( I2B2Project.TOOLTIPS_ROW_INDEX ).getCell( colIndex ) ) ;
+				//
+				// The source patient id should not be processed as a fact (and therefore no ontological data)...
+				if( colName.equalsIgnoreCase( "ID" ) ) {
+					continue ;
+				}
 				//
 				// The default value is String
 				OntologyBranch.Type type = Type.STRING ;
@@ -512,9 +524,7 @@ public class I2B2Project {
 					log.debug( "which yields concept: " + ontCode + " with units: " + units ) ;
 				}
 								
-				int colIndex = codeCell.getColumnIndex() ;
-				colName = utils.getValueAsString( dataSheet.getRow( I2B2Project.COLUMN_NAME_ROW_INDEX ).getCell( colIndex ) ) ;
-				toolTip = utils.getValueAsString( dataSheet.getRow( I2B2Project.TOOLTIPS_ROW_INDEX ).getCell( colIndex ) ) ;
+				
 				//
 				// If there is a code lookup, we must treat this as of type STRING.
 				// Thus we examine the range of values to determine numerics or dates 
@@ -677,15 +687,16 @@ public class I2B2Project {
 						continue ;
 					}
 					else {
-						
-						OntologyBranch.Type type = getOntologyBranch( ontCode ).getType() ;
+						OntologyBranch ontBranch = getOntologyBranch( ontCode ) ;
+						OntologyBranch.Type type = ontBranch.getType() ;
+						String units = ontBranch.getUnits() ;
 						ObservationFact of = null ;
 						switch ( type ) {
 						case DATE:
 							of = produceDateFact( patientNumber, ontCode, cell ) ;
 							break ;
 						case NUMERIC:
-							of = produceNumericFact( patientNumber, ontCode, cell ) ;
+							of = produceNumericFact( patientNumber, ontCode, units, cell ) ;
 							break ;
 						case STRING:
 						default:
@@ -749,6 +760,7 @@ public class I2B2Project {
 	
 	private ObservationFact produceNumericFact( int patientNumber
                                               , String ontCode
+                                              , String units
                                               , Cell cell ) throws UploaderException {
 		enterTrace( "I2B2Project.produceNumericFact()" ) ;
 		try {
@@ -761,10 +773,19 @@ public class I2B2Project {
 			of.setStart_date( new Date() ) ;
 			
 			String value = utils.getValueAsString( cell ) ;			
-
-			of.setValtype_cd( "N" ) ;
-			of.setTval_char( "E" ) ;
-			of.setNval_num( Double.valueOf( value ) ) ;
+			//
+			// Numeric facts can be stored as 
+			// (1) a plain numeric value, or
+			// (2) as an enumeration
+			if( units.equalsIgnoreCase( "enum" ) ) {
+				of.setValtype_cd( "T" ) ;						
+				of.setTval_char( value ) ;
+			}
+			else {
+				of.setValtype_cd( "N" ) ;
+				of.setTval_char( "E" ) ;
+				of.setNval_num( Double.valueOf( value ) ) ;
+			}
 			
 			of.setSourcesystem_cd( projectId ) ;
 			of.setSchema_name( projectId ) ;
