@@ -8,7 +8,7 @@
 
 	<datasource jta="false" jndi-name="java:/QT<<projectId>>DS"
 		pool-name="QT<<projectId>>DS" enabled="true" use-ccm="false">
-		<connection-url><<pg_db_url>>/<<pg_db_name>>?searchpath=<<projectId>></connection-url>
+		<connection-url>jdbc:postgresql://<<pg_db_url>>/<<pg_db_name>>?searchpath=<<projectId>></connection-url>
 		<driver-class>org.postgresql.Driver</driver-class>
 		<driver>postgresql-9.2-1002.jdbc4.jar</driver>
 		<security>
@@ -26,7 +26,7 @@
 	
 	<datasource jta="false" jndi-name="java:/O<<projectId>>DS"
 		pool-name="O<<projectId>>DS" enabled="true" use-ccm="false">
-		<connection-url><<pg_db_url>>/<<pg_db_name>>?searchpath=i2b2metadata</connection-url>
+		<connection-url>jdbc:postgresql://<<pg_db_url>>/<<pg_db_name>>?searchpath=i2b2metadata</connection-url>
 		<driver-class>org.postgresql.Driver</driver-class>
 		<driver>postgresql-9.2-1002.jdbc4.jar</driver>
 		<security>
@@ -42,9 +42,9 @@
 		</statement>
 	</datasource>
 	
-	<datasource jta="false" jndi-name="java:/I<<projectId>>DS"
-		pool-name="I<<projectId>>DS" enabled="true" use-ccm="false">
-		<connection-url><<pg_db_url>>/<<pg_db_name>>?searchpath=i2b2im</connection-url>
+	<datasource jta="false" jndi-name="java:/IM<<projectId>>DS"
+		pool-name="IM<<projectId>>DS" enabled="true" use-ccm="false">
+		<connection-url>jdbc:postgresql://<<pg_db_url>>/<<pg_db_name>>?searchpath=i2b2im</connection-url>
 		<driver-class>org.postgresql.Driver</driver-class>
 		<driver>postgresql-9.2-1002.jdbc4.jar</driver>
 		<security>
@@ -62,7 +62,7 @@
 	
 	<datasource jta="false" jndi-name="java:/W<<projectId>>DS"
 		pool-name="W<<projectId>>DS" enabled="true" use-ccm="false">
-		<connection-url><<pg_db_url>>/<<pg_db_name>>?searchpath=i2b2workdata</connection-url>
+		<connection-url>jdbc:postgresql://<<pg_db_url>>/<<pg_db_name>>?searchpath=i2b2workdata</connection-url>
 		<driver-class>org.postgresql.Driver</driver-class>
 		<driver>postgresql-9.2-1002.jdbc4.jar</driver>
 		<security>
