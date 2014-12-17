@@ -507,7 +507,7 @@ public class I2B2Project {
 					log.debug( "concept column value: " + ontCode ) ;
 					int firstBracket = ontCode.indexOf( "[" ) ;
 					int secondBracket = ontCode.indexOf( "]" ) ;
-					units = ontCode.substring( firstBracket, secondBracket ) ;
+					units = ontCode.substring( firstBracket+1, secondBracket ) ;
 					ontCode = ontCode.substring( 0, firstBracket ) ;
 					log.debug( "which yields concept: " + ontCode + " with units: " + units ) ;
 				}
@@ -807,8 +807,14 @@ public class I2B2Project {
 		return ontBranches.get( ontCode ) ;
 	}
 	
-	protected String getOntCode( Cell dataCell ) {	
-		return utils.getValueAsString( dataSheet.getRow( I2B2Project.ONTOLOGY_CODES_ROW_INDEX ).getCell( dataCell.getColumnIndex() ) ) ;
+	protected String getOntCode( Cell dataCell ) {
+		String ontCodeCellValue = 
+				utils.getValueAsString( dataSheet.getRow( I2B2Project.ONTOLOGY_CODES_ROW_INDEX ).getCell( dataCell.getColumnIndex() ) ) ;
+		int indexFirstUnitsBracket = ontCodeCellValue.indexOf( '[' ) ;
+		if( indexFirstUnitsBracket != -1 ) {
+			ontCodeCellValue = ontCodeCellValue.substring( 0, indexFirstUnitsBracket ) ;			
+		}
+		return ontCodeCellValue ;
 	}
 	
 	
