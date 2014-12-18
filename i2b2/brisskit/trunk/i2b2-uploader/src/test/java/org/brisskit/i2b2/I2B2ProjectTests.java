@@ -35,15 +35,9 @@ public class I2B2ProjectTests extends TestCase {
 	public void testI2B2Project() {
 		
 		I2B2Project project = new I2B2Project( "project1"
-				                             , "My First Project"
-				                             , "admin"
-				                             , "qwerty"
 				                             , new File( "somespreadsheet.xls" ) ) ;
 		
 		assert( project.getProjectId().equals( "project1" ) ) ;
-		assert( project.getProjectName().equals( "My First Project" ) ) ;
-		assert( project.getAdminUserId().equals( "admin" ) ) ;
-		assert( project.getPassword().equals( "qwerty" ) ) ;
 		assert( project.getSpreadsheetFile().getName().equals( "somespreadsheet.xls" ) ) ;
 		
 	}
@@ -52,53 +46,29 @@ public class I2B2ProjectTests extends TestCase {
 		
 		File spreadsheetFile = new File(getClass().getClassLoader().getResource("spreadsheets/test-02.xls").getFile());
 		I2B2Project project = new I2B2Project( "project1"
-                                             , "My First Project"
-                                             , "admin"
-                                             , "admin..."
                                              , spreadsheetFile ) ;
 		
 		try {
-//			I2B2ProjectTests.reinit() ;
-			
-			project.create() ;
-					
+			project.createDBArtifacts() ;
+			project.processSpreadsheet() ;
 		}
-		catch( NewProjectException cex ) {
+		catch( UploaderException cex ) {			
+			cex.printStackTrace( System.out ) ;
 			fail( "CreationException thrown: " + cex.getLocalizedMessage() ) ;
 		}
 		
 	}
 
 	
-//	public void testCreateDBArtifacts() {
-//		
-//		I2B2Project project = new I2B2Project( "project1"
-//                , "My First Project"
-//                , "admin"
-//                , "qwerty"
-//                , new File( "somespreadsheet.xls" ) ) ;
-//		
-//		try {
-//			project.createDBArtifacts() ;
-//		}
-//		catch( CreationException cex ) {
-//			fail( "CreationException thrown: " + cex.getLocalizedMessage() ) ;
-//		}
-//		
-//	}
-
 //	public void testPopulateProject() {
 //		fail("Not yet implemented");
 //	}
 
 	public void testReadSpreadsheet() {
 		
-		File spreadsheetFile = new File(getClass().getClassLoader().getResource("spreadsheets/test-02.xls").getFile());
-		I2B2Project project = new I2B2Project( "project1"
-                , "My First Project"
-                , "admin"
-                , "qwerty"
-                , spreadsheetFile ) ;
+//		File spreadsheetFile = new File(getClass().getClassLoader().getResource("spreadsheets/test-02.xls").getFile());
+		File spreadsheetFile = new File(getClass().getClassLoader().getResource("spreadsheets/EG1-laheart.xlsx").getFile());
+		I2B2Project project = new I2B2Project( "project1", spreadsheetFile ) ;
 		
 		try {
 			project.readSpreadsheet() ;
@@ -111,45 +81,45 @@ public class I2B2ProjectTests extends TestCase {
 			assertNotNull( "toolTips should not be null", toolTips ) ;
 			assertNotNull( "ontologyCodes should not be null", ontologyCodes ) ;
 			
-//			log.debug( "Column names: " ) ;
-//			Iterator<Cell> it = columnNames.cellIterator() ;
-//			while( it.hasNext() ) {
-//				Cell cell = it.next() ;
-//				log.debug( cell.getStringCellValue() ) ;
-//			}
-//			
-//			log.debug( "Tool tips: " ) ;
-//			it = toolTips.cellIterator() ;
-//			while( it.hasNext() ) {
-//				Cell cell = it.next() ;
-//				log.debug( cell.getStringCellValue() ) ;
-//			}
-//			
-//			log.debug( "Codes: " ) ;
-//			it = ontologyCodes.cellIterator() ;
-//			while( it.hasNext() ) {
-//				Cell cell = it.next() ;
-//				log.debug( cell.getStringCellValue() ) ;
-//			}
-//			
-//			log.debug( "========= Values: " ) ;
-//			DataFormatter df = new DataFormatter() ;
-//			Iterator<Row> rowIt = project.getSheetOne().rowIterator() ;
-//			rowIt.next() ; // tab past column names
-//			rowIt.next() ; // tab past tool tips
-//			rowIt.next() ; // tab past codes
-//			while( rowIt.hasNext() ) {
-//				Row row = rowIt.next() ;
-//				log.debug( ">>> values for row number: " + row.getRowNum() ) ;
-//				it = row.cellIterator() ;
-//				while( it.hasNext() ) {
-//					Cell cell = it.next() ;
-//					log.debug( df.formatCellValue( cell ).trim() ) ;		
-//				}
-//			}
+			log.debug( "Column names: " ) ;
+			Iterator<Cell> it = columnNames.cellIterator() ;
+			while( it.hasNext() ) {
+				Cell cell = it.next() ;
+				log.debug( cell.getStringCellValue() ) ;
+			}
+			
+			log.debug( "Tool tips: " ) ;
+			it = toolTips.cellIterator() ;
+			while( it.hasNext() ) {
+				Cell cell = it.next() ;
+				log.debug( cell.getStringCellValue() ) ;
+			}
+			
+			log.debug( "Codes: " ) ;
+			it = ontologyCodes.cellIterator() ;
+			while( it.hasNext() ) {
+				Cell cell = it.next() ;
+				log.debug( cell.getStringCellValue() ) ;
+			}
+			
+			log.debug( "========= Values: " ) ;
+			DataFormatter df = new DataFormatter() ;
+			Iterator<Row> rowIt = project.getSheetOne().rowIterator() ;
+			rowIt.next() ; // tab past column names
+			rowIt.next() ; // tab past tool tips
+			rowIt.next() ; // tab past codes
+			while( rowIt.hasNext() ) {
+				Row row = rowIt.next() ;
+				log.debug( ">>> values for row number: " + row.getRowNum() ) ;
+				it = row.cellIterator() ;
+				while( it.hasNext() ) {
+					Cell cell = it.next() ;
+					log.debug( df.formatCellValue( cell ).trim() ) ;		
+				}
+			}
 					
 		}
-		catch( NewProjectException cex ) {
+		catch( UploaderException cex ) {
 			fail( "CreationException thrown: " + cex.getLocalizedMessage() ) ;
 		}
 						
