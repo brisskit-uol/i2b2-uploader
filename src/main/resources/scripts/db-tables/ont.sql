@@ -8,7 +8,6 @@
 	<PROJECT_ONTOLOGY>
 	
 	The bulk inserts are programmatic.
- 
   =====================================================*/
 
 create schema <METADATA_SCHEMA_NAME>;

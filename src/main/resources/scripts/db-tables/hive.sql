@@ -1,18 +1,24 @@
 /*========================================
   Postgres SQL hive inserts for a project 
+  
+  Substitutions required for:
+  	<PROJECT_ID>
+  	<CRC_SCHEMA_NAME>
+  	<METADATA_SCHEMA_NAME>
+  	<IM_SCHEMA_NAME>
   ========================================*/ 
 
 set schema 'i2b2hive';
 
 INSERT INTO i2b2hive.CRC_DB_LOOKUP (C_DOMAIN_ID, C_PROJECT_PATH, C_OWNER_ID, C_DB_FULLSCHEMA, C_DB_DATASOURCE, C_DB_SERVERTYPE, C_DB_NICENAME, C_DB_TOOLTIP, C_COMMENT, C_ENTRY_DATE, C_CHANGE_DATE, C_STATUS_CD)
-VALUES ('BRISSKIT', '/<SCHEMA_NAME>/', '@', '<SCHEMA_NAME>', 'java:/<QTProject1DS>', 'POSTGRESQL', '<SCHEMA_NAME>', null, null, now(), now(), null);
+VALUES ('BRISSKIT', '/<PROJECT_ID>/', '@', '<CRC_SCHEMA_NAME>', 'java:/QT<PROJECT_ID>DS', 'POSTGRESQL', '<PROJECT_ID>', null, null, now(), now(), null);
 
 INSERT INTO i2b2hive.ONT_DB_LOOKUP (C_DOMAIN_ID, C_PROJECT_PATH, C_OWNER_ID, C_DB_FULLSCHEMA, C_DB_DATASOURCE, C_DB_SERVERTYPE, C_DB_NICENAME, C_DB_TOOLTIP, C_COMMENT, C_ENTRY_DATE, C_CHANGE_DATE, C_STATUS_CD)
-VALUES ('BRISSKIT', '<SCHEMA_NAME>/', '@', 'i2b2metadata', 'java:/<OProject1DS>', 'POSTGRESQL', 'Metadata', null, null, now(), now(), null);
+VALUES ('BRISSKIT', '<PROJECT_ID>/', '@', '<METADATA_SCHEMA_NAME>', 'java:/O<PROJECT_ID>DS', 'POSTGRESQL', '<PROJECT_ID> Metadata', null, null, now(), now(), null);
 
 INSERT INTO i2b2hive.WORK_DB_LOOKUP (C_DOMAIN_ID, C_PROJECT_PATH, C_OWNER_ID, C_DB_FULLSCHEMA, C_DB_DATASOURCE, C_DB_SERVERTYPE, C_DB_NICENAME, C_DB_TOOLTIP, C_COMMENT, C_ENTRY_DATE, C_CHANGE_DATE, C_STATUS_CD)
-VALUES ('BRISSKIT', '<SCHEMA_NAME>/', '@', 'i2b2workdata', 'java:/<WProject1DS>', 'POSTGRESQL', 'Workplace', null, null, now(), now(), null);
+VALUES ('BRISSKIT', '<PROJECT_ID>/', '@', '<WORK_SCHEMA_NAME>', 'java:/W<PROJECT_ID>DS', 'POSTGRESQL', '<PROJECT_ID> Workplace', null, null, now(), now(), null);
 
 INSERT INTO i2b2hive.IM_DB_LOOKUP (C_DOMAIN_ID, C_PROJECT_PATH, C_OWNER_ID, C_DB_FULLSCHEMA, C_DB_DATASOURCE, C_DB_SERVERTYPE, C_DB_NICENAME, C_DB_TOOLTIP, C_COMMENT, C_ENTRY_DATE, C_CHANGE_DATE, C_STATUS_CD)
-VALUES ('BRISSKIT', '<SCHEMA_NAME>/', '@', 'i2b2im', 'java:/<IMProject1DS>', 'POSTGRESQL', 'IM', null, null, now(), now(), null);
+VALUES ('BRISSKIT', '<PROJECT_ID>/', '@', '<IM_SCHEMA_NAME>', 'java:/IM<PROJECT_ID>DS', 'POSTGRESQL', '<PROJECT_ID> IM', null, null, now(), now(), null);
 
