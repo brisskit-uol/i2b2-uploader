@@ -12,33 +12,75 @@ import org.apache.commons.logging.LogFactory;
 
 public class CreateDBPG extends Base {
 	
+	private static final String[] SCRIPT_FILE_NAMES = {
+		"crc.sql",
+		"ont.sql",
+		"im.sql",
+		"wrk.sql",
+		"hive.sql",
+		"pm.sql"
+	} ;
+	
 	private static Log log = LogFactory.getLog( CreateDBPG.class ) ;
 	
 	public static void createI2B2Database( String projectId ) throws UploaderException {
 		enterTrace( "CreateDBPG.createI2B2Database()" ) ;
 		
+		try {
+			//
+			// Create project specific schemas with tables, 
+			// plus relevant control inserts into pm and hive...
+			for( int i=0; i<SCRIPT_FILE_NAMES.length; i++ ) {
+				runScript( projectId, SCRIPT_FILE_NAMES[i] ) ;
+			}
+			//
+			// Create project specific database procedures...
+			insertProcedures() ;			
+			//
+			// Deploy the JBoss dataset definitions required by new project...
+			deployToJBoss( projectId ) ;
+		}
+		finally {
+			exitTrace( "CreateDBPG.createI2B2Database()" ) ;
+		}
+
+	}
+
+	
+	private static void runScript( String projectId, String fileName ) throws UploaderException {
+		enterTrace( "CreateDBPG.runScript()" ) ;
+		
 		String s = new String();
 		StringBuffer sb = new StringBuffer();
 		Connection connection = null ;
 		try {
-			
 			//
 			// Create project specific tables and insert project info into hive and pm tables...
 			
-			FileReader fr = new FileReader( new File( scripts_location + "createDB_PG.sql" ) );
+			FileReader fr = new FileReader( new File( scripts_location + fileName ) ) ;
 			BufferedReader br = new BufferedReader(fr);
 
 			while ((s = br.readLine()) != null) {
 
-				s = s.replaceAll("<SCHEMA_NAME>", projectId );
-				s = s.replaceAll("<PROJECT_NAME>", projectId );
-				//
-				// NB: The following are the DB inserts for the JBoss dataset definitions.
-				// The actual DS definitions themselves are deployed into JBoss later (see below)
-				s = s.replaceAll("<QTProject1DS>", "QT" + projectId + "DS");
-				s = s.replaceAll("<WProject1DS>", "W" + projectId + "DS");
-				s = s.replaceAll("<OProject1DS>", "O" + projectId + "DS");
-				s = s.replaceAll("<IMProject1DS>", "IM" + projectId + "DS");
+				s = s.replaceAll("<CRC_SCHEMA_NAME>", projectId + "data" ) ;
+				s = s.replaceAll("<CRC_USER_NAME>", projectId + "data" ) ;	
+				s = s.replaceAll("<CRC_PASSWORD>", projectId + "data" ) ;
+				
+				s = s.replaceAll("<METADATA_SCHEMA_NAME>", projectId + "meta" ) ;
+				s = s.replaceAll("<METADATA_USER_NAME>", projectId + "meta" ) ;	
+				s = s.replaceAll("<METADATA_PASSWORD>", projectId + "meta" ) ;
+				
+				s = s.replaceAll("<IM_SCHEMA_NAME>", projectId + "im" ) ;
+				s = s.replaceAll("<IM_USER_NAME>", projectId + "im" ) ;	
+				s = s.replaceAll("<IM_PASSWORD>", projectId + "im" ) ;
+				
+				s = s.replaceAll("<WORK_SCHEMA_NAME>", projectId + "work" ) ;
+				s = s.replaceAll("<WORK_USER_NAME>", projectId + "work" ) ;	
+				s = s.replaceAll("<WORK_PASSWORD>", projectId + "work" ) ;
+				
+				s = s.replaceAll("<PROJECT_ONTOLOGY>", projectId ) ;
+				
+				s = s.replaceAll("<PROJECT_ID>", projectId ) ;
 
 				sb.append(s);
 
@@ -64,16 +106,34 @@ public class CreateDBPG extends Base {
 						log.debug( "<<<<<<<<" ) ;
 						
 					} catch (Exception e) {
-						log.error( "ERROR on statement : " + inst[i], e ) ;
+						log.error( "ERROR on statement : " + inst[i] ) ;
+						throw e ;
 					}
 
 					// log.debug( ">>"+inst[i] ) ;
 				}
 			}
 
+		}
+		catch( Exception ex ) {
+			log.error( "CreateDBPG.runScript(): ", ex ) ;
+			throw new UploaderException( "Error whilst executing SQL commands in file " + fileName, ex ) ;
+		}
+		finally {
+			exitTrace( "CreateDBPG.runScript()" ) ;
+		}
+	}
+	
+	
+	private static void insertProcedures() throws UploaderException {
+		enterTrace( "CreateDBPG.insertProcedures()" ) ;
+		Connection connection = null ;
+		try {
+
 			//
 			// Create project specific database procedures...
-			
+			connection = getSimpleConnectionPG();				
+			Statement st = connection.createStatement();
 			st.setEscapeProcessing(false);
 						
 			log.debug("Procedure 1");
@@ -129,23 +189,49 @@ public class CreateDBPG extends Base {
 			log.debug("Procedure 26");
 			st.execute("CREATE OR REPLACE FUNCTION istableexists (tableName IN text)  RETURNS varchar AS $body$ DECLARE  flag varchar(10); countTableCur REFCURSOR; countTable varchar(1);   BEGIN      open countTableCur for EXECUTE 'SELECT count(1) FROM pg_catalog.pg_class WHERE relname = '''||tableName||''' ' ;     LOOP         FETCH countTableCur INTO countTable;         IF countTable = '0'             THEN              flag := 'FALSE';             EXIT;         ELSE             flag := 'TRUE';             EXIT;     END IF;          END LOOP;     close countTableCur ;     return flag;      EXCEPTION WHEN OTHERS THEN     RAISE EXCEPTION 'An error was encountered - % -ERROR- %',SQLSTATE,SQLERRM;                     END;     $body$     LANGUAGE PLPGSQL; ");
 			log.debug("Procedure 27");
-			
+
+		}
+		catch( Exception ex ) {
+			log.error( "CreateDBPG.insertProcedures(): ", ex ) ;
+			throw new UploaderException( "Error whilst inserting DB procedure ", ex ) ;
+		}
+		finally {
+			exitTrace( "CreateDBPG.insertProcedures()" ) ;
+		}
+	}
+	
+	
+	private static void deployToJBoss( String projectId ) throws UploaderException {
+		enterTrace( "CreateDBPG.deployToJBoss()" ) ;
+		
+		StringBuilder sb = new StringBuilder() ;
+		try {
 			//
 			// Deploy the JBoss dataset definitions required by new project...
-			
-			sb.delete( 0, sb.length() ) ;	// clear the buffer.
+
 			//
 			// Process the template into the buffer...
-			fr = new FileReader( new File( jboss_dsfile_template ) ) ;
-			br = new BufferedReader(fr) ;
+			FileReader fr = new FileReader( new File( jboss_dsfile_template ) ) ;
+			BufferedReader br = new BufferedReader(fr) ;
+			String s = null ;
 
 			while( ( s = br.readLine()) != null ) {
 
-				s = s.replaceAll( "<<projectId>>", projectId ) ;
-				s = s.replaceAll( "<<pg_db_url>>", pg_db_url ) ;
-				s = s.replaceAll( "<<pg_db_name>>", pg_db_name ) ;
-				s = s.replaceAll( "<<pg_db_u>>", pg_db_u ) ;
-				s = s.replaceAll( "<<pg_db_p>>", pg_db_p ) ;
+				s = s.replaceAll("_CRC_SCHEMA_NAME_", projectId + "data" ) ;
+				s = s.replaceAll("_CRC_USER_NAME_", projectId + "data" ) ;	
+				s = s.replaceAll("_CRC_PASSWORD_", projectId + "data" ) ;
+				
+				s = s.replaceAll("_METADATA_SCHEMA_NAME_", projectId + "meta" ) ;
+				s = s.replaceAll("_METADATA_USER_NAME_", projectId + "meta" ) ;	
+				s = s.replaceAll("_METADATA_PASSWORD_", projectId + "meta" ) ;
+				
+				s = s.replaceAll("_IM_SCHEMA_NAME_", projectId + "im" ) ;
+				s = s.replaceAll("_IM_USER_NAME_", projectId + "im" ) ;	
+				s = s.replaceAll("_IM_PASSWORD_", projectId + "im" ) ;
+				
+				s = s.replaceAll("_WORK_SCHEMA_NAME_", projectId + "work" ) ;
+				s = s.replaceAll("_WORK_USER_NAME_", projectId + "work" ) ;	
+				s = s.replaceAll("_WORK_PASSWORD_", projectId + "work" ) ;
 
 				sb.append(s).append( "\n" ) ;
 
@@ -172,24 +258,16 @@ public class CreateDBPG extends Base {
 			fw.write( " " ) ;
 			fw.flush() ;
 			fw.close() ;
-			
-		} catch (Exception e) {
-			log.error( "*** Outer Error : ", e ) ;
-			throw new UploaderException( "*** Outer Error : ", e ) ;
-		}		
-		finally {
-			exitTrace( "CreateDBPG.createI2B2Database()" ) ;
 		}
-
+		catch( Exception ex ) {
+			log.error( "Failed to deploy to JBoss", ex ) ;
+			throw new UploaderException( "Failed to deploy to JBoss", ex ) ;
+		}
+		finally {
+			exitTrace( "CreateDBPG.deployToJBoss()" ) ;
+		}
 	}
-
-	public static void main(String[] args) {
-
-//		CreateDBPG.setUp(args[0]);
-		//CreateDBPG.createdb();
-//		CreateDBPG.createI2B2Database();
-		
-	}
+	
 	
 	/**
 	 * Utility routine to enter a structured message in the trace log that the given method 
