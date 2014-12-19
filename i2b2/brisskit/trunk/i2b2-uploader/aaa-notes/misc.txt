@@ -82,9 +82,16 @@ When completed, the service could could go into the i2b2 install procedures, so 
  
  
  ========================================================
- 
-drop schema project1 cascade ;
-drop user project1 ;
+
+				
+drop schema project1data cascade ;
+drop user project1data ;
+drop schema project1meta cascade ;
+drop user project1meta ;
+drop schema project1im cascade ;
+drop user project1im ;
+drop schema project1work cascade ;
+drop user project1work ;
 
 set schema 'i2b2metadata';
 drop table project1 ;
