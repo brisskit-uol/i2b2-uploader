@@ -6,14 +6,14 @@
 <!-- ====================================================================== -->
 <datasources>
 
-	<datasource jta="false" jndi-name="java:/QT<<projectId>>DS"
-		pool-name="QT<<projectId>>DS" enabled="true" use-ccm="false">
-		<connection-url>jdbc:postgresql://<<pg_db_url>>/<<pg_db_name>>?searchpath=<<projectId>></connection-url>
+	<datasource jta="false" jndi-name="java:/QT_projectId_DS"
+		pool-name="QT_projectId_DS" enabled="true" use-ccm="false">
+		<connection-url>jdbc:postgresql://_pg_db_url_/_pg_db_name_?searchpath=_CRC_SCHEMA_NAME_</connection-url>
 		<driver-class>org.postgresql.Driver</driver-class>
 		<driver>postgresql-9.2-1002.jdbc4.jar</driver>
 		<security>
-			<user-name><<pg_db_u>></user-name>
-			<password><<pg_db_p>></password>
+			<user-name>_CRC_USER_NAME_</user-name>
+			<password>_CRC_PASSWORD_</password>
 		</security>
 		<validation>
 			<validate-on-match>false</validate-on-match>
@@ -24,14 +24,14 @@
 		</statement>
 	</datasource>
 	
-	<datasource jta="false" jndi-name="java:/O<<projectId>>DS"
-		pool-name="O<<projectId>>DS" enabled="true" use-ccm="false">
-		<connection-url>jdbc:postgresql://<<pg_db_url>>/<<pg_db_name>>?searchpath=i2b2metadata</connection-url>
+	<datasource jta="false" jndi-name="java:/O_projectId_DS"
+		pool-name="O_projectId_DS" enabled="true" use-ccm="false">
+		<connection-url>jdbc:postgresql://_pg_db_url_/_pg_db_name_?searchpath=_METADATA_SCHEMA_NAME_</connection-url>
 		<driver-class>org.postgresql.Driver</driver-class>
 		<driver>postgresql-9.2-1002.jdbc4.jar</driver>
 		<security>
-			<user-name><<pg_db_u>></user-name>
-			<password><<pg_db_p>></password>
+			<user-name>_METADATA_USER_NAME_</user-name>
+			<password>_METADATA_PASSWORD_</password>
 		</security>
 		<validation>
 			<validate-on-match>false</validate-on-match>
@@ -42,14 +42,14 @@
 		</statement>
 	</datasource>
 	
-	<datasource jta="false" jndi-name="java:/IM<<projectId>>DS"
-		pool-name="IM<<projectId>>DS" enabled="true" use-ccm="false">
-		<connection-url>jdbc:postgresql://<<pg_db_url>>/<<pg_db_name>>?searchpath=i2b2im</connection-url>
+	<datasource jta="false" jndi-name="java:/IM_projectId_DS"
+		pool-name="IM_projectId_DS" enabled="true" use-ccm="false">
+		<connection-url>jdbc:postgresql://_pg_db_url_/_pg_db_name_?searchpath=_IM_SCHEMA_NAME_</connection-url>
 		<driver-class>org.postgresql.Driver</driver-class>
 		<driver>postgresql-9.2-1002.jdbc4.jar</driver>
 		<security>
-			<user-name><<pg_db_u>></user-name>
-			<password><<pg_db_p>></password>
+			<user-name>_IM_USER_NAME_</user-name>
+			<password>_IM_PASSWORD_</password>
 		</security>
 		<validation>
 			<validate-on-match>false</validate-on-match>
@@ -60,14 +60,14 @@
 		</statement>
 	</datasource>
 	
-	<datasource jta="false" jndi-name="java:/W<<projectId>>DS"
-		pool-name="W<<projectId>>DS" enabled="true" use-ccm="false">
-		<connection-url>jdbc:postgresql://<<pg_db_url>>/<<pg_db_name>>?searchpath=i2b2workdata</connection-url>
+	<datasource jta="false" jndi-name="java:/W_projectId_DS"
+		pool-name="W_projectId_DS" enabled="true" use-ccm="false">
+		<connection-url>jdbc:postgresql://_pg_db_url_/_pg_db_name_?searchpath=_WORK_SCHEMA_NAME_</connection-url>
 		<driver-class>org.postgresql.Driver</driver-class>
 		<driver>postgresql-9.2-1002.jdbc4.jar</driver>
 		<security>
-			<user-name><<pg_db_u>></user-name>
-			<password><<pg_db_p>></password>
+			<user-name>_WORK_USER_NAME_</user-name>
+			<password>_WORK_PASSWORD_</password>
 		</security>
 		<validation>
 			<validate-on-match>false</validate-on-match>
