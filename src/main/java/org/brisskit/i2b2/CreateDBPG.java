@@ -79,6 +79,7 @@ public class CreateDBPG extends Base {
 				s = s.replaceAll("<WORK_PASSWORD>", projectId + "work" ) ;
 				
 				s = s.replaceAll("<PROJECT_ONTOLOGY>", projectId ) ;
+				s = s.replaceAll("<PROJECT_METADATA_TABLE>", projectId ) ;
 				
 				s = s.replaceAll("<PROJECT_ID>", projectId ) ;
 
