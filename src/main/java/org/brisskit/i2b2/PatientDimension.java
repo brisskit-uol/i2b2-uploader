@@ -31,9 +31,9 @@ public class PatientDimension {
 	private static Log log = LogFactory.getLog( PatientDimension.class ) ;
 	
 	public static final String PATIENT_DIM_INSERT_COMMAND = 
-			"SET SCHEMA <SCHEMA_NAME_1>;" +
+			"SET SCHEMA '<CRC_SCHEMA_NAME>';" +
 			"" +
-			"INSERT INTO <SCHEMA_NAME_2>.PATIENT_DIMENSION" +
+			"INSERT INTO <CRC_SCHEMA_NAME>.PATIENT_DIMENSION" +
 	               "( PATIENT_NUM" +      
 			       ", VITAL_STATUS_CD" + 
 			       ", BIRTH_DATE" +
@@ -105,8 +105,7 @@ public class PatientDimension {
 
 			String sqlCmd = PATIENT_DIM_INSERT_COMMAND ;
 			
-			sqlCmd = sqlCmd.replace( "<SCHEMA_NAME_1>", utils.enfoldString( schema_name ) ) ;
-			sqlCmd = sqlCmd.replace( "<SCHEMA_NAME_2>", schema_name ) ;
+			sqlCmd = sqlCmd.replaceAll( "<CRC_SCHEMA_NAME>", schema_name ) ;
 					
 			sqlCmd = sqlCmd.replace( "<PATIENT_NUM>", utils.enfoldInteger( patient_num ) ) ;
 			sqlCmd = sqlCmd.replace( "<VITAL_STATUS_CD>", utils.enfoldNullableString( vital_status_cd ) ) ;
