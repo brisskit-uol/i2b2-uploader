@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
@@ -260,20 +261,24 @@ public class CreateDBPG extends Base {
 			//
 			// Attempt to delete any old control file which says 
 			// this has been already deployed...
-			Files.delete( Paths.get( jboss_deploy_dir 
-					               + System.getProperty( "file.separator") 
-					               + fileName 
-					               + ".deployed" ) ) ;
+			Files.deleteIfExists( Paths.get( jboss_deploy_dir 
+					                       + System.getProperty( "file.separator") 
+					                       + fileName 
+					                       + ".deployed" ) ) ;
 			
 			//
-			// Write the new control file which will trigger deployment...
-			fw = new FileWriter( jboss_deploy_dir 
-					           + System.getProperty( "file.separator") 
-					           + fileName 
-					           + ".dodeploy" ) ;
-			fw.write( " " ) ;
-			fw.flush() ;
-			fw.close() ;
+			// Delete old dodeploy control file if it exists.
+			// Then write the new control file which will trigger deployment...
+			// ( The deletion and recreation are done as a precaution - 
+			//   to ensure the creation date/time stamps are near for the two files ).
+			Path doDeployPath = Paths.get( jboss_deploy_dir 
+					                     + System.getProperty( "file.separator") 
+					                     + fileName 
+					                     + ".dodeploy" ) ;
+
+			Files.deleteIfExists( doDeployPath ) ;
+			Files.createFile( doDeployPath ) ;
+		
 		}
 		catch( Exception ex ) {
 			log.error( "Failed to deploy to JBoss", ex ) ;
