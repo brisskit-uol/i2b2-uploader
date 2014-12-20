@@ -218,6 +218,10 @@ public class CreateDBPG extends Base {
 
 			while( ( s = br.readLine()) != null ) {
 
+				s = s.replaceAll("_projectId_", projectId ) ;
+				s = s.replaceAll("_pg_db_url_", pg_db_url ) ;
+				s = s.replaceAll("_pg_db_name_", pg_db_name ) ;
+				
 				s = s.replaceAll("_CRC_SCHEMA_NAME_", projectId + "data" ) ;
 				s = s.replaceAll("_CRC_USER_NAME_", projectId + "data" ) ;	
 				s = s.replaceAll("_CRC_PASSWORD_", projectId + "data" ) ;
