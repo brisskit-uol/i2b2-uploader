@@ -9,7 +9,6 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -20,14 +19,14 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory ;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 
-import org.brisskit.i2b2.OntologyBranch.Type ;
+import org.brisskit.i2b2.OntologyBranch.Type;
 
 /**
  * @author jeff
@@ -82,8 +81,8 @@ public class I2B2Project {
     private Map<String,String> lookups = new HashMap<String,String>() ;
     
     private Map<String,OntologyBranch> ontBranches = new HashMap<String,OntologyBranch>() ;
-    private ArrayList<PatientDimension> patientDims = new ArrayList<PatientDimension>() ;
-    private ArrayList<PatientMapping> patientMaps = new ArrayList<PatientMapping>() ;
+//    private ArrayList<PatientDimension> patientDims = new ArrayList<PatientDimension>() ;
+//    private ArrayList<PatientMapping> patientMaps = new ArrayList<PatientMapping>() ;
     private ArrayList<ObservationFact> observatonFacts = new ArrayList<ObservationFact>() ;
     
     private ProjectUtils utils = new ProjectUtils() ;
