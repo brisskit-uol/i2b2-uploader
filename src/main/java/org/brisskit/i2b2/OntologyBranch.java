@@ -24,69 +24,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * 
- * CREATE TABLE <xxxx> 
- *    ( "C_HLEVEL" INT			        NOT NULL, 
- *      "C_FULLNAME" VARCHAR(700)	    NOT NULL, 
- *      "C_NAME" VARCHAR(2000)		    NOT NULL, 
- *      "C_SYNONYM_CD" CHAR(1)		    NOT NULL, 
- *      "C_VISUALATTRIBUTES" CHAR(3)	NOT NULL, 
- *      "C_TOTALNUM" INT			    NULL, 
- *      "C_BASECODE" VARCHAR(50)	    NULL, 
- *      "C_METADATAXML" TEXT		    NULL, 
- *      "C_FACTTABLECOLUMN" VARCHAR(50)	NOT NULL, 
- *      "C_TABLENAME" VARCHAR(50)	    NOT NULL, 
- *      "C_COLUMNNAME" VARCHAR(50)	    NOT NULL, 
- *      "C_COLUMNDATATYPE" VARCHAR(50)	NOT NULL, 
- *      "C_OPERATOR" VARCHAR(10)	    NOT NULL, 
- *      "C_DIMCODE" VARCHAR(700)	    NOT NULL, 
- *      "C_COMMENT" TEXT			    NULL, 
- *      "C_TOOLTIP" VARCHAR(900)	    NULL, 
- *      "UPDATE_DATE" DATETIME		    NOT NULL, 
- *      "DOWNLOAD_DATE" DATETIME	    NULL, 
- *      "IMPORT_DATE" DATETIME	        NULL, 
- *      "SOURCESYSTEM_CD" VARCHAR(50)	NULL, 
- *      "VALUETYPE_CD" VARCHAR(50)	    NULL
- *   ) ;
- *   
- *           0 |
- *           \BIRN\     | 
- *           BIRN   | 
- *           N            | 
- *           FA                 |
- *                       |
- *                       |
- *                       | 
- *           concept_cd        | 
- *           concept_dimension | 
- *           concept_path | 
- *           T                | 
- *           LIKE       | 
- *           \BIRN\    |
- *                      | 
- *           BIRN      | 
- *           @              | 
- *           2007-10-10 17:10:01 | 
- *           2007-10-10 17:10:28 | 
- *           2007-10-10 17:10:36 | 
- *           OASIS           |
- *                         |
- *                         |        
- *                         | 
-
-	CREATE TABLE CONCEPT_DIMENSION ( 
-				CONCEPT_PATH   		VARCHAR(700) NOT NULL,
-				CONCEPT_CD     		VARCHAR(50) NULL,
-				NAME_CHAR      		VARCHAR(2000) NULL,
-				CONCEPT_BLOB   		TEXT NULL,
-				UPDATE_DATE    		TIMESTAMP NULL,
-				DOWNLOAD_DATE  		TIMESTAMP NULL,
-				IMPORT_DATE    		TIMESTAMP NULL,
-				SOURCESYSTEM_CD		VARCHAR(50) NULL,
-			    UPLOAD_ID			INT NULL,
-			    CONSTRAINT CONCEPT_DIMENSION_PK PRIMARY KEY(CONCEPT_PATH)
-	)
-
  *   
  * @author jeff
  */
@@ -117,9 +54,9 @@ public class OntologyBranch {
 	// I have my doubts about some of the final columns in the create statement
 	// for the ontology tables. The below are missing them.
 	public static final String METADATA_SQL_INSERT_COMMAND = 
-			"SET SCHEMA 'i2b2metadata';" +
+			"SET SCHEMA '<METADATA_SCHEMA_NAME>';" +
 			"" +
-			"INSERT INTO i2b2metadata.<PROJECT_ONTOLOGY_TABLE_NAME>" +
+			"INSERT INTO <METADATA_SCHEMA_NAME>.<PROJECT_METADATA_TABLE>" +
 			                "( C_HLEVEL" +
 			                ", C_FULLNAME" +
 			                ", C_NAME" +
@@ -186,9 +123,9 @@ public class OntologyBranch {
 	
 
 	public static final String CONCEPT_DIM_SQL_INSERT_COMMAND = 
-			"SET SCHEMA <SCHEMA_NAME_1>;" +
+			"SET SCHEMA '<CRC_SCHEMA_NAME>';" +
 			"" +
-			"INSERT INTO <SCHEMA_NAME_2>.CONCEPT_DIMENSION" +
+			"INSERT INTO <CRC_SCHEMA_NAME>.CONCEPT_DIMENSION" +
 			       "( CONCEPT_PATH" +    // 	VARCHAR(700) NOT NULL
 			       ", CONCEPT_CD" +      // 	VARCHAR(50) NULL
 			       ", NAME_CHAR" +	     //  	VARCHAR(2000) NULL
@@ -317,8 +254,9 @@ public class OntologyBranch {
 			if( !pathsAndCodes.contains( PATH_PREFIX + fullName ) ) {
 
 				String sqlCmd = METADATA_SQL_INSERT_COMMAND ;			
-								
-				sqlCmd = sqlCmd.replace( "<PROJECT_ONTOLOGY_TABLE_NAME>", projectId ) ;
+					
+				sqlCmd = sqlCmd.replaceAll( "<METADATA_SCHEMA_NAME>", projectId + "meta" ) ;
+				sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;
 				
 				sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 0 ) ) ;
 				sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( fullName ) ) ;
@@ -366,7 +304,8 @@ public class OntologyBranch {
 				metadataxml = metadataxml.replace( "<name-goes-here>", colName ) ;
 				metadataxml = metadataxml.replace( "<units-go-here>", units ) ;
 				
-				sqlCmd = sqlCmd.replace( "<PROJECT_ONTOLOGY_TABLE_NAME>", projectId ) ;
+				sqlCmd = sqlCmd.replaceAll( "<METADATA_SCHEMA_NAME>", projectId + "meta" ) ;
+				sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;
 				
 				sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 1 ) ) ;
 				sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( fullName ) ) ;
@@ -419,8 +358,9 @@ public class OntologyBranch {
 			if( !pathsAndCodes.contains( PATH_PREFIX + fullName ) ) {
 				sqlCmd = METADATA_SQL_INSERT_COMMAND ;
 				
-				sqlCmd = sqlCmd.replace( "<PROJECT_ONTOLOGY_TABLE_NAME>", projectId ) ;
-				
+				sqlCmd = sqlCmd.replaceAll( "<METADATA_SCHEMA_NAME>", projectId + "meta" ) ;
+				sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;
+								
 				sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 1 ) ) ;
 				sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( fullName ) ) ;
 				sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( colName ) ) ;
@@ -473,7 +413,8 @@ public class OntologyBranch {
 				if( !pathsAndCodes.contains( PATH_PREFIX + fullName ) ) {
 					sqlCmd = METADATA_SQL_INSERT_COMMAND ;
 					
-					sqlCmd = sqlCmd.replace( "<PROJECT_ONTOLOGY_TABLE_NAME>", projectId ) ;
+					sqlCmd = sqlCmd.replaceAll( "<METADATA_SCHEMA_NAME>", projectId + "meta" ) ;
+					sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;
 					
 					sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 2 ) ) ;
 					sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( fullName ) ) ;
@@ -503,7 +444,8 @@ public class OntologyBranch {
 				if( !pathsAndCodes.contains( PATH_PREFIX + fullName ) ) {
 					sqlCmd = METADATA_SQL_INSERT_COMMAND ;
 					
-					sqlCmd = sqlCmd.replace( "<PROJECT_ONTOLOGY_TABLE_NAME>", projectId ) ;
+					sqlCmd = sqlCmd.replaceAll( "<METADATA_SCHEMA_NAME>", projectId + "meta" ) ;
+					sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;
 					
 					sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 3 ) ) ;
 					sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( fullName ) ) ;
@@ -553,8 +495,7 @@ public class OntologyBranch {
 		try {
 			String sqlCmd = CONCEPT_DIM_SQL_INSERT_COMMAND ;
 			
-			sqlCmd = sqlCmd.replace( "<SCHEMA_NAME_1>", utils.enfoldString( projectId ) ) ;			
-			sqlCmd = sqlCmd.replace( "<SCHEMA_NAME_2>", projectId ) ;
+			sqlCmd = sqlCmd.replaceAll( "<CRC_SCHEMA_NAME>", projectId + "data"  ) ;			
 			
 			sqlCmd = sqlCmd.replace( "<CONCEPT_PATH>", utils.enfoldString( conceptPath ) ) ;
 			sqlCmd = sqlCmd.replace( "<CONCEPT_CD>", utils.enfoldNullableString( conceptCode ) ) ;
@@ -588,7 +529,8 @@ public class OntologyBranch {
 				
 				String sqlCmd = METADATA_SQL_INSERT_COMMAND ;
 				
-				sqlCmd = sqlCmd.replace( "<PROJECT_ONTOLOGY_TABLE_NAME>", projectId ) ;
+				sqlCmd = sqlCmd.replaceAll( "<METADATA_SCHEMA_NAME>", projectId + "meta" ) ;
+				sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;
 				
 				sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 1 ) ) ;
 				sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( fullName ) ) ;
@@ -643,7 +585,8 @@ public class OntologyBranch {
 				
 				sqlCmd = METADATA_SQL_INSERT_COMMAND ;
 				
-				sqlCmd = sqlCmd.replace( "<PROJECT_ONTOLOGY_TABLE_NAME>", projectId ) ;
+				sqlCmd = sqlCmd.replaceAll( "<METADATA_SCHEMA_NAME>", projectId + "meta" ) ;
+				sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;
 				
 				sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 1 ) ) ;
 				sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( fullName ) ) ;
@@ -682,7 +625,8 @@ public class OntologyBranch {
 					
 					sqlCmd = METADATA_SQL_INSERT_COMMAND ;
 					
-					sqlCmd = sqlCmd.replace( "<PROJECT_ONTOLOGY_TABLE_NAME>", projectId ) ;
+					sqlCmd = sqlCmd.replaceAll( "<METADATA_SCHEMA_NAME>", projectId + "meta" ) ;
+					sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;
 					
 					sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 2 ) ) ;
 					sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( fullName ) ) ;
