@@ -4,6 +4,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.Statement;
 
@@ -255,7 +258,15 @@ public class CreateDBPG extends Base {
 			fw.close() ;
 			
 			//
-			// Write the control file which will trigger deployment...
+			// Attempt to delete any old control file which says 
+			// this has been already deployed...
+			Files.delete( Paths.get( jboss_deploy_dir 
+					               + System.getProperty( "file.separator") 
+					               + fileName 
+					               + ".deployed" ) ) ;
+			
+			//
+			// Write the new control file which will trigger deployment...
 			fw = new FileWriter( jboss_deploy_dir 
 					           + System.getProperty( "file.separator") 
 					           + fileName 
