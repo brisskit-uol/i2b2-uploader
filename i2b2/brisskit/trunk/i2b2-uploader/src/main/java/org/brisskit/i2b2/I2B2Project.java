@@ -317,7 +317,7 @@ public class I2B2Project {
 				Row dataRow = rowIt.next() ;	
 				
 				PatientMapping	pMap = new PatientMapping( utils ) ;
-				pMap.setSchema_name( projectId ) ;
+				pMap.setSchema_name( projectId + "data" ) ;
 				pMap.setSourcesystem_id( projectId ) ;
 				
 				Iterator<Cell> cellIt = dataRow.cellIterator() ;
@@ -381,7 +381,7 @@ public class I2B2Project {
 				Row dataRow = rowIt.next() ;
 				
 				PatientDimension pDim = new PatientDimension( utils ) ;
-				pDim.setSchema_name( projectId ) ;
+				pDim.setSchema_name( projectId + "data") ;
 				pDim.setSourcesystem_cd( projectId ) ;
 				
 				//
@@ -746,7 +746,7 @@ public class I2B2Project {
 			of.setTval_char( "yes" ) ;
 			
 			of.setSourcesystem_cd( projectId ) ;
-			of.setSchema_name( projectId ) ;
+			of.setSchema_name( projectId + "data" ) ;
 			return of ;
 		}
 		catch( ParseException pex ) {
@@ -788,7 +788,7 @@ public class I2B2Project {
 			}
 			
 			of.setSourcesystem_cd( projectId ) ;
-			of.setSchema_name( projectId ) ;
+			of.setSchema_name( projectId + "data" ) ;
 			return of ;
 		}
 		finally {
@@ -815,7 +815,7 @@ public class I2B2Project {
 			of.setTval_char( value ) ;
 			
 			of.setSourcesystem_cd( projectId ) ;
-			of.setSchema_name( projectId ) ;
+			of.setSchema_name( projectId + "data" ) ;
 			return of ;
 		}
 		finally {
