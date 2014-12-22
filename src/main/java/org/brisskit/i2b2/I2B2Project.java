@@ -699,7 +699,7 @@ public class I2B2Project {
 							break ;
 						case STRING:
 						default:
-							of = produceStringFact( patientNumber, ontCode, cell ) ;
+							of = produceStringFact( patientNumber, ontCode, units, cell ) ;
 							break;
 						}
 						
@@ -766,8 +766,7 @@ public class I2B2Project {
 			ObservationFact of = new ObservationFact( utils ) ;				
 			of.setEncounter_num( encounterNumber++ ) ;
 			of.setPatient_num( patientNumber ) ;
-			
-			of.setConcept_cd( ontCode ) ;
+				
 			of.setProvider_id( "@" ) ;
 			of.setStart_date( new Date() ) ;
 			
@@ -777,10 +776,12 @@ public class I2B2Project {
 			// (1) a plain numeric value, or
 			// (2) as an enumeration
 			if( units.equalsIgnoreCase( "enum" ) ) {
+				of.setConcept_cd( ontCode + ":" + value ) ;
 				of.setValtype_cd( "T" ) ;						
 				of.setTval_char( value ) ;
 			}
 			else {
+				of.setConcept_cd( ontCode ) ;
 				of.setValtype_cd( "N" ) ;
 				of.setTval_char( "E" ) ;
 				of.setNval_num( Double.valueOf( value ) ) ;
@@ -798,6 +799,7 @@ public class I2B2Project {
 	
 	private ObservationFact produceStringFact( int patientNumber
                                              , String ontCode
+                                             , String units
                                              , Cell cell ) throws UploaderException {
 		enterTrace( "I2B2Project.produceStringFact()" ) ;
 		try {
@@ -805,13 +807,20 @@ public class I2B2Project {
 			of.setEncounter_num( encounterNumber++ ) ;
 			of.setPatient_num( patientNumber ) ;
 			
-			of.setConcept_cd( ontCode ) ;
+			
 			of.setProvider_id( "@" ) ;
 			of.setStart_date( new Date() ) ;
 		
 			of.setValtype_cd( "T" ) ;					
 			String value = utils.getValueAsString( cell ) ;	
 			of.setTval_char( value ) ;
+			
+			if( units.equalsIgnoreCase( "enum" ) ) {
+				of.setConcept_cd( ontCode + ":" + value ) ;
+			}
+			else {
+				of.setConcept_cd( ontCode ) ;
+			}
 			
 			of.setSourcesystem_cd( projectId ) ;
 			of.setSchema_name( projectId + "data" ) ;
