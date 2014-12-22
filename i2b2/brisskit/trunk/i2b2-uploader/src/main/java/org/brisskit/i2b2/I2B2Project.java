@@ -523,61 +523,62 @@ public class I2B2Project {
 					log.debug( "which yields concept: " + ontCode + " with units: " + units ) ;
 				}
 								
+				//
+				// We gather values and attempt to diagnose type...
+				values = new HashSet<String>() ;
+				log.debug( "Processing column with colName: [" + colName + "] toolTip: [" + toolTip + "] ontCode: [" + ontCode + "]" ) ;
+
+				Iterator<Row> rowIt = dataSheet.rowIterator() ;
+				rowIt.next() ; // tab past column names
+				rowIt.next() ; // tab past tool tips
+				rowIt.next() ; // tab past codes
+
+				while( rowIt.hasNext() ) {
+					Row row = rowIt.next() ;
+					Cell dataCell = row.getCell( colIndex ) ;
+					String value = utils.getValueAsString( dataCell ) ;
+					if( utils.isNull( value ) ) {
+						log.debug( "Encountered a cell with null value" ) ;
+						continue ;
+					}
+					//
+					// Add to the range of values encountered...
+					values.add( value ) ;
+					//
+					// Decide whether numeric, date or string...
+					if( utils.isNumeric( value ) ) {
+						log.debug( "Cell with numeric value: " + value ) ;
+						if( type == Type.STRING ) {
+							type = Type.NUMERIC ;
+						}
+						else if( type == Type.NUMERIC ) {
+							// If type has already been established as a decimal, do nothing
+						}
+					}
+					else if( utils.isDate( value ) ) {
+						log.debug( "Cell with date value: " + value ) ;
+						if( type == Type.STRING ) {
+							type = Type.DATE ;
+						}
+						else if( type != Type.DATE ) {
+							log.error( "Cells with incompatible values; current value: " + value ) ;
+						}
+					}
+					else {
+						// We assume a string
+						log.debug( "Cell with string value: " + value ) ;
+					}
+
+				} // end inner while
+
 				
 				//
-				// If there is a code lookup, we must treat this as of type STRING.
-				// Thus we examine the range of values to determine numerics or dates 
-				// ONLY if there is not a code lookup for this column...
+				// If there is a code lookup, however,
+				// we must treat this as of type STRING.
 				if( !lookups.containsKey( colName ) ) {
-										
-					values = new HashSet<String>() ;
-					log.debug( "Processing column with colName: [" + colName + "] toolTip: [" + toolTip + "] ontCode: [" + ontCode + "]" ) ;
-
-					Iterator<Row> rowIt = dataSheet.rowIterator() ;
-					rowIt.next() ; // tab past column names
-					rowIt.next() ; // tab past tool tips
-					rowIt.next() ; // tab past codes
-
-					while( rowIt.hasNext() ) {
-						Row row = rowIt.next() ;
-						Cell dataCell = row.getCell( colIndex ) ;
-						String value = utils.getValueAsString( dataCell ) ;
-						if( utils.isNull( value ) ) {
-							log.debug( "Encountered a cell with null value" ) ;
-							continue ;
-						}
-						//
-						// Add to the range of values encountered...
-						values.add( value ) ;
-						//
-						// Decide whether numeric, date or string...
-						if( utils.isNumeric( value ) ) {
-							log.debug( "Cell with numeric value: " + value ) ;
-							if( type == Type.STRING ) {
-								type = Type.NUMERIC ;
-							}
-							else if( type == Type.NUMERIC ) {
-								// If type has already been established as a decimal, do nothing
-							}
-						}
-						else if( utils.isDate( value ) ) {
-							log.debug( "Cell with date value: " + value ) ;
-							if( type == Type.STRING ) {
-								type = Type.DATE ;
-							}
-							else if( type != Type.DATE ) {
-								log.error( "Cells with incompatible values; current value: " + value ) ;
-							}
-						}
-						else {
-							// We assume a string
-							log.debug( "Cell with string value: " + value ) ;
-						}
-
-					} // end inner while
-					
-				} // endif
-									
+					type = Type.STRING ;
+				}
+													
 				//
 				// We build each branch in memory and save it in a collection 
 				OntologyBranch 
