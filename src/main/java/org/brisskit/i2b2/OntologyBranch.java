@@ -100,17 +100,40 @@ public class OntologyBranch {
 	public static final String 	METADATAXML = 
 			  "<?xml version=\"1.0\"?>"
 			+ "<ValueMetadata>" 
-			+ "<Version>3.02</Version>"
-			+ "<CreationDateTime><date-time-goes-here></CreationDateTime>"
-			+ "<TestID><code-name-goes-here></TestID>"
-			+ "<TestName><name-goes-here></TestName>"
-			+ "<DataType>PosFloat</DataType>" 
-			+ "<Flagstouse></Flagstouse>"
-			+ "<Oktousevalues>Y</Oktousevalues>" 
-			+ "<EnumValues></EnumValues>"
-			+ "<UnitValues>" 
-			+ "<NormalUnits><units-go-here></NormalUnits>"
-			+ "</UnitValues>" 
+			+ " <Version>3.02</Version>"
+			+ " <CreationDateTime><date-time-goes-here></CreationDateTime>"
+			+ " <TestID><code-name-goes-here></TestID>"
+			+ " <TestName><name-goes-here></TestName>"
+			+ " <DataType>PosFloat</DataType>" 
+			+ " <CodeType/>" 
+			+ " <Loinc/>" 
+			+ " <Flagstouse></Flagstouse>"
+			+ " <Oktousevalues>Y</Oktousevalues>" 
+			+ " <MaxStringLength/>" 
+			+ " <LowofLowValue></LowofLowValue>" 
+			+ " <HighofLowValue></HighofLowValue>" 
+			+ " <LowofHighValue>0</LowofHighValue>" 
+			+ " <HighofHighValue>0</HighofHighValue>" 
+			+ " <LowofToxicValue/>" 
+			+ " <HighofToxicValue/>" 
+			+ " <EnumValues></EnumValues>" 
+			+ " <CommentsDeterminingExclusion>" 
+			+ "   <Com/>" 
+			+ " </CommentsDeterminingExclusion>"
+			+ " <UnitValues>" 
+			+ "   <NormalUnits><units-go-here></NormalUnits>" 
+			+ "   <EqualUnits/>" 
+			+ "   <ExcludingUnits/>" 
+			+ "   <ConvertingUnits>" 
+			+ "     <Units/>" 
+			+ "     <MultiplyingFactor/>" 
+			+ "   </ConvertingUnits>" 
+			+ " </UnitValues>" 
+			+ " <Analysis>" 
+			+ "   <Enums/>" 
+			+ "   <Counts/>" 
+			+ "   <New/> " 
+			+ " </Analysis>" 
 			+ "</ValueMetadata>";
 	
 
@@ -295,6 +318,8 @@ public class OntologyBranch {
 				metadataxml = metadataxml.replace( "<code-name-goes-here>", ontCode ) ;
 				metadataxml = metadataxml.replace( "<name-goes-here>", colName ) ;
 				metadataxml = metadataxml.replace( "<units-go-here>", units ) ;
+				
+				log.debug( "For ontCode " + ontCode + " numeric units are: " + units ) ;
 				
 				sqlCmd = sqlCmd.replaceAll( "<METADATA_SCHEMA_NAME>", projectId + "meta" ) ;
 				sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;
