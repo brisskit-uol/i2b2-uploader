@@ -361,13 +361,13 @@ public class OntologyBranch {
 	private void insertEnumeratedNumeric( Connection connection ) throws UploaderException {
 		enterTrace( "OntologyBranch.insertEnumeratedNumeric()" ) ;
 		try {
-			if( colName.equalsIgnoreCase( "CL_STATUS" ) 
-				||
-				colName.equalsIgnoreCase( "SMOKED_AGE_STARTED" ) ) {
-				
-				log.debug( "About to process " + colName ) ;
-				
-			}
+//			if( colName.equalsIgnoreCase( "CL_STATUS" ) 
+//				||
+//				colName.equalsIgnoreCase( "SMOKED_AGE_STARTED" ) ) {
+//				
+//				log.debug( "About to process " + colName ) ;
+//				
+//			}
 			//
 			// Inserts are inserted as enumerations, so on two/three levels:
 			// The base code; eg: Age
@@ -650,6 +650,13 @@ public class OntologyBranch {
 	private void insertString( Connection connection ) throws UploaderException {
 		enterTrace( "OntologyBranch.insertString()" ) ;
 		try {
+			if( colName.equalsIgnoreCase( "CL_STATUS" ) 
+				||
+				colName.equalsIgnoreCase( "DEATH" ) ) {
+					
+				log.debug( "About to process " + colName ) ;
+					
+			}
 			//
 			// Strings are inserted as enumerations, so on two levels:
 			// The base code; eg: marital_status
