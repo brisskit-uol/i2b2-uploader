@@ -336,11 +336,19 @@ public class OntologyBranch {
 	private void insertEnumeratedNumeric( Connection connection ) throws UploaderException {
 		enterTrace( "OntologyBranch.insertEnumeratedNumeric()" ) ;
 		try {
+			if( colName.equalsIgnoreCase( "CL_STATUS" ) 
+				||
+				colName.equalsIgnoreCase( "SMOKED_AGE_STARTED" ) ) {
+				
+				log.debug( "About to process " + colName ) ;
+				
+			}
 			//
 			// Inserts are inserted as enumerations, so on two/three levels:
 			// The base code; eg: Age
 			// Possible ranges of values; eg: 1-10, 11-20, 21-30 etc
 			// End point values; eg: 1, 2, 3, 4, 5 etc
+			
 			//
 			// Insert the base code...
 			String fullName = "\\" + projectId + "\\" + colName + "\\" ;
@@ -389,80 +397,139 @@ public class OntologyBranch {
 				}
 			}
 			
-			lowestValue = ( lowestValue / 10 ) ;
+			//
+			// Set lowest and highest in 10's
+			// (ie; 3 as a lowest becomes 0, 13 as a highest becomes 20)...
+			lowestValue = ( lowestValue / 10 ) * 10 ;
 					
 			if( highestValue % 10 != 0 ) {
-				highestValue = ( ( highestValue / 10 ) * 10 ) - 10;
+				highestValue = ( ( highestValue / 10 ) * 10 ) + 10;
 			}
+			//
+			// The formatString helps keep data sensibly in collating sequence...
+			// (ie: 3 is displayed as 03, 10 as 10, and so on,
+			//  otherwis 10 would come before 3 visually (in aphabetical sequence)
+			long numberOfDigits = Math.round( Math.log10( highestValue ) / Math.log10( 10 ) ) ;
+			String formatString = "%0" + String.valueOf( numberOfDigits ) + "d" ;
+			log.debug( "format string is " + formatString ) ;
+			
+			//
+			// If the total range of values is below 21, we use just endpoints
+			// and don't bother with ranges...
+			if( (highestValue - lowestValue) < 21 ) {
+				//
+				// Insert the end points...
+				String endPointFullName = null ;
+				for( int j=lowestValue; j<highestValue+1; j++ ) {
+					String val = String.format( formatString, j ) ;
+					endPointFullName = fullName + val + "\\" ;
+					if( !pathsAndCodes.contains( PATH_PREFIX + endPointFullName ) ) {
+						sqlCmd = METADATA_SQL_INSERT_COMMAND ;
+						
+						sqlCmd = sqlCmd.replaceAll( "<METADATA_SCHEMA_NAME>", projectId + "meta" ) ;
+						sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;
+						
+						sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 2 ) ) ;
+						sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( endPointFullName ) ) ;
+						sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( colName + ":" + val ) ) ;
+						sqlCmd = sqlCmd.replace( "<SYNONYM_CD>", utils.enfoldString( "N" ) ) ;
+						sqlCmd = sqlCmd.replace( "<VISUALATTRIBUTES>", utils.enfoldString( "LA" ) ) ;
+						sqlCmd = sqlCmd.replace( "<BASECODE>", utils.enfoldString( ontCode + ":" + val ) ) ;
+						sqlCmd = sqlCmd.replace( "<METADATAXML>", "NULL" ) ;
+						sqlCmd = sqlCmd.replace( "<COLUMNDATATYPE>", utils.enfoldString( "T" ) ) ;
+						sqlCmd = sqlCmd.replace( "<OPERATOR>", utils.enfoldString( "LIKE" ) ) ;
+						sqlCmd = sqlCmd.replace( "<DIMCODE>", utils.enfoldString( endPointFullName ) ) ;
+						sqlCmd = sqlCmd.replace( "<TOOLTIP>", utils.enfoldNullableString( toolTip + ":" + val ) ) ;
+						sqlCmd = sqlCmd.replace( "<SOURCESYSTEM_CD>", utils.enfoldNullableString( projectId ) ) ;
+						
+						st.execute( sqlCmd ) ;
+						
+						//
+						// Insert concept into concept dimension...
+						insertIntoConceptDimension( st, endPointFullName, ontCode + ":" + val, colName + ":" + val ) ;
+						//
+						// Record the path name so we don't try and duplicate it next time...
+						pathsAndCodes.add( PATH_PREFIX + fullName ) ;
+					}
+					
+				} // end inner for
+			}
+			// Otherwise we use ranges of values based on a base range of 10...
 			else {
-				highestValue = ( ( highestValue / 10 ) * 10 )  ;
-			}
-			
-			//
-			// Insert the ranges...
-			for( int i=lowestValue; i<highestValue+1; i=i+10 ) {
-				fullName = "\\" + projectId + "\\" + colName + "\\" + i + "-" + (i+10) + "\\" ;
-				if( !pathsAndCodes.contains( PATH_PREFIX + fullName ) ) {
-					sqlCmd = METADATA_SQL_INSERT_COMMAND ;
-					
-					sqlCmd = sqlCmd.replaceAll( "<METADATA_SCHEMA_NAME>", projectId + "meta" ) ;
-					sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;
-					
-					sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 2 ) ) ;
-					sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( fullName ) ) ;
-					sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( colName + ":" + i + "-" + (i+10) ) ) ;
-					sqlCmd = sqlCmd.replace( "<SYNONYM_CD>", utils.enfoldString( "N" ) ) ;
-					sqlCmd = sqlCmd.replace( "<VISUALATTRIBUTES>", utils.enfoldString( "FA" ) ) ;
-					sqlCmd = sqlCmd.replace( "<BASECODE>", "NULL" ) ;
-					sqlCmd = sqlCmd.replace( "<METADATAXML>", "NULL" ) ;
-					sqlCmd = sqlCmd.replace( "<COLUMNDATATYPE>", utils.enfoldString( "T" ) ) ;
-					sqlCmd = sqlCmd.replace( "<OPERATOR>", utils.enfoldString( "LIKE" ) ) ;
-					sqlCmd = sqlCmd.replace( "<DIMCODE>", utils.enfoldString( fullName ) ) ;
-					sqlCmd = sqlCmd.replace( "<TOOLTIP>", utils.enfoldNullableString( toolTip + ": " + i + "-" + (i+10) ) ) ;
-					sqlCmd = sqlCmd.replace( "<SOURCESYSTEM_CD>", utils.enfoldNullableString( projectId ) ) ;
-					
-					st.execute( sqlCmd ) ;
-					//
-					// Record the path name so we don't try and duplicate it next time...
-					pathsAndCodes.add( PATH_PREFIX + fullName ) ;
-				}
-								
-			}
-			
-			//
-			// Insert the end points...
-			for( int i=lowestValue; i<highestValue+1; i++ ) {
-				fullName = "\\" + projectId + "\\" + colName + "\\" + i + "\\" ;
-				if( !pathsAndCodes.contains( PATH_PREFIX + fullName ) ) {
-					sqlCmd = METADATA_SQL_INSERT_COMMAND ;
-					
-					sqlCmd = sqlCmd.replaceAll( "<METADATA_SCHEMA_NAME>", projectId + "meta" ) ;
-					sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;
-					
-					sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 3 ) ) ;
-					sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( fullName ) ) ;
-					sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( colName + ":" + i ) ) ;
-					sqlCmd = sqlCmd.replace( "<SYNONYM_CD>", utils.enfoldString( "N" ) ) ;
-					sqlCmd = sqlCmd.replace( "<VISUALATTRIBUTES>", utils.enfoldString( "LA" ) ) ;
-					sqlCmd = sqlCmd.replace( "<BASECODE>", utils.enfoldString( ontCode + ":" + i ) ) ;
-					sqlCmd = sqlCmd.replace( "<METADATAXML>", "NULL" ) ;
-					sqlCmd = sqlCmd.replace( "<COLUMNDATATYPE>", utils.enfoldString( "T" ) ) ;
-					sqlCmd = sqlCmd.replace( "<OPERATOR>", utils.enfoldString( "LIKE" ) ) ;
-					sqlCmd = sqlCmd.replace( "<DIMCODE>", utils.enfoldString( fullName ) ) ;
-					sqlCmd = sqlCmd.replace( "<TOOLTIP>", utils.enfoldNullableString( toolTip + ": " + i ) ) ;
-					sqlCmd = sqlCmd.replace( "<SOURCESYSTEM_CD>", utils.enfoldNullableString( projectId ) ) ;
-					
-					st.execute( sqlCmd ) ;
+				//
+				// Insert the ranges...
+				String rangeFullName = null ;
+				String rangeShortName = null ;
+				for( int i=lowestValue; i<highestValue+1; i=i+10 ) {
+					String lower = String.format( formatString, i ) ;
+					String upper = String.format( formatString, i+9 ) ;
+					rangeShortName = lower + "-" + upper ;
+					rangeFullName = fullName + rangeShortName + "\\" ;
+					if( !pathsAndCodes.contains( PATH_PREFIX + rangeFullName ) ) {
+						sqlCmd = METADATA_SQL_INSERT_COMMAND ;
+						
+						sqlCmd = sqlCmd.replaceAll( "<METADATA_SCHEMA_NAME>", projectId + "meta" ) ;
+						sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;
+						
+						sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 2 ) ) ;
+						sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( rangeFullName ) ) ;
+						sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( colName + ":" + rangeShortName ) ) ;
+						sqlCmd = sqlCmd.replace( "<SYNONYM_CD>", utils.enfoldString( "N" ) ) ;
+						sqlCmd = sqlCmd.replace( "<VISUALATTRIBUTES>", utils.enfoldString( "FA" ) ) ;
+						sqlCmd = sqlCmd.replace( "<BASECODE>", "NULL" ) ;
+						sqlCmd = sqlCmd.replace( "<METADATAXML>", "NULL" ) ;
+						sqlCmd = sqlCmd.replace( "<COLUMNDATATYPE>", utils.enfoldString( "T" ) ) ;
+						sqlCmd = sqlCmd.replace( "<OPERATOR>", utils.enfoldString( "LIKE" ) ) ;
+						sqlCmd = sqlCmd.replace( "<DIMCODE>", utils.enfoldString( rangeFullName ) ) ;
+						sqlCmd = sqlCmd.replace( "<TOOLTIP>", utils.enfoldNullableString( toolTip + ": " + rangeShortName ) ) ;
+						sqlCmd = sqlCmd.replace( "<SOURCESYSTEM_CD>", utils.enfoldNullableString( projectId ) ) ;
+						
+						st.execute( sqlCmd ) ;
+						//
+						// Record the path name so we don't try and duplicate it next time...
+						pathsAndCodes.add( PATH_PREFIX + rangeFullName ) ;
+					}
 					
 					//
-					// Insert concept into concept dimension...
-					insertIntoConceptDimension( st, fullName, ontCode + ":" + i, colName + " " + i ) ;
-					//
-					// Record the path name so we don't try and duplicate it next time...
-					pathsAndCodes.add( PATH_PREFIX + fullName ) ;
-				}
+					// Insert the end points...
+					String endPointFullName = null ;
+					for( int j=i; j<i+10; j++ ) {
+						String val = String.format( formatString, j ) ;
+						endPointFullName = rangeFullName + ":" + val + "\\" ;
+						if( !pathsAndCodes.contains( PATH_PREFIX + endPointFullName ) ) {
+							sqlCmd = METADATA_SQL_INSERT_COMMAND ;
+							
+							sqlCmd = sqlCmd.replaceAll( "<METADATA_SCHEMA_NAME>", projectId + "meta" ) ;
+							sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;
+							
+							sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 3 ) ) ;
+							sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( endPointFullName ) ) ;
+							sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( colName + ":" + val ) ) ;
+							sqlCmd = sqlCmd.replace( "<SYNONYM_CD>", utils.enfoldString( "N" ) ) ;
+							sqlCmd = sqlCmd.replace( "<VISUALATTRIBUTES>", utils.enfoldString( "LA" ) ) ;
+							sqlCmd = sqlCmd.replace( "<BASECODE>", utils.enfoldString( ontCode + ":" + val ) ) ;
+							sqlCmd = sqlCmd.replace( "<METADATAXML>", "NULL" ) ;
+							sqlCmd = sqlCmd.replace( "<COLUMNDATATYPE>", utils.enfoldString( "T" ) ) ;
+							sqlCmd = sqlCmd.replace( "<OPERATOR>", utils.enfoldString( "LIKE" ) ) ;
+							sqlCmd = sqlCmd.replace( "<DIMCODE>", utils.enfoldString( endPointFullName ) ) ;
+							sqlCmd = sqlCmd.replace( "<TOOLTIP>", utils.enfoldNullableString( toolTip + ":" + val ) ) ;
+							sqlCmd = sqlCmd.replace( "<SOURCESYSTEM_CD>", utils.enfoldNullableString( projectId ) ) ;
+							
+							st.execute( sqlCmd ) ;
+							
+							//
+							// Insert concept into concept dimension...
+							insertIntoConceptDimension( st, endPointFullName, ontCode + ":" + val, colName + ":" + val ) ;
+							//
+							// Record the path name so we don't try and duplicate it next time...
+							pathsAndCodes.add( PATH_PREFIX + endPointFullName ) ;
+						}
+						
+					} // end inner for
+									
+				} // end outer for
 				
-			}
+			}	
 			
 		}
 		catch( SQLException sqlx ) {
@@ -474,11 +541,6 @@ public class OntologyBranch {
 	}
 	
 	
-	
-	
-	
-	
-
 	private void insertIntoConceptDimension( Statement statement
 			                               , String conceptPath
 			                               , String conceptCode
