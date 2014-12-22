@@ -1,3 +1,6 @@
+/* reinitialization sql for a project with id "project1" 
+   NB: Will delete everything from PM where domain_id = 'BRISSKIT' */
+
 drop schema project1data cascade ;
 drop user project1data ;
 drop schema project1meta cascade ;
