@@ -97,7 +97,7 @@ public class OntologyBranch {
 	//
 	//
 	// In the following, CreationDateTime should be something like 01/26/2011 00:00:00
-	public static final String 	METEDATAXML = 
+	public static final String 	METADATAXML = 
 			  "<?xml version=\"1.0\"?>"
 			+ "<ValueMetadata>" 
 			+ "<Version>3.02</Version>"
@@ -290,11 +290,21 @@ public class OntologyBranch {
 				String sqlCmd = METADATA_SQL_INSERT_COMMAND ;
 				
 				String date = utils.formatDate( new Date() ) ;
-				String metadataxml = METEDATAXML ;
-				metadataxml = metadataxml.replace( "<date-time-goes-here>", date + " 00:00:00" ) ;
-				metadataxml = metadataxml.replace( "<code-name-goes-here>", ontCode ) ;
-				metadataxml = metadataxml.replace( "<name-goes-here>", colName ) ;
-				metadataxml = metadataxml.replace( "<units-go-here>", units ) ;
+				
+				  "<?xml version=\"1.0\"?>"
+					+ "<ValueMetadata>" 
+					+ "<Version>3.02</Version>"
+					+ "<CreationDateTime><date-time-goes-here></CreationDateTime>"
+					+ "<TestID><code-name-goes-here></TestID>"
+					+ "<TestName><name-goes-here></TestName>"
+					+ "<DataType>PosFloat</DataType>" 
+					+ "<Flagstouse></Flagstouse>"
+					+ "<Oktousevalues>Y</Oktousevalues>" 
+					+ "<EnumValues></EnumValues>"
+					+ "<UnitValues>" 
+					+ "<NormalUnits><units-go-here></NormalUnits>"
+					+ "</UnitValues>" 
+					+ "</ValueMetadata>";			
 				
 				sqlCmd = sqlCmd.replaceAll( "<METADATA_SCHEMA_NAME>", projectId + "meta" ) ;
 				sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;
