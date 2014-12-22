@@ -575,8 +575,9 @@ public class I2B2Project {
 				//
 				// If there is a code lookup, however,
 				// we must treat this as of type STRING.
-				if( !lookups.containsKey( colName ) ) {
+				if( lookups.containsKey( colName ) ) {
 					type = Type.STRING ;
+					units = "enum" ;
 				}
 													
 				//
