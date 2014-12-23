@@ -140,48 +140,6 @@ public class I2B2Project {
 		}
 	}
 	
-//	public boolean populateProject() throws UploaderException {
-//		enterTrace( "populateProject()" ) ;
-//		Connection connection = null ;
-//		try {
-//			connection = Base.getSimpleConnectionPG() ;
-//			
-//			Iterator<OntologyBranch> itOb = ontBranches.values().iterator() ;
-//			while( itOb.hasNext() ) {
-//				OntologyBranch ob = itOb.next() ;
-//				ob.serializeToDatabase( connection ) ;
-//			}
-//			//
-//			// Patient stuff ...
-//			Iterator<PatientDimension> itPd = patientDims.listIterator() ;
-//			while( itPd.hasNext() ) {
-//				PatientDimension pd = itPd.next() ;
-//				pd.serializeToDatabase( connection ) ;
-//			}
-//			Iterator<PatientMapping> itPm = patientMaps.listIterator() ;
-//			while( itPm.hasNext() ) {
-//				PatientMapping pm = itPm.next() ;
-//				pm.serializeToDatabase( connection ) ;
-//			}
-//			//
-//			// Observation facts...
-//			Iterator<ObservationFact> itOf = observatonFacts.listIterator() ;
-//			while( itOf.hasNext() ) {
-//				ObservationFact of = itOf.next() ;
-//				of.serializeToDatabase( connection ) ;
-//			}
-//		}
-//		finally {
-//			if( connection != null ) {
-//				try{ connection.close() ; }
-//				catch( SQLException sqlx ) {
-//					log.warn( "Failed to close SQL connection" ) ;
-//				}
-//			}
-//			exitTrace( "populateProject()" ) ;
-//		}
-//		return false ;
-//	}
 	
 	protected void readSpreadsheet() throws UploaderException {
 		enterTrace( "readSpreadsheet()" ) ;
@@ -255,7 +213,7 @@ public class I2B2Project {
 			Row columnNameRow = lookupSheet.getRow( I2B2Project.LOOKUP_COLUMN_NAME_ROW_INDEX ) ;
 			int numberCols = columnNameRow.getLastCellNum() ;
 			if( numberCols != 3 ) {
-				throw new UploaderException( "The lookup sheet has insufficient rows: " + numberCols ) ;
+				throw new UploaderException( "The lookup sheet has insufficient columns: " + numberCols ) ;
 			}
 			//
 			// Check the format of the first row...
@@ -345,11 +303,6 @@ public class I2B2Project {
 				//
 				// Write mapping to i2b2
 				pMap.serializeToDatabase( Base.getSimpleConnectionPG() ) ;
-				
-				//
-				// For the moment we are saving in memory until all is ready
-				// (We need to think how we can back out or restart if doing things incrementally) 				
-				// patientMaps.add( pMap ) ;
 				
 			} // end of outer while - processing row
 			
@@ -442,10 +395,6 @@ public class I2B2Project {
 				//
 				// Write patient dimension to i2b2...
 				pDim.serializeToDatabase( Base.getSimpleConnectionPG() ) ;
-				//
-				// For the moment we are saving in memory until all is ready
-				// (We need to think how we can back out or restart if doing things incrementally) 
-				// patientDims.add( pDim ) ;
 								
 			} // end of outer while - processing row
 		}
@@ -708,10 +657,7 @@ public class I2B2Project {
 						//
 						// Write fact to i2b2...
 						of.serializeToDatabase( Base.getSimpleConnectionPG() ) ;
-						//
-						// For the moment we are saving in memory until all is ready
-						// (We need to think how we can back out or restart if doing things incrementally) 
-						// observatonFacts.add( of ) ;
+						
 					}
 					
 				} // end of inner while - processing cell	
