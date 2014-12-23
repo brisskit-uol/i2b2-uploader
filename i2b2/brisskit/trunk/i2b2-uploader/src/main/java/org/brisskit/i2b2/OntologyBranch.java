@@ -433,8 +433,11 @@ public class OntologyBranch {
 			//
 			// The formatString helps keep data sensibly in collating sequence...
 			// (ie: 3 is displayed as 03, 10 as 10, and so on,
-			//  otherwis 10 would come before 3 visually (in aphabetical sequence)
+			//  otherwise 10 would come before 3 visually (in aphabetical sequence)
 			long numberOfDigits = Math.round( Math.log10( highestValue ) / Math.log10( 10 ) ) ;
+			if( highestValue % 10 == 0) {
+				numberOfDigits++ ;
+			}
 			String formatString = "%0" + String.valueOf( numberOfDigits ) + "d" ;
 			log.debug( "format string is " + formatString ) ;
 			
