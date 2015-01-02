@@ -154,6 +154,6 @@
 		</repository>
   </repositories> 
 
-    <version>1.0-RC1</version>
+    <version>1.0-SNAPSHOT</version>
     <artifactId>i2b2uploader</artifactId>
 </project>
