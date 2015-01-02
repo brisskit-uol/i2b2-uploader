@@ -87,6 +87,8 @@ public class I2B2Project {
     
     private ProjectUtils utils = new ProjectUtils() ;
     
+    private boolean bSetupDone = false ;
+    
     @SuppressWarnings("unused")
 	private I2B2Project() {}
     
@@ -107,9 +109,28 @@ public class I2B2Project {
     }
     
     
+    public void createDBArtifacts() throws UploaderException {
+		enterTrace( "I2B2Project.createDBArtifacts()" ) ;
+		try {
+			if( !bSetupDone ) {
+				CreateDBPG.setUp() ;
+				bSetupDone = true ;
+			}
+			CreateDBPG.createI2B2Database( projectId );
+		}
+		finally {
+			exitTrace( "I2B2Project.createDBArtifacts()" ) ;
+		}
+	}
+    
+    
     public void processSpreadsheet() throws UploaderException {
     	enterTrace( "I2B2Project.processSpreadsheet" ) ;
     	try {
+    		if( !bSetupDone ) {
+				CreateDBPG.setUp() ;
+				bSetupDone = true ;
+			}
     		readSpreadsheet() ;
 			produceOntology() ;
 			producePatientMapping() ;
@@ -127,18 +148,6 @@ public class I2B2Project {
     		exitTrace( "I2B2Project.processSpreadsheet" ) ;
     	}
     }
-
-
-	public void createDBArtifacts() throws UploaderException {
-		enterTrace( "I2B2Project.createDBArtifacts()" ) ;
-		try {
-			CreateDBPG.setUp( "configpointer.properties" ) ;
-			CreateDBPG.createI2B2Database( projectId );
-		}
-		finally {
-			exitTrace( "I2B2Project.createDBArtifacts()" ) ;
-		}
-	}
 	
 	
 	protected void readSpreadsheet() throws UploaderException {

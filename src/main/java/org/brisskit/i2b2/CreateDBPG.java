@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -60,9 +61,8 @@ public class CreateDBPG extends Base {
 		try {
 			//
 			// Create project specific tables and insert project info into hive and pm tables...
-			
-			FileReader fr = new FileReader( new File( scripts_location + fileName ) ) ;
-			BufferedReader br = new BufferedReader(fr);
+			InputStreamReader isr = new InputStreamReader( CreateDBPG.class.getResourceAsStream("/scripts/db-tables/" + fileName ) ) ;
+			BufferedReader br = new BufferedReader( isr );
 
 			while ((s = br.readLine()) != null) {
 
@@ -216,8 +216,8 @@ public class CreateDBPG extends Base {
 
 			//
 			// Process the template into the buffer...
-			FileReader fr = new FileReader( new File( jboss_dsfile_template ) ) ;
-			BufferedReader br = new BufferedReader(fr) ;
+			InputStreamReader isr = new InputStreamReader( CreateDBPG.class.getResourceAsStream( "/project-template-ds.xml" ) ) ;
+			BufferedReader br = new BufferedReader( isr) ;
 			String s = null ;
 
 			while( ( s = br.readLine()) != null ) {
