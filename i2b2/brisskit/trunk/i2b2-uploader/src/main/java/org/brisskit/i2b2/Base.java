@@ -1,7 +1,5 @@
 package org.brisskit.i2b2 ;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -31,32 +29,19 @@ public class Base {
 	/* Properties */
 	static Properties props = new Properties();
 	protected static String pg_db_name;
-	protected static String pg_db_url;
-	protected static String scripts_location;	
+	protected static String pg_db_url;	
 	protected static String jboss_deploy_dir ;
-	protected static String jboss_dsfile_template ;
 	protected static String pg_db_u;
 	protected static String pg_db_p;
 	
 	public static Connection con;
 	
-	static public void setUp( String configPointerFileName ) throws UploaderException {
+	static public void setUp() throws UploaderException {
 		enterTrace( "Base.setUp()" ) ; 
 		
-		InputStream pointerInputStream = Base.class.getClassLoader().getResourceAsStream( configPointerFileName ) ;
-		
 		try {
-
-			if( pointerInputStream == null ) {
-				log.info("Base Class - Pointer to Properties Path Not Found") ;
-				throw new UploaderException( "property file '" + configPointerFileName + "' not found in the classpath" ) ;
-			}
-
-			Properties propsPointer = new Properties() ;
-			propsPointer.load( pointerInputStream ) ;
-			String configFilePath = ((String)propsPointer.get( "dbfull.properties.path" )).trim() ;
 			
-			InputStream configPropertiesStream = new FileInputStream( configFilePath ) ;
+			InputStream configPropertiesStream = Base.class.getClassLoader().getResourceAsStream( "uploader.properties" ) ;
 			
 			props.load( configPropertiesStream ) ;
 
@@ -66,17 +51,13 @@ public class Base {
 			pg_db_url  = props.getProperty( env + "." + PG_DB_URL );
 			pg_db_u = props.getProperty( env + "." + PG_DB_U );
 			pg_db_p = props.getProperty( env + "." + PG_DB_P );
-			scripts_location = props.getProperty( env + "." + SCRIPTS_LOCATION );
 			jboss_deploy_dir = props.getProperty( env + "." + JBOSS_DEPLOYMENT_DIRECTORY );
-			jboss_dsfile_template = props.getProperty( env + "." + JBOSS_DATASET_DEFINITION_TEMPLATE );
 
 			log.info(env + "." + PG_DB_NAME + "= " + pg_db_name);				;
 			log.info(env + "." + PG_DB_U + "= " + pg_db_u);
 			log.info(env + "." + PG_DB_P + "= " + pg_db_p);	
 			log.info(env + "." + PG_DB_URL + "= " + pg_db_url);
-			log.info(env + "." + SCRIPTS_LOCATION + "= " + scripts_location);
 			log.info(env + "." + JBOSS_DEPLOYMENT_DIRECTORY + "= " + jboss_deploy_dir);
-			log.info(env + "." + JBOSS_DATASET_DEFINITION_TEMPLATE + "= " + jboss_dsfile_template);
 
 		} catch (IOException e) {
 			throw new UploaderException( e ) ;
