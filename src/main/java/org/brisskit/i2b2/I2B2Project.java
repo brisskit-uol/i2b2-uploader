@@ -139,12 +139,6 @@ public class I2B2Project {
     	}
     	finally {
     		Connection connection = Base.getSimpleConnectionPG() ;
-    		if( connection != null ) {
-				try{ connection.close() ; }
-				catch( SQLException sqlx ) {
-					log.warn( "Failed to close SQL connection" ) ;
-				}
-			}
     		exitTrace( "I2B2Project.processSpreadsheet" ) ;
     	}
     }
