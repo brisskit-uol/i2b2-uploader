@@ -47,11 +47,11 @@
 		</dependency>
 		
 		<dependency>
-  			<groupId>postgresql.jdbc</groupId>
-  			<artifactId>postgresql</artifactId>
-  			<version>9.2-1002.jdbc4</version>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>9.2-1003-jdbc4</version>
 		</dependency>
-         
+		        
         <!--+
             | JUnit tests.
             +-->
