@@ -138,7 +138,6 @@ public class I2B2Project {
 			produceFacts() ;
     	}
     	finally {
-    		Connection connection = Base.getSimpleConnectionPG() ;
     		exitTrace( "I2B2Project.processSpreadsheet" ) ;
     	}
     }
@@ -727,7 +726,7 @@ public class I2B2Project {
 			// (1) a plain numeric value, or
 			// (2) as an enumeration
 			if( units.equalsIgnoreCase( "enum" ) ) {
-				of.setConcept_cd( ontCode + ":" + value ) ;
+				of.setConcept_cd( ontCode + ":" + value ) ;	// this is liable to error in padding!!!
 				of.setValtype_cd( "T" ) ;						
 				of.setTval_char( value ) ;
 			}
