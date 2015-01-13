@@ -104,7 +104,7 @@ public class OntologyBranch {
 			+ " <CreationDateTime><date-time-goes-here></CreationDateTime>"
 			+ " <TestID><code-name-goes-here></TestID>"
 			+ " <TestName><name-goes-here></TestName>"
-			+ " <DataType>PosFloat</DataType>" 
+			+ " <DataType><data-type-goes-here></DataType>" 
 			+ " <CodeType/>" 
 			+ " <Loinc/>" 
 			+ " <Flagstouse></Flagstouse>"
@@ -112,8 +112,8 @@ public class OntologyBranch {
 			+ " <MaxStringLength/>" 
 			+ " <LowofLowValue></LowofLowValue>" 
 			+ " <HighofLowValue></HighofLowValue>" 
-			+ " <LowofHighValue>0</LowofHighValue>" 
-			+ " <HighofHighValue>0</HighofHighValue>" 
+			+ " <LowofHighValue></LowofHighValue>" 
+			+ " <HighofHighValue></HighofHighValue>" 
 			+ " <LowofToxicValue/>" 
 			+ " <HighofToxicValue/>" 
 			+ " <EnumValues></EnumValues>" 
@@ -250,7 +250,12 @@ public class OntologyBranch {
 				break ;
 			case STRING:
 			default:
-				insertString( connection ) ;
+				if( units.equalsIgnoreCase( "text" ) ) {
+					insertSearchableText( connection ) ;
+				}
+				else {
+					insertEnumeratedString( connection ) ;
+				}				
 				break;
 			}
 
@@ -317,6 +322,7 @@ public class OntologyBranch {
 				metadataxml = metadataxml.replace( "<date-time-goes-here>", date + " 00:00:00" ) ;
 				metadataxml = metadataxml.replace( "<code-name-goes-here>", ontCode ) ;
 				metadataxml = metadataxml.replace( "<name-goes-here>", colName ) ;
+				metadataxml = metadataxml.replace( "<data-type-goes-here>", "PosFloat" ) ; 
 				metadataxml = metadataxml.replace( "<units-go-here>", units ) ;
 				
 				log.debug( "For ontCode " + ontCode + " numeric units are: " + units ) ;
@@ -647,11 +653,68 @@ public class OntologyBranch {
 		}
 	}
 	
+	
+	private void insertSearchableText( Connection connection ) throws UploaderException {
+		enterTrace( "OntologyBranch.insertSearchableText()" ) ;
+		try {
+			
+			Statement st = connection.createStatement() ;
+			String sqlCmd = null ;
+			String fullName = "\\" + projectId + "\\" + colName + "\\" ;
+			if( !pathsAndCodes.contains( PATH_PREFIX + fullName ) ) {
+				
+				sqlCmd = METADATA_SQL_INSERT_COMMAND ;
+				
+				String date = utils.formatDate( new Date() ) ;
+				String metadataxml = METADATAXML ;
+				metadataxml = metadataxml.replace( "<date-time-goes-here>", date + " 00:00:00" ) ;
+				metadataxml = metadataxml.replace( "<code-name-goes-here>", ontCode ) ;
+				metadataxml = metadataxml.replace( "<name-goes-here>", colName ) ;
+				metadataxml = metadataxml.replace( "<data-type-goes-here>", "String" ) ; 
+				metadataxml = metadataxml.replace( "<units-go-here>", "" ) ;
+				
+				log.debug( "For ontCode " + ontCode + " numeric units are: " + units ) ;
+				
+				sqlCmd = sqlCmd.replaceAll( "<METADATA_SCHEMA_NAME>", projectId + "meta" ) ;
+				sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;
+				
+				sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 1 ) ) ;
+				sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( fullName ) ) ;
+				sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( colName ) ) ;
+				sqlCmd = sqlCmd.replace( "<SYNONYM_CD>", utils.enfoldString( "N" ) ) ;
+				sqlCmd = sqlCmd.replace( "<VISUALATTRIBUTES>", utils.enfoldString( "LA" ) ) ;
+				sqlCmd = sqlCmd.replace( "<BASECODE>", utils.enfoldString( ontCode ) ) ;
+				sqlCmd = sqlCmd.replace( "<METADATAXML>", utils.enfoldNullableString( metadataxml ) ) ;
+				sqlCmd = sqlCmd.replace( "<COLUMNDATATYPE>", utils.enfoldString( "T" ) ) ;
+				sqlCmd = sqlCmd.replace( "<OPERATOR>", utils.enfoldString( "LIKE" ) ) ;
+				sqlCmd = sqlCmd.replace( "<DIMCODE>", utils.enfoldString( fullName ) ) ;
+				sqlCmd = sqlCmd.replace( "<TOOLTIP>", utils.enfoldNullableString( fullName ) ) ;
+				sqlCmd = sqlCmd.replace( "<SOURCESYSTEM_CD>", utils.enfoldNullableString( projectId ) ) ;
+				
+				st = connection.createStatement();
+				
+				st.execute( sqlCmd ) ;
+				//
+				// Insert concept into concept dimension...
+				insertIntoConceptDimension( st, fullName, ontCode, colName ) ;
+				//
+				// Record the path name so we don't try and duplicate it next time...
+				pathsAndCodes.add( PATH_PREFIX + fullName ) ;
+			}
+		}
+		catch( SQLException sqlx ) {
+			throw new UploaderException( "Failed to insert string branches into metadata table.", sqlx ) ;
+		}
+		finally {
+			exitTrace( "OntologyBranch.insertSearchableText()" ) ;
+		}
+	}	
+	
 	//
 	// Need to cater for lookups for bottom leaves
 	// The subcategory would be replaced
-	private void insertString( Connection connection ) throws UploaderException {
-		enterTrace( "OntologyBranch.insertString()" ) ;
+	private void insertEnumeratedString( Connection connection ) throws UploaderException {
+		enterTrace( "OntologyBranch.insertEnumeratedString()" ) ;
 		try {
 			if( colName.equalsIgnoreCase( "CL_STATUS" ) 
 				||
@@ -745,7 +808,7 @@ public class OntologyBranch {
 			throw new UploaderException( "Failed to insert string branches into metadata table.", sqlx ) ;
 		}
 		finally {
-			exitTrace( "OntologyBranch.insertString()" ) ;
+			exitTrace( "OntologyBranch.insertEnumeratedString()" ) ;
 		}
 	}
 	
