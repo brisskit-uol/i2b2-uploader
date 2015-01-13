@@ -449,8 +449,8 @@ public class OntologyBranch {
 				// Insert the end points...
 				String endPointFullName = null ;
 				for( int j=lowestValue; j<highestValue+1; j++ ) {
-					String val = String.format( formatString, j ) ;
-					endPointFullName = fullName + val + "\\" ;
+					String paddedValue = String.format( formatString, j ) ;
+					endPointFullName = fullName + paddedValue + "\\" ;
 					if( !pathsAndCodes.contains( PATH_PREFIX + endPointFullName ) ) {
 						sqlCmd = METADATA_SQL_INSERT_COMMAND ;
 						
@@ -459,22 +459,22 @@ public class OntologyBranch {
 						
 						sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 2 ) ) ;
 						sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( endPointFullName ) ) ;
-						sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( colName + ":" + val ) ) ;
+						sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( colName + ":" + paddedValue ) ) ;
 						sqlCmd = sqlCmd.replace( "<SYNONYM_CD>", utils.enfoldString( "N" ) ) ;
 						sqlCmd = sqlCmd.replace( "<VISUALATTRIBUTES>", utils.enfoldString( "LA" ) ) ;
-						sqlCmd = sqlCmd.replace( "<BASECODE>", utils.enfoldString( ontCode + ":" + val ) ) ;
+						sqlCmd = sqlCmd.replace( "<BASECODE>", utils.enfoldString( ontCode + ":" + j ) ) ;
 						sqlCmd = sqlCmd.replace( "<METADATAXML>", "NULL" ) ;
 						sqlCmd = sqlCmd.replace( "<COLUMNDATATYPE>", utils.enfoldString( "T" ) ) ;
 						sqlCmd = sqlCmd.replace( "<OPERATOR>", utils.enfoldString( "LIKE" ) ) ;
 						sqlCmd = sqlCmd.replace( "<DIMCODE>", utils.enfoldString( endPointFullName ) ) ;
-						sqlCmd = sqlCmd.replace( "<TOOLTIP>", utils.enfoldNullableString( toolTip + ":" + val ) ) ;
+						sqlCmd = sqlCmd.replace( "<TOOLTIP>", utils.enfoldNullableString( toolTip + ":" + paddedValue ) ) ;
 						sqlCmd = sqlCmd.replace( "<SOURCESYSTEM_CD>", utils.enfoldNullableString( projectId ) ) ;
 						
 						st.execute( sqlCmd ) ;
 						
 						//
 						// Insert concept into concept dimension...
-						insertIntoConceptDimension( st, endPointFullName, ontCode + ":" + val, colName + ":" + val ) ;
+						insertIntoConceptDimension( st, endPointFullName, ontCode + ":" + j, colName + ":" + j ) ;
 						//
 						// Record the path name so we don't try and duplicate it next time...
 						pathsAndCodes.add( PATH_PREFIX + fullName ) ;
@@ -522,8 +522,8 @@ public class OntologyBranch {
 					// Insert the end points...
 					String endPointFullName = null ;
 					for( int j=i; j<i+10; j++ ) {
-						String val = String.format( formatString, j ) ;
-						endPointFullName = rangeFullName + ":" + val + "\\" ;
+						String paddedValue = String.format( formatString, j ) ;
+						endPointFullName = rangeFullName + ":" + paddedValue + "\\" ;
 						if( !pathsAndCodes.contains( PATH_PREFIX + endPointFullName ) ) {
 							sqlCmd = METADATA_SQL_INSERT_COMMAND ;
 							
@@ -532,22 +532,22 @@ public class OntologyBranch {
 							
 							sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 3 ) ) ;
 							sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( endPointFullName ) ) ;
-							sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( colName + ":" + val ) ) ;
+							sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( colName + ":" + paddedValue ) ) ;
 							sqlCmd = sqlCmd.replace( "<SYNONYM_CD>", utils.enfoldString( "N" ) ) ;
 							sqlCmd = sqlCmd.replace( "<VISUALATTRIBUTES>", utils.enfoldString( "LA" ) ) ;
-							sqlCmd = sqlCmd.replace( "<BASECODE>", utils.enfoldString( ontCode + ":" + val ) ) ;
+							sqlCmd = sqlCmd.replace( "<BASECODE>", utils.enfoldString( ontCode + ":" + j ) ) ;
 							sqlCmd = sqlCmd.replace( "<METADATAXML>", "NULL" ) ;
 							sqlCmd = sqlCmd.replace( "<COLUMNDATATYPE>", utils.enfoldString( "T" ) ) ;
 							sqlCmd = sqlCmd.replace( "<OPERATOR>", utils.enfoldString( "LIKE" ) ) ;
 							sqlCmd = sqlCmd.replace( "<DIMCODE>", utils.enfoldString( endPointFullName ) ) ;
-							sqlCmd = sqlCmd.replace( "<TOOLTIP>", utils.enfoldNullableString( toolTip + ":" + val ) ) ;
+							sqlCmd = sqlCmd.replace( "<TOOLTIP>", utils.enfoldNullableString( toolTip + ":" + paddedValue ) ) ;
 							sqlCmd = sqlCmd.replace( "<SOURCESYSTEM_CD>", utils.enfoldNullableString( projectId ) ) ;
 							
 							st.execute( sqlCmd ) ;
 							
 							//
 							// Insert concept into concept dimension...
-							insertIntoConceptDimension( st, endPointFullName, ontCode + ":" + val, colName + ":" + val ) ;
+							insertIntoConceptDimension( st, endPointFullName, ontCode + ":" + j, colName + ":" + j ) ;
 							//
 							// Record the path name so we don't try and duplicate it next time...
 							pathsAndCodes.add( PATH_PREFIX + endPointFullName ) ;
