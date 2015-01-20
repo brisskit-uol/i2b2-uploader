@@ -17,18 +17,25 @@ import org.apache.commons.logging.LogFactory;
 
 public class CreateDBPG extends Base {
 	
+	/*
+	 * Only change the order of the scripts with care.
+	 * schema.sql and permissions.sql should top and tail the project specific scripts
+	 * (ie: crc, ont, im and wrk)
+	 */
 	private static final String[] SCRIPT_FILE_NAMES = {
+		"schema.sql",
 		"crc.sql",
 		"ont.sql",
 		"im.sql",
 		"wrk.sql",
+		"permissions.sql",
 		"hive.sql",
 		"pm.sql"
 	} ;
 	
 	private static Log log = LogFactory.getLog( CreateDBPG.class ) ;
 	
-	public static void createI2B2Database( String projectId ) throws UploaderException {
+	public static void createI2B2Database( String projectId, String userName ) throws UploaderException {
 		enterTrace( "CreateDBPG.createI2B2Database()" ) ;
 		
 		try {
@@ -66,21 +73,9 @@ public class CreateDBPG extends Base {
 
 			while ((s = br.readLine()) != null) {
 
-				s = s.replaceAll("<CRC_SCHEMA_NAME>", projectId + "data" ) ;
-				s = s.replaceAll("<CRC_USER_NAME>", projectId + "data" ) ;	
-				s = s.replaceAll("<CRC_PASSWORD>", projectId + "data" ) ;
-				
-				s = s.replaceAll("<METADATA_SCHEMA_NAME>", projectId + "meta" ) ;
-				s = s.replaceAll("<METADATA_USER_NAME>", projectId + "meta" ) ;	
-				s = s.replaceAll("<METADATA_PASSWORD>", projectId + "meta" ) ;
-				
-				s = s.replaceAll("<IM_SCHEMA_NAME>", projectId + "im" ) ;
-				s = s.replaceAll("<IM_USER_NAME>", projectId + "im" ) ;	
-				s = s.replaceAll("<IM_PASSWORD>", projectId + "im" ) ;
-				
-				s = s.replaceAll("<WORK_SCHEMA_NAME>", projectId + "work" ) ;
-				s = s.replaceAll("<WORK_USER_NAME>", projectId + "work" ) ;	
-				s = s.replaceAll("<WORK_PASSWORD>", projectId + "work" ) ;
+				s = s.replaceAll("<DB_SCHEMA_NAME>", projectId ) ;
+				s = s.replaceAll("<DB_USER_NAME>", projectId ) ;	
+				s = s.replaceAll("<DB_PASSWORD>", projectId ) ;
 				
 				s = s.replaceAll("<PROJECT_ONTOLOGY>", projectId ) ;
 				s = s.replaceAll("<PROJECT_METADATA_TABLE>", projectId ) ;
@@ -226,21 +221,9 @@ public class CreateDBPG extends Base {
 				s = s.replaceAll("_pg_db_url_", pg_db_url ) ;
 				s = s.replaceAll("_pg_db_name_", pg_db_name ) ;
 				
-				s = s.replaceAll("_CRC_SCHEMA_NAME_", projectId + "data" ) ;
-				s = s.replaceAll("_CRC_USER_NAME_", projectId + "data" ) ;	
-				s = s.replaceAll("_CRC_PASSWORD_", projectId + "data" ) ;
-				
-				s = s.replaceAll("_METADATA_SCHEMA_NAME_", projectId + "meta" ) ;
-				s = s.replaceAll("_METADATA_USER_NAME_", projectId + "meta" ) ;	
-				s = s.replaceAll("_METADATA_PASSWORD_", projectId + "meta" ) ;
-				
-				s = s.replaceAll("_IM_SCHEMA_NAME_", projectId + "im" ) ;
-				s = s.replaceAll("_IM_USER_NAME_", projectId + "im" ) ;	
-				s = s.replaceAll("_IM_PASSWORD_", projectId + "im" ) ;
-				
-				s = s.replaceAll("_WORK_SCHEMA_NAME_", projectId + "work" ) ;
-				s = s.replaceAll("_WORK_USER_NAME_", projectId + "work" ) ;	
-				s = s.replaceAll("_WORK_PASSWORD_", projectId + "work" ) ;
+				s = s.replaceAll("_DB_SCHEMA_NAME_", projectId ) ;
+				s = s.replaceAll("_DB_USER_NAME_", projectId ) ;	
+				s = s.replaceAll("_DB_PASSWORD_", projectId ) ;
 
 				sb.append(s).append( "\n" ) ;
 

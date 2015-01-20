@@ -14,17 +14,19 @@
 	    | The distributionManagement element is required for deploying an artifact to a remote repository
 	    | login128.lamp.le.ac.uk
 	    | maven.brisskit.org
+	    | <url>scp://login128.lamp.le.ac.uk/local/brisskit/sonatype-work/nexus/storage/releases</url>
+	    | <url>scp://login128.lamp.le.ac.uk/local/brisskit/sonatype-work/nexus/storage/snapshots</url>
 	    +-->
 	<distributionManagement>
 		<repository>
 			<id>nexus</id>
 			<name>Brisskit Maven Snapshots</name>
-			<url>scpexe://login128.lamp.le.ac.uk/var/local/brisskit/sonatype-work/nexus/storage/releases</url>
+			<url>http://maven.brisskit.org/nexus/content/repositories/releases/</url>
 		</repository>
 		<snapshotRepository>
 			<id>nexus</id>
 			<name>Brisskit Maven Releases</name>
-			<url>scpexe://login128.lamp.le.ac.uk/var/local/brisskit/sonatype-work/nexus/storage/snapshots</url>
+			<url>http://maven.brisskit.org/nexus/content/repositories/snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
     

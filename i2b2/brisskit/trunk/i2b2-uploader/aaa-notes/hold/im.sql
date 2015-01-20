@@ -1,8 +1,20 @@
 /*===========================================
   Postgres SQL for project im tables 
+  
+  Substitutions required for:
+  	<IM_SCHEMA_NAME>
+	<IM_USER_NAME>
+	<IM_PASSWORD>
+	
   We create the tables but leave them empty
   ===========================================*/
   
+create schema <IM_SCHEMA_NAME>;
+
+create user <IM_USER_NAME> password '<IM_PASSWORD>';
+ 
+set schema '<IM_SCHEMA_NAME>';  
+
 /*  create IM_MPI_DEMOGRAPHICS table  */
 
 CREATE TABLE IM_MPI_DEMOGRAPHICS (
@@ -78,6 +90,10 @@ CREATE TABLE IM_AUDIT  (
 	COMMENTS		 TEXT
 	)
 ;
+
+GRANT ALL PRIVILEGES ON SCHEMA <IM_SCHEMA_NAME> to <IM_USER_NAME> ;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA <IM_SCHEMA_NAME> TO <IM_USER_NAME> ;
+GRANT ALL PRIVILEGES ON ALL sequences IN SCHEMA <IM_SCHEMA_NAME> TO <IM_USER_NAME> ;
 
   
   
