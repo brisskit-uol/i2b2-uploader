@@ -46,9 +46,9 @@ public class OntologyBranch {
 	// I have my doubts about some of the final columns in the create statement
 	// for the ontology tables. The below are missing them.
 	public static final String METADATA_SQL_INSERT_COMMAND = 
-			"SET SCHEMA '<METADATA_SCHEMA_NAME>';" +
+			"SET SCHEMA '<DB_SCHEMA_NAME>';" +
 			"" +
-			"INSERT INTO <METADATA_SCHEMA_NAME>.<PROJECT_METADATA_TABLE>" +
+			"INSERT INTO <DB_SCHEMA_NAME>.<PROJECT_METADATA_TABLE>" +
 			                "( C_HLEVEL" +
 			                ", C_FULLNAME" +
 			                ", C_NAME" +
@@ -138,9 +138,9 @@ public class OntologyBranch {
 	
 
 	public static final String CONCEPT_DIM_SQL_INSERT_COMMAND = 
-			"SET SCHEMA '<CRC_SCHEMA_NAME>';" +
+			"SET SCHEMA '<DB_SCHEMA_NAME>';" +
 			"" +
-			"INSERT INTO <CRC_SCHEMA_NAME>.CONCEPT_DIMENSION" +
+			"INSERT INTO <DB_SCHEMA_NAME>.CONCEPT_DIMENSION" +
 			       "( CONCEPT_PATH" +    // 	VARCHAR(700) NOT NULL
 			       ", CONCEPT_CD" +      // 	VARCHAR(50) NULL
 			       ", NAME_CHAR" +	     //  	VARCHAR(2000) NULL
@@ -275,7 +275,7 @@ public class OntologyBranch {
 
 				String sqlCmd = METADATA_SQL_INSERT_COMMAND ;			
 					
-				sqlCmd = sqlCmd.replaceAll( "<METADATA_SCHEMA_NAME>", projectId + "meta" ) ;
+				sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", projectId ) ;
 				sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;
 				
 				sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 0 ) ) ;
@@ -327,7 +327,7 @@ public class OntologyBranch {
 				
 				log.debug( "For ontCode " + ontCode + " numeric units are: " + units ) ;
 				
-				sqlCmd = sqlCmd.replaceAll( "<METADATA_SCHEMA_NAME>", projectId + "meta" ) ;
+				sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", projectId ) ;
 				sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;
 				
 				sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 1 ) ) ;
@@ -389,7 +389,7 @@ public class OntologyBranch {
 			if( !pathsAndCodes.contains( PATH_PREFIX + fullName ) ) {
 				sqlCmd = METADATA_SQL_INSERT_COMMAND ;
 				
-				sqlCmd = sqlCmd.replaceAll( "<METADATA_SCHEMA_NAME>", projectId + "meta" ) ;
+				sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", projectId ) ;
 				sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;
 								
 				sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 1 ) ) ;
@@ -460,7 +460,7 @@ public class OntologyBranch {
 					if( !pathsAndCodes.contains( PATH_PREFIX + endPointFullName ) ) {
 						sqlCmd = METADATA_SQL_INSERT_COMMAND ;
 						
-						sqlCmd = sqlCmd.replaceAll( "<METADATA_SCHEMA_NAME>", projectId + "meta" ) ;
+						sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", projectId ) ;
 						sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;
 						
 						sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 2 ) ) ;
@@ -502,7 +502,7 @@ public class OntologyBranch {
 					if( !pathsAndCodes.contains( PATH_PREFIX + rangeFullName ) ) {
 						sqlCmd = METADATA_SQL_INSERT_COMMAND ;
 						
-						sqlCmd = sqlCmd.replaceAll( "<METADATA_SCHEMA_NAME>", projectId + "meta" ) ;
+						sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", projectId ) ;
 						sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;
 						
 						sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 2 ) ) ;
@@ -533,7 +533,7 @@ public class OntologyBranch {
 						if( !pathsAndCodes.contains( PATH_PREFIX + endPointFullName ) ) {
 							sqlCmd = METADATA_SQL_INSERT_COMMAND ;
 							
-							sqlCmd = sqlCmd.replaceAll( "<METADATA_SCHEMA_NAME>", projectId + "meta" ) ;
+							sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", projectId ) ;
 							sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;
 							
 							sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 3 ) ) ;
@@ -583,7 +583,7 @@ public class OntologyBranch {
 		try {
 			String sqlCmd = CONCEPT_DIM_SQL_INSERT_COMMAND ;
 			
-			sqlCmd = sqlCmd.replaceAll( "<CRC_SCHEMA_NAME>", projectId + "data"  ) ;			
+			sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", projectId ) ;			
 			
 			sqlCmd = sqlCmd.replace( "<CONCEPT_PATH>", utils.enfoldString( conceptPath ) ) ;
 			sqlCmd = sqlCmd.replace( "<CONCEPT_CD>", utils.enfoldNullableString( conceptCode ) ) ;
@@ -617,7 +617,7 @@ public class OntologyBranch {
 				
 				String sqlCmd = METADATA_SQL_INSERT_COMMAND ;
 				
-				sqlCmd = sqlCmd.replaceAll( "<METADATA_SCHEMA_NAME>", projectId + "meta" ) ;
+				sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", projectId ) ;
 				sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;
 				
 				sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 1 ) ) ;
@@ -675,7 +675,7 @@ public class OntologyBranch {
 				
 				log.debug( "For ontCode " + ontCode + " numeric units are: " + units ) ;
 				
-				sqlCmd = sqlCmd.replaceAll( "<METADATA_SCHEMA_NAME>", projectId + "meta" ) ;
+				sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", projectId ) ;
 				sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;
 				
 				sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 1 ) ) ;
@@ -737,7 +737,7 @@ public class OntologyBranch {
 				
 				sqlCmd = METADATA_SQL_INSERT_COMMAND ;
 				
-				sqlCmd = sqlCmd.replaceAll( "<METADATA_SCHEMA_NAME>", projectId + "meta" ) ;
+				sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", projectId ) ;
 				sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;
 				
 				sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 1 ) ) ;
@@ -777,7 +777,7 @@ public class OntologyBranch {
 					
 					sqlCmd = METADATA_SQL_INSERT_COMMAND ;
 					
-					sqlCmd = sqlCmd.replaceAll( "<METADATA_SCHEMA_NAME>", projectId + "meta" ) ;
+					sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", projectId ) ;
 					sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;
 					
 					sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 2 ) ) ;

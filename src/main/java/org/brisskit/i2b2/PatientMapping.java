@@ -19,9 +19,9 @@ public class PatientMapping {
 	private static Log log = LogFactory.getLog( PatientMapping.class ) ;
 	
 	public static final String PATIENT_MAP_INSERT_COMMAND = 
-			"SET SCHEMA '<CRC_SCHEMA_NAME>';" +
+			"SET SCHEMA '<DB_SCHEMA_NAME>';" +
 			"" +
-			"INSERT INTO <CRC_SCHEMA_NAME>.PATIENT_MAPPING" +
+			"INSERT INTO <DB_SCHEMA_NAME>.PATIENT_MAPPING" +
 			    "( PATIENT_IDE" + 			//  VARCHAR(200)  NOT NULL,
 			    ", PATIENT_IDE_SOURCE" + 	//	VARCHAR(50)  NOT NULL,
 			    ", PATIENT_NUM" + 			//  INT NOT NULL,
@@ -68,7 +68,7 @@ public class PatientMapping {
 
 			String sqlCmd = PATIENT_MAP_INSERT_COMMAND ;
 			
-			sqlCmd = sqlCmd.replaceAll( "<CRC_SCHEMA_NAME>", schema_name ) ;
+			sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", schema_name ) ;
 			
 			sqlCmd = sqlCmd.replace( "<PATIENT_IDE>", utils.enfoldString( patient_ide ) ) ;
 			sqlCmd = sqlCmd.replace( "<PATIENT_IDE_SOURCE>", utils.enfoldString( patient_ide_source ) ) ;

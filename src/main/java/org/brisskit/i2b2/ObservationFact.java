@@ -29,9 +29,9 @@ public class ObservationFact {
 private static Log log = LogFactory.getLog( ObservationFact.class ) ;
 
 public static final String OBSERVATION_FACT_INSERT_COMMAND = 
-		"SET SCHEMA '<CRC_SCHEMA_NAME>';" +
+		"SET SCHEMA '<DB_SCHEMA_NAME>';" +
 		"" +
-		"INSERT INTO <CRC_SCHEMA_NAME>.OBSERVATION_FACT" +
+		"INSERT INTO <DB_SCHEMA_NAME>.OBSERVATION_FACT" +
                "( ENCOUNTER_NUM" +    		// INT NOT NULL,
                ", PATIENT_NUM   " +  		// INT NOT NULL,
                ", CONCEPT_CD    " +  		// VARCHAR(50) NOT NULL,
@@ -107,7 +107,7 @@ public void serializeToDatabase( Connection connection ) throws UploaderExceptio
 	
 	try {
 		
-		sqlCmd = sqlCmd.replaceAll( "<CRC_SCHEMA_NAME>", schema_name ) ;
+		sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", schema_name ) ;
 		
 		sqlCmd = sqlCmd.replace( "<ENCOUNTER_NUM>", utils.enfoldInteger( encounter_num ) ) ;		
 		sqlCmd = sqlCmd.replace( "<PATIENT_NUM>", utils.enfoldInteger( patient_num ) ) ;

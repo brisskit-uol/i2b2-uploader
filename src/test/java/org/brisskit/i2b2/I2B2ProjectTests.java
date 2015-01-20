@@ -35,6 +35,7 @@ public class I2B2ProjectTests extends TestCase {
 	public void testI2B2Project() {
 		
 		I2B2Project project = new I2B2Project( "project1"
+											 , "kjshf"
 				                             , new File( "somespreadsheet.xls" ) ) ;
 		
 		assert( project.getProjectId().equals( "project1" ) ) ;
@@ -47,6 +48,7 @@ public class I2B2ProjectTests extends TestCase {
 		File spreadsheetFile = new File(getClass().getClassLoader().getResource("spreadsheets/test-02.xls").getFile());
 //		File spreadsheetFile = new File(getClass().getClassLoader().getResource("spreadsheets/EG1-laheart.xlsx").getFile());
 		I2B2Project project = new I2B2Project( "searchable_text"
+				                             , "kjshf"
                                              , spreadsheetFile ) ;
 		
 		try {
@@ -69,7 +71,7 @@ public class I2B2ProjectTests extends TestCase {
 		
 //		File spreadsheetFile = new File(getClass().getClassLoader().getResource("spreadsheets/test-02.xls").getFile());
 		File spreadsheetFile = new File(getClass().getClassLoader().getResource("spreadsheets/EG1-laheart.xlsx").getFile());
-		I2B2Project project = new I2B2Project( "infarction", spreadsheetFile ) ;
+		I2B2Project project = new I2B2Project( "infarction", "kjshf", spreadsheetFile ) ;
 		
 		try {
 			project.readSpreadsheet() ;

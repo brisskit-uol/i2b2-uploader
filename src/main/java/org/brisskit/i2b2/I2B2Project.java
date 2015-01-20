@@ -60,6 +60,7 @@ public class I2B2Project {
 	private static StringBuffer logIndent = null ;
 	
 	private String projectId ;
+	private String userName ;
     private File spreadsheetFile ;
     private Workbook workbook ;
     private Sheet dataSheet ;
@@ -101,9 +102,11 @@ public class I2B2Project {
     // projectId must be alpha-numeric starting with an alpha,
     // and with no spaces.
     public I2B2Project( String projectId
+    				  , String userName
     		          , File spreadsheetFile ) {
     	enterTrace( "I2B2Project()" ) ;
     	this.projectId = projectId ;
+    	this.userName = userName ;
     	this.spreadsheetFile = spreadsheetFile ;
     	exitTrace( "I2B2Project()" ) ;
     }
@@ -116,7 +119,7 @@ public class I2B2Project {
 				CreateDBPG.setUp() ;
 				bSetupDone = true ;
 			}
-			CreateDBPG.createI2B2Database( projectId );
+			CreateDBPG.createI2B2Database( projectId, userName );
 		}
 		finally {
 			exitTrace( "I2B2Project.createDBArtifacts()" ) ;
@@ -276,7 +279,7 @@ public class I2B2Project {
 				Row dataRow = rowIt.next() ;	
 				
 				PatientMapping	pMap = new PatientMapping( utils ) ;
-				pMap.setSchema_name( projectId + "data" ) ;
+				pMap.setSchema_name( projectId ) ;
 				pMap.setSourcesystem_id( projectId ) ;
 				
 				Iterator<Cell> cellIt = dataRow.cellIterator() ;
@@ -335,7 +338,7 @@ public class I2B2Project {
 				Row dataRow = rowIt.next() ;
 				
 				PatientDimension pDim = new PatientDimension( utils ) ;
-				pDim.setSchema_name( projectId + "data") ;
+				pDim.setSchema_name( projectId ) ;
 				pDim.setSourcesystem_cd( projectId ) ;
 				
 				//
@@ -390,6 +393,10 @@ public class I2B2Project {
 						// the patient at patient mapping time...
 						String sourceSystemPatientID = value ;
 						pDim.setPatient_num( patientMappings.get( sourceSystemPatientID ) ) ;
+						//
+						// Dirty  hack to enable short-term identification of participant in brisskit portal
+						// (PLEASE REMOVE - Jeff)
+						pDim.setZip_cd( sourceSystemPatientID ) ;
 					}
 					
 				} // end of inner while - processing cell	
@@ -695,7 +702,7 @@ public class I2B2Project {
 			of.setTval_char( "yes" ) ;
 			
 			of.setSourcesystem_cd( projectId ) ;
-			of.setSchema_name( projectId + "data" ) ;
+			of.setSchema_name( projectId ) ;
 			return of ;
 		}
 		catch( ParseException pex ) {
@@ -738,7 +745,7 @@ public class I2B2Project {
 			}
 			
 			of.setSourcesystem_cd( projectId ) ;
-			of.setSchema_name( projectId + "data" ) ;
+			of.setSchema_name( projectId ) ;
 			return of ;
 		}
 		finally {
@@ -773,7 +780,7 @@ public class I2B2Project {
 			}
 			
 			of.setSourcesystem_cd( projectId ) ;
-			of.setSchema_name( projectId + "data" ) ;
+			of.setSchema_name( projectId ) ;
 			return of ;
 		}
 		finally {

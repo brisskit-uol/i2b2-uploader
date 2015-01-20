@@ -1,7 +1,20 @@
 /*========================================
   Postgres SQL for a project's crc tables 
-  The bulk inserts are programmatic.
+  
+  Substitutions required for:
+  	<CRC_SCHEMA_NAME>
+	<CRC_USER_NAME>
+	<CRC_PASSWORD>
+	
+	The bulk inserts are programmatic.
   ========================================*/ 
+
+create schema <CRC_SCHEMA_NAME>;
+
+create user <CRC_USER_NAME> password '<CRC_PASSWORD>';
+ 
+set schema '<CRC_SCHEMA_NAME>';  
+
 
 CREATE TABLE ENCOUNTER_MAPPING ( 
     ENCOUNTER_IDE       	VARCHAR(200)  NOT NULL,
@@ -588,3 +601,7 @@ CREATE GLOBAL TEMPORARY TABLE MASTER_QUERY_GLOBAL_TEMP    (
 	TEMPORAL_END_DATE DATE
  ) ON COMMIT PRESERVE ROWS
 ;
+
+GRANT ALL PRIVILEGES ON SCHEMA <CRC_SCHEMA_NAME> to <CRC_USER_NAME> ;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA <CRC_SCHEMA_NAME> TO <CRC_USER_NAME>;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA <CRC_SCHEMA_NAME> TO <CRC_USER_NAME>;

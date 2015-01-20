@@ -1,14 +1,8 @@
 /* reinitialization sql for a project with id "searchable_text" 
    NB: Will delete everything from PM where domain_id = 'BRISSKIT' */
 
-drop schema searchable_textdata cascade ;
-drop user searchable_textdata ;
-drop schema searchable_textmeta cascade ;
-drop user searchable_textmeta ;
-drop schema searchable_textim cascade ;
-drop user searchable_textim ;
-drop schema searchable_textwork cascade ;
-drop user searchable_textwork ;
+drop schema searchable_text cascade ;
+drop user searchable_text ;
 
 set schema 'i2b2metadata';
 drop table searchable_text ;
@@ -24,17 +18,15 @@ delete from i2b2pm.PM_HIVE_DATA where domain_id = 'BRISSKIT' ;
 DELETE FROM i2b2pm.PM_PROJECT_DATA where PROJECT_ID = 'searchable_text' ;
 delete from i2b2pm.PM_PROJECT_USER_ROLES where PROJECT_ID = 'searchable_text' ;
 
+
+
+
 /* reinitialization sql for a project with id "laheart" 
    NB: Will delete everything from PM where domain_id = 'BRISSKIT' */
 
-drop schema laheartdata cascade ;
-drop user laheartdata ;
-drop schema laheartmeta cascade ;
-drop user laheartmeta ;
-drop schema laheartim cascade ;
-drop user laheartim ;
-drop schema laheartwork cascade ;
-drop user laheartwork ;
+drop schema laheart cascade ;
+drop user laheart ;
+
 
 set schema 'i2b2metadata';
 drop table laheart ;
