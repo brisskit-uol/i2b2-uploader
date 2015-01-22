@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -33,6 +34,21 @@ import org.brisskit.i2b2.OntologyBranch.Type;
  *
  */
 public class I2B2Project {
+		
+	public static final String BREAKDOWNS_SQL_INSERT_COMMAND = 
+			"SET SCHEMA '<DB_SCHEMA_NAME>';" +
+			"" +
+			"INSERT INTO <DB_SCHEMA_NAME>.QT_BREAKDOWN_PATH" +
+			                "( NAME" +
+			                ", VALUE" +
+			                ", CREATE_DATE" +
+			                ", UPDATE_DATE" +
+			                ", USER_ID ) " +
+	         "VALUES( <LONG_NAME>" +
+	               ", <PATH>" +
+	               ", now()" +
+	               ", now()" +
+	               ", NULL ) ;" ;	
 	
 	public static final int DATA_SHEET_INDEX = 0 ;
 	public static final int LOOKUP_SHEET_INDEX = 1 ;
@@ -46,7 +62,7 @@ public class I2B2Project {
 	
 	//
 	// Code lookup sheet values...
-	public static final int LOOKUP_COLUMN_NAME_ROW_INDEX = 0 ;
+	public static final int LOOKUP_HEADINGS_ROW_INDEX = 0 ;
 	public static final int CONCEPT_COLUMN_INDEX = 0 ;
 	public static final int CODE_COLUMN_INDEX = 1 ;
 	public static final int DESCRIPTION_COLUMN_INDEX = 2 ;
@@ -54,6 +70,22 @@ public class I2B2Project {
 	public static final String CONCEPT_COLNAME = "concept" ;
 	public static final String CODE_COLNAME = "code" ;
 	public static final String DESCRIPTION_COLNAME = "description" ;
+	
+	//
+	// Breakdowns sheet values...
+	public static final int BREAKDOWNS_HEADINGS_ROW_INDEX = 0 ;
+	public static final int BREAKDOWN_COLUMN_INDEX = 0 ;
+	public static final int NAME_COLUMN_INDEX = 1 ;
+	
+	public static final String BREAKDOWN_COLNAME = "breakdown" ;
+	public static final String NAME_COLNAME = "column heading" ;
+
+	public static final String[][] STANDARD_BREAKDOWNS = {
+		{ "Age", "PATIENT_AGE_COUNT_XML" },
+		{ "Gender", "PATIENT_GENDER_COUNT_XML" },
+		{ "Race", "PATIENT_RACE_COUNT_XML" },
+		{ "Vital Status", "PATIENT_VITALSTATUS_COUNT_XML" } 
+	} ;
 	
 	private static Log log = LogFactory.getLog( I2B2Project.class ) ;
 	
@@ -65,6 +97,7 @@ public class I2B2Project {
     private Workbook workbook ;
     private Sheet dataSheet ;
     private Sheet lookupSheet ;
+    private Sheet breakdownsSheet ;
     private Row columnNames ;
     private Row toolTips ;
     private Row ontologyCodes ;
@@ -80,6 +113,8 @@ public class I2B2Project {
     private Map<String,Integer> patientMappings = new HashMap<String,Integer>() ;
     
     private Map<String,String> lookups = new HashMap<String,String>() ;
+    
+    private Map<String,String> breakdowns = new HashMap<String,String>() ;
     
     private Map<String,OntologyBranch> ontBranches = new HashMap<String,OntologyBranch>() ;
 //    private ArrayList<PatientDimension> patientDims = new ArrayList<PatientDimension>() ;
@@ -162,21 +197,25 @@ public class I2B2Project {
 		    //
 	    	// Get the data sheet, which must be the first sheet... 
 	    	dataSheet = workbook.getSheetAt( DATA_SHEET_INDEX ) ;
-		    if( noSheets > 1 ) {		    	
-		       	//
-			    // Check we have sufficient rows for a lookup sheet (as the 2nd sheet)...
-		    	// ( Many spreadsheets have 2nd and 3rd sheets present but empty by default! )		    	
-			    int numberRows = workbook.getSheetAt( LOOKUP_SHEET_INDEX ).getLastRowNum() + 1 ;
-				if( numberRows > 2 ) {				
-					//
-			    	// The lookup sheet is to map column coded values to some meaningful description
-			    	//  eg: 1 = Coronary hd
-			    	//      2 = Coronary and hypertensive hd and so on)
-			    	// The vision is to use the code as an enumerated value, but place a meaningful
-			    	// description in the ontology tree.
-					lookupSheet = workbook.getSheetAt( LOOKUP_SHEET_INDEX ) ;
-			    	injestLookupTables() ;
-				}
+	    	//
+	    	// Injest any lookups and breakdowns described in additional sheets...
+		    if( noSheets > 1 ) {
+		    	
+		    	for( int i=1; i<noSheets ; i++ ) {
+		    		Sheet sheet = workbook.getSheetAt( i ) ;
+		    		if( isLookupSheet( sheet ) ) {
+		    			lookupSheet = sheet ;
+		    			injestLookupTables() ;
+		    		}
+		    		else if( isBreakdownsSheet( sheet ) ) {
+		    			breakdownsSheet = sheet ;
+		    			//
+		    			// We only injest the breakdown info here (if it exists!)
+		    			// The actual metadata is built elsewhere outside of this loop.
+		    			injestBreakdowns() ;
+		    		}
+		    	}
+		 		       	
 		    }		    
 		    //
 		    // Check we have sufficient data rows...
@@ -204,21 +243,21 @@ public class I2B2Project {
 	}
 	
 	
-	private void injestLookupTables() throws UploaderException {
-		enterTrace( "i2b2Project.injestLookupTables()" ) ;
-		try {			
+	private boolean isLookupSheet( Sheet sheet ) {
+		enterTrace( "i2b2Project.isLookupSheet()" ) ;
+		try {
 			//
 		    // Check we have sufficient rows...
-		    int numberRows = lookupSheet.getLastRowNum() + 1 ;
+		    int numberRows = sheet.getLastRowNum() + 1 ;
 			if( numberRows < 2 ) {
-				throw new UploaderException( "The lookup sheet has insufficient rows: " + numberRows ) ;
+				return false ;
 			}
 			//
 			// Check we have sufficient columns...
-			Row columnNameRow = lookupSheet.getRow( I2B2Project.LOOKUP_COLUMN_NAME_ROW_INDEX ) ;
+			Row columnNameRow = sheet.getRow( I2B2Project.LOOKUP_HEADINGS_ROW_INDEX ) ;
 			int numberCols = columnNameRow.getLastCellNum() ;
 			if( numberCols != 3 ) {
-				throw new UploaderException( "The lookup sheet has insufficient columns: " + numberCols ) ;
+				return false ;
 			}
 			//
 			// Check the format of the first row...
@@ -231,8 +270,55 @@ public class I2B2Project {
 				||
 				!descriptionHeading.equalsIgnoreCase( I2B2Project.DESCRIPTION_COLNAME ) ) {
 				
-				throw new UploaderException( "Lookup sheet incorrectly formatted: first row has incorrect column headings." ) ;
+				return false ;
 			}
+			
+			return true ;
+		}
+		finally {
+			exitTrace( "i2b2Project.isLookupSheet()" ) ;
+		}
+	}
+	
+	private boolean isBreakdownsSheet( Sheet sheet ) {
+		enterTrace( "i2b2Project.isBreakdownsSheet()" ) ;
+		try {
+			//
+		    // Check we have sufficient rows...
+		    int numberRows = sheet.getLastRowNum() + 1 ;
+			if( numberRows < 2 ) {
+				return false ;
+			}
+			//
+			// Check we have sufficient columns...
+			Row columnNameRow = sheet.getRow( I2B2Project.BREAKDOWNS_HEADINGS_ROW_INDEX ) ;
+			int numberCols = columnNameRow.getLastCellNum() ;
+			if( numberCols != 2 ) {
+				return false ;
+			}
+			//
+			// Check the format of the first row...
+			String breakdownHeading = utils.getValueAsString( columnNameRow.getCell( I2B2Project.BREAKDOWN_COLUMN_INDEX ) ) ;
+			String nameHeading = utils.getValueAsString( columnNameRow.getCell( I2B2Project.NAME_COLUMN_INDEX ) ) ;
+			if( !breakdownHeading.equalsIgnoreCase( I2B2Project.BREAKDOWN_COLNAME ) 
+				||
+				!nameHeading.equalsIgnoreCase( I2B2Project.NAME_COLNAME ) ) {
+				
+				return false ;
+			}
+			
+			return true ;
+		}
+		finally {
+			exitTrace( "i2b2Project.isBreakdownsSheet()" ) ;
+		}
+	}
+	
+	
+	private void injestLookupTables() throws UploaderException {
+		enterTrace( "i2b2Project.injestLookupTables()" ) ;
+		try {			
+
 			Iterator<Row> rowIt = lookupSheet.rowIterator() ;
 			//
 			// Tab past column headings' row...
@@ -258,6 +344,90 @@ public class I2B2Project {
 		}
 		finally {
 			exitTrace( "i2b2Project.injestLookupTables()" ) ;
+		}
+	}
+	
+	
+	private void injestBreakdowns() throws UploaderException {
+		enterTrace( "i2b2Project.injestBreakdowns()" ) ;
+		try {			
+
+			Iterator<Row> rowIt = breakdownsSheet.rowIterator() ;
+			//
+			// Tab past headings' row...
+			rowIt.next() ;
+			//
+			// Process code breakdown rows...
+			Row breakdownRow = null ;
+			String breakdown = null ;
+			String name = null ;
+			while( rowIt.hasNext() ) {
+				breakdownRow = rowIt.next() ;	
+				breakdown = utils.getValueAsString( breakdownRow.getCell( I2B2Project.BREAKDOWN_COLUMN_INDEX ) ) ;
+				name = utils.getValueAsString( breakdownRow.getCell( I2B2Project.NAME_COLUMN_INDEX ) ) ;
+				//
+				// Place a suitable mapping in the collection...				
+				breakdowns.put( mapToStandardBreakdownName( breakdown ), name ) ;
+			}
+			for( int i=0; i<STANDARD_BREAKDOWNS.length; i++ ) {
+				if( !breakdowns.containsKey( STANDARD_BREAKDOWNS[i][0] ) ){
+					breakdowns.put( STANDARD_BREAKDOWNS[i][0], STANDARD_BREAKDOWNS[i][0] ) ;
+				}
+			}
+			
+		}
+		finally {
+			exitTrace( "i2b2Project.injestBreakdowns()" ) ;
+		}
+	}
+	
+	
+	private String mapToStandardBreakdownName( String breakdown ) throws UploaderException {
+		enterTrace( "i2b2Project.mapToStandardBreakdownName()" ) ;
+		try {
+			for( int i=0; i<STANDARD_BREAKDOWNS.length; i++ ) {
+				if( breakdown.equalsIgnoreCase( STANDARD_BREAKDOWNS[i][0] ) ) {
+					return STANDARD_BREAKDOWNS[i][0] ;
+				}
+			}
+			throw new UploaderException( "Non standard breakdown name encountered: " + breakdown ) ;
+		}
+		finally {
+			exitTrace( "i2b2Project.mapToStandardBreakdownName()" ) ;
+		}
+	}
+	
+	
+	private void buildBreakdowns() throws UploaderException {
+		enterTrace( "i2b2Project.buildBreakdowns()" ) ;
+		try {
+			String breakdownName = null ;
+			String headingName = null ;
+			String path = null ;
+			String sqlCmd = null ;
+			Statement st = Base.getSimpleConnectionPG().createStatement() ;
+			for( int i=0; i<STANDARD_BREAKDOWNS.length; i++ ) {
+				breakdownName = STANDARD_BREAKDOWNS[i][0] ;
+				//
+				// The following conditional caters for the situation where
+				// no breakdown sheet has been provided at all...
+				if( !breakdowns.containsKey( breakdownName ) ) {
+					breakdowns.put( STANDARD_BREAKDOWNS[i][0], STANDARD_BREAKDOWNS[i][0] ) ;
+				}
+				headingName = breakdowns.get( breakdownName ) ;
+				path = "\\\\" + projectId + "\\\\" + projectId + "\\\\" + headingName + "\\\\" ;
+				sqlCmd = BREAKDOWNS_SQL_INSERT_COMMAND ;				
+				sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", projectId ) ;
+				sqlCmd = sqlCmd.replace( "<LONG_NAME>", utils.enfoldString( STANDARD_BREAKDOWNS[i][1] ) ) ;
+				sqlCmd = sqlCmd.replace( "<PATH>", utils.enfoldString( path ) ) ;				
+				st.execute( sqlCmd ) ;				
+			}			
+		}
+		catch( SQLException sqlex ) {
+			throw new UploaderException( sqlex ) ;
+		}
+		finally {
+			exitTrace( "i2b2Project.buildBreakdowns()" ) ;
 		}
 	}
 	
@@ -566,6 +736,12 @@ public class I2B2Project {
 					OntologyBranch ob = itOb.next() ;
 					ob.serializeToDatabase( Base.getSimpleConnectionPG() ) ;
 				}
+				//
+		    	// Breakdowns may or may not be there as a separate sheet.
+		    	// In any case, we must create some breakdown metadata
+		    	// in order for breakdowns not to raise errors.
+		    	// So we build all breakdowns here (defaulting if need be)...
+		    	buildBreakdowns() ;
 			}
 			
 		}
