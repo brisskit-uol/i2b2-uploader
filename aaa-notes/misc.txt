@@ -107,6 +107,30 @@ delete from i2b2pm.PM_HIVE_DATA where domain_id = 'BRISSKIT' ;
 DELETE FROM i2b2pm.PM_PROJECT_DATA where PROJECT_ID = 'project1' ;
 delete from i2b2pm.PM_PROJECT_USER_ROLES where PROJECT_ID = 'project1' ;
 
+============================================================
+
+ PATIENT_GENDER_COUNT_XML      | \\laheart\\laheart\\Gender\\ | 2015-01-22 09:13:00.369119 | 2015-01-22 09:13:00.369119 | 
+ PATIENT_RACE_COUNT_XML        | \\laheart\\laheart\\Race\\   | 2015-01-22 09:13:15.358869 | 2015-01-22 09:13:15.358869 | 
+ PATIENT_VITALSTATUS_COUNT_XML | \\laheart\\laheart\\DEATH\\
+
+
+
+update qt_breakdown_path
+set value = '\\\\laheart\\AGE_1950\\'
+where name = 'PATIENT_AGE_COUNT_XML' ;
+
+update qt_breakdown_path
+set value = '\\\\laheart\\Gender\\'
+where name = 'PATIENT_GENDER_COUNT_XML' ;
+
+update qt_breakdown_path
+set value = '\\\\laheart\\Race\\'
+where name = 'PATIENT_RACE_COUNT_XML' ;
+
+update qt_breakdown_path
+set value = '\\\\laheart\\DEATH\\'
+where name = 'PATIENT_VITALSTATUS_COUNT_XML' ;
+
  
  
  

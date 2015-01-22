@@ -848,4 +848,9 @@ public class OntologyBranch {
     	I2B2Project.exitTrace( log, entry ) ;
 	}
 
+
+	private String getColName() {
+		return colName;
+	}
+
 }
