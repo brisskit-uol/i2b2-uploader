@@ -229,16 +229,68 @@ public class I2B2Project {
 			//  ie: a path statement)
 		    columnNames = dataSheet.getRow( COLUMN_NAME_ROW_INDEX ) ;
 		    toolTips = dataSheet.getRow( TOOLTIPS_ROW_INDEX ) ;
-		    ontologyCodes = dataSheet.getRow( ONTOLOGY_CODES_ROW_INDEX ) ;
+		    ontologyCodes = dataSheet.getRow( ONTOLOGY_CODES_ROW_INDEX ) ;		    
 		    //
 		    // Could do with some basic checks to see all rows have the same number of columns!
 		    numberColumns = columnNames.getLastCellNum() ;
+		    
+		    //
+		    // Alter spreadsheet if necessary to add dummy data for missing breakdowns
+		    // ( This is in memory only. Changes do not get written back to the file )...
+		    String columnName = null ;
+		    for( int i=0; i<STANDARD_BREAKDOWNS.length; i++ ) {
+		    	columnName = breakdowns.get( STANDARD_BREAKDOWNS[i][0] ) ;
+		    	if( !breakdownExists( columnName ) ) {
+		    		addDefaultBreakdown( columnName ) ;
+		    	}
+		    }
 		}
 		catch( Exception ex ) {
 			throw new UploaderException( ex ) ;
 		}
 		finally {
 			exitTrace( "readSpreadsheet()" ) ;
+		}
+	}
+	
+	
+	private boolean breakdownExists( String columnName ) {
+		enterTrace( "i2b2Project.breakdownExists()" ) ;
+		try {
+			Iterator<Cell> it = columnNames.cellIterator() ;
+			while( it.hasNext() ) {
+				Cell cell = it.next() ;
+				String value = utils.getValueAsString( cell ) ;
+				if( value.equals( columnName ) ) {
+					return true ;
+				}
+			}			
+			return false ;
+		}
+		finally {
+			exitTrace( "i2b2Project.breakdownExists()" ) ;
+		}
+	}
+	
+	
+	private void addDefaultBreakdown( String columnName ) {
+		enterTrace( "i2b2Project.addDefaultBreakdown()" ) ;
+		try {
+			columnNames.createCell( numberColumns, Cell.CELL_TYPE_STRING ).setCellValue( columnName ) ;
+			toolTips.createCell( numberColumns, Cell.CELL_TYPE_STRING ).setCellValue( columnName ) ;
+			ontologyCodes.createCell( numberColumns, Cell.CELL_TYPE_STRING ).setCellValue( columnName ) ;
+			Iterator<Row> it = dataSheet.iterator() ;
+			it.next() ;
+			it.next() ;
+			it.next() ;
+			while( it.hasNext() ) {
+				Row row = it.next() ;
+				row.createCell( numberColumns, Cell.CELL_TYPE_STRING ).setCellValue( "unknown" ) ;
+			}
+			numberColumns++ ;
+		}
+		finally {
+			exitTrace( "i2b2Project.addDefaultBreakdown()" ) ;
 		}
 	}
 	
@@ -415,7 +467,7 @@ public class I2B2Project {
 					breakdowns.put( STANDARD_BREAKDOWNS[i][0], STANDARD_BREAKDOWNS[i][0] ) ;
 				}
 				headingName = breakdowns.get( breakdownName ) ;
-				path = "\\\\" + projectId + "\\\\" + projectId + "\\\\" + headingName + "\\\\" ;
+				path = "\\\\" + projectId + "\\" + projectId + "\\" + headingName + "\\" ;
 				sqlCmd = BREAKDOWNS_SQL_INSERT_COMMAND ;				
 				sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", projectId ) ;
 				sqlCmd = sqlCmd.replace( "<LONG_NAME>", utils.enfoldString( STANDARD_BREAKDOWNS[i][1] ) ) ;
