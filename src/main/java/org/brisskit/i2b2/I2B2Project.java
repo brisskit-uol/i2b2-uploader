@@ -236,7 +236,18 @@ public class I2B2Project {
 		    
 		    //
 		    // Alter spreadsheet if necessary to add dummy data for missing breakdowns
-		    // ( This is in memory only. Changes do not get written back to the file )...
+		    // ( This is in memory only. Changes do not get written back to the file ).
+		    // First, we pack out the breakdowns collection, if need be with a 
+		    // complete set of defaults...
+		    for( int i=0; i<STANDARD_BREAKDOWNS.length; i++ ) {
+				if( !breakdowns.containsKey( STANDARD_BREAKDOWNS[i][0] ) ){
+					breakdowns.put( STANDARD_BREAKDOWNS[i][0], STANDARD_BREAKDOWNS[i][0] ) ;
+				}
+			}
+		    //
+		    // Then we check the spreadsheet. 
+		    // It may not have have the required columns for suitable breakdowns:
+		    // If the latter is the case, we create a column with all its values "unknown"...
 		    String columnName = null ;
 		    for( int i=0; i<STANDARD_BREAKDOWNS.length; i++ ) {
 		    	columnName = breakdowns.get( STANDARD_BREAKDOWNS[i][0] ) ;
@@ -244,6 +255,7 @@ public class I2B2Project {
 		    		addDefaultBreakdown( columnName ) ;
 		    	}
 		    }
+		    		    
 		}
 		catch( Exception ex ) {
 			throw new UploaderException( ex ) ;
@@ -821,10 +833,7 @@ public class I2B2Project {
 			Cell toolTipCell = dataSheet.getRow( I2B2Project.TOOLTIPS_ROW_INDEX ).getCell( i ) ;
 			try {
 				String tooltip = utils.getValueAsString( toolTipCell ) ;
-				if( tooltip == null ) {
-					virginOntology = false ;
-				}
-				else if( utils.isNull( tooltip ) ) {
+				if( utils.isNull( tooltip ) ) {
 					virginOntology = false ;
 				}
 				else if( tooltip.length() == 0 ) {
@@ -858,16 +867,13 @@ public class I2B2Project {
 				Iterator<Cell> cellIt = dataRow.cellIterator() ;
 				while( cellIt.hasNext() ) {
 					Cell cell = cellIt.next() ;		
-					if( utils.getValueAsString( cell ).equalsIgnoreCase( "NULL" ) ) {
+					if( utils.isNull( utils.getValueAsString( cell ) ) ) {
 						continue ;
 					}
 					String ontCode = getOntCode( cell ) ;
 					//
 					// We bypass any columns which are not connected to ontological facts
-					if( ontCode == null ) {
-						continue ;
-					}
-					else if( ontCode.equalsIgnoreCase( "null" ) ) {
+					if( utils.isNull( ontCode ) ) {
 						continue ;
 					}
 					else if( ontCode.startsWith( "p_map:" ) || ontCode.startsWith( "p_dim:" ) ) {

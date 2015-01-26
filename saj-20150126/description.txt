@@ -1,0 +1,16 @@
+saj [1:05 PM] 
+the patient_mapping table doesn't populate with the correct patient_ide and it fails on populating observations
+saj 
+[1:06 PM] 
+ Added produceFacts.txt 
+Jan 26, 2015 12:45:08 PM org.apache.catalina.core.StandardWrapperValve invoke
+SEVERE: Servlet.service() for servlet mvc-dispatcher threw exception
+java.lang.NullPointerException
+	at org.brisskit.i2b2.I2B2Project.produceFacts(I2B2Project.java:878)
+	at org.brisskit.i2b2.I2B2Project.processSpreadsheet(I2B2Project.java:176)
+	at com.mkyong.web.controller.MainController.uploadFileHandler(MainController.java:265)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:601)
++ 58 more lines...

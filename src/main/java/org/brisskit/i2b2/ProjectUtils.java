@@ -110,7 +110,13 @@ public class ProjectUtils {
 	
 	
 	public  boolean isNull( String value ) {
+		if( value == null ) {
+			return true ;
+		}
 		if( value.equalsIgnoreCase( "null" ) ) {
+			return true ;
+		}
+		if( value.equalsIgnoreCase( "nul" ) ) {
 			return true ;
 		}
 		return false ;

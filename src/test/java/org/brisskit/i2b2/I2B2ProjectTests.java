@@ -46,9 +46,10 @@ public class I2B2ProjectTests extends TestCase {
 	public void testCreate() { 
 		
 //		File spreadsheetFile = new File(getClass().getClassLoader().getResource("spreadsheets/test-02.xls").getFile());
-		File spreadsheetFile = new File(getClass().getClassLoader().getResource("spreadsheets/EG1-laheart.xlsx").getFile());
-		I2B2Project project = new I2B2Project( "laheart"
-				                             , "kjshf"
+//		File spreadsheetFile = new File(getClass().getClassLoader().getResource("spreadsheets/EG1-laheart.xlsx").getFile());
+		File spreadsheetFile = new File(getClass().getClassLoader().getResource("spreadsheets/GP_CUT1.xlsx").getFile());
+		I2B2Project project = new I2B2Project( "gpcut"
+				                             , "qwerty"
                                              , spreadsheetFile ) ;
 		
 		try {
