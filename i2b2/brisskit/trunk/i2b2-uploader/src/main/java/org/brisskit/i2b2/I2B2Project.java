@@ -50,6 +50,19 @@ public class I2B2Project {
 	               ", now()" +
 	               ", NULL ) ;" ;	
 	
+	/*
+	 * This set of commands will delete a project AND ALL OF ITS DATA!!!
+	 */
+	public static final String COMPLETELY_DELETE_PROJECT_SQL_COMMAND =
+			"DROP SCHEMA <DB_SCHEMA_NAME> CASCADE; " +
+	        "DROP USER <DB_USER_NAME> ;" +
+			"DELETE FROM I2B2HIVE.CRC_DB_LOOKUP WHERE C_PROJECT_PATH = '/<PROJECT_ID>/' ;" +
+			"DELETE FROM I2B2HIVE.ONT_DB_LOOKUP WHERE C_PROJECT_PATH = '<PROJECT_ID>/' ;" +
+			"DELETE FROM I2B2HIVE.WORK_DB_LOOKUP WHERE C_PROJECT_PATH = '<PROJECT_ID>/' ;" +
+			"DELETE FROM I2B2HIVE.IM_DB_LOOKUP WHERE C_PROJECT_PATH = '<PROJECT_ID>/' ;" +
+			"DELETE FROM I2B2PM.PM_PROJECT_DATA WHERE PROJECT_ID = '<PROJECT_ID>' ;" +
+			"DELETE FROM I2B2PM.PM_PROJECT_USER_ROLES WHERE PROJECT_ID = '<PROJECT_ID>' ;" ;
+	
 	public static final int DATA_SHEET_INDEX = 0 ;
 	public static final int LOOKUP_SHEET_INDEX = 1 ;
 	
@@ -123,8 +136,6 @@ public class I2B2Project {
     
     private ProjectUtils utils = new ProjectUtils() ;
     
-    private boolean bSetupDone = false ;
-    
     @SuppressWarnings("unused")
 	private I2B2Project() {}
     
@@ -138,11 +149,12 @@ public class I2B2Project {
     // and with no spaces.
     public I2B2Project( String projectId
     				  , String userName
-    		          , File spreadsheetFile ) {
+    		          , File spreadsheetFile ) throws UploaderException {
     	enterTrace( "I2B2Project()" ) ;
     	this.projectId = projectId ;
     	this.userName = userName ;
     	this.spreadsheetFile = spreadsheetFile ;
+    	CreateDBPG.setUp() ;
     	exitTrace( "I2B2Project()" ) ;
     }
     
@@ -150,10 +162,6 @@ public class I2B2Project {
     public void createDBArtifacts() throws UploaderException {
 		enterTrace( "I2B2Project.createDBArtifacts()" ) ;
 		try {
-			if( !bSetupDone ) {
-				CreateDBPG.setUp() ;
-				bSetupDone = true ;
-			}
 			CreateDBPG.createI2B2Database( projectId, userName );
 		}
 		finally {
@@ -162,13 +170,34 @@ public class I2B2Project {
 	}
     
     
+    /**
+     * This will delete a project and all of its data.
+     * 
+     * 
+     * @throws UploaderException
+     */
+    public void deleteProject() throws UploaderException {
+		enterTrace( "i2b2Project.deleteProject()" ) ;
+		try {
+			String sqlCmd = COMPLETELY_DELETE_PROJECT_SQL_COMMAND ;							
+			sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", projectId ) ;
+			sqlCmd = sqlCmd.replace( "<DB_USER_NAME>", projectId ) ;
+			sqlCmd = sqlCmd.replace( "<PROJECT_ID>", projectId ) ;
+			Statement st = Base.getSimpleConnectionPG().createStatement() ;
+			st.execute( sqlCmd ) ;				
+		}
+		catch( SQLException sqlex ) {
+			throw new UploaderException( sqlex ) ;
+		}
+		finally {
+			exitTrace( "i2b2Project.deleteProject()" ) ;
+		}
+	}
+    
+    
     public void processSpreadsheet() throws UploaderException {
     	enterTrace( "I2B2Project.processSpreadsheet" ) ;
     	try {
-    		if( !bSetupDone ) {
-				CreateDBPG.setUp() ;
-				bSetupDone = true ;
-			}
     		readSpreadsheet() ;
 			produceOntology() ;
 			producePatientMapping() ;

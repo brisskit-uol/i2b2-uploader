@@ -34,25 +34,32 @@ public class I2B2ProjectTests extends TestCase {
 
 	public void testI2B2Project() {
 		
-		I2B2Project project = new I2B2Project( "project1"
-											 , "kjshf"
-				                             , new File( "somespreadsheet.xls" ) ) ;
-		
-		assert( project.getProjectId().equals( "project1" ) ) ;
-		assert( project.getSpreadsheetFile().getName().equals( "somespreadsheet.xls" ) ) ;
-		
+		try {
+			I2B2Project project = new I2B2Project( "project1"
+					 , "kjshf"
+                    , new File( "somespreadsheet.xls" ) ) ;
+
+			assert( project.getProjectId().equals( "project1" ) ) ;
+			assert( project.getSpreadsheetFile().getName().equals( "somespreadsheet.xls" ) ) ;
+		}
+		catch( UploaderException cex ) {			
+			cex.printStackTrace( System.out ) ;
+			fail( "CreationException thrown: " + cex.getLocalizedMessage() ) ;
+		}
+			
 	}
 
+	
 	public void testCreate() { 
 		
 //		File spreadsheetFile = new File(getClass().getClassLoader().getResource("spreadsheets/test-02.xls").getFile());
-//		File spreadsheetFile = new File(getClass().getClassLoader().getResource("spreadsheets/EG1-laheart.xlsx").getFile());
-		File spreadsheetFile = new File(getClass().getClassLoader().getResource("spreadsheets/GP_CUT1.xlsx").getFile());
-		I2B2Project project = new I2B2Project( "gpcut"
-				                             , "qwerty"
-                                             , spreadsheetFile ) ;
-		
+		File spreadsheetFile = new File(getClass().getClassLoader().getResource("spreadsheets/EG1-laheart.xlsx").getFile());
+//		File spreadsheetFile = new File(getClass().getClassLoader().getResource("spreadsheets/GP_CUT1.xlsx").getFile());		
 		try {
+			I2B2Project project = new I2B2Project( "laheart"
+                    , "qwerty"
+                    , spreadsheetFile ) ;
+			project.deleteProject() ;
 			project.createDBArtifacts() ;
 			project.processSpreadsheet() ;
 		}
@@ -64,17 +71,24 @@ public class I2B2ProjectTests extends TestCase {
 	}
 
 	
-//	public void testPopulateProject() {
-//		fail("Not yet implemented");
+//	public void testDeleteProject() {
+//		try {
+//			I2B2Project.deleteProject( "laheart" ) ;
+//		}
+//		catch( UploaderException cex ) {			
+//			cex.printStackTrace( System.out ) ;
+//			fail( "CreationException thrown: " + cex.getLocalizedMessage() ) ;
+//		}
 //	}
 
 	public void testReadSpreadsheet() {
 		
 //		File spreadsheetFile = new File(getClass().getClassLoader().getResource("spreadsheets/test-02.xls").getFile());
 		File spreadsheetFile = new File(getClass().getClassLoader().getResource("spreadsheets/EG1-laheart.xlsx").getFile());
-		I2B2Project project = new I2B2Project( "infarction", "kjshf", spreadsheetFile ) ;
+
 		
 		try {
+			I2B2Project project = new I2B2Project( "infarction", "kjshf", spreadsheetFile ) ;
 			project.readSpreadsheet() ;
 			
 			Row columnNames = project.getColumnNames() ;

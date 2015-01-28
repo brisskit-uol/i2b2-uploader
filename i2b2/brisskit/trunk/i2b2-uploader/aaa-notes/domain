@@ -1,0 +1,6 @@
+ domain_id |        helpurl        | domain_name | environment_cd | active |        change_date         |         entry_date         | changeby_char | status_cd 
+-----------+-----------------------+-------------+----------------+--------+----------------------------+----------------------------+---------------+-----------
+ BRISSKIT  | www.brisskit.le.ac.uk | BRISSKIT    | DEVELOPMENT    |      1 | 2015-01-26 16:59:54.731508 | 2015-01-26 16:59:54.731508 |               | A
+(1 row)
+
+(END)

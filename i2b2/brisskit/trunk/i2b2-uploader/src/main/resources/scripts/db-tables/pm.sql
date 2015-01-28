@@ -7,10 +7,11 @@
 
 set schema 'i2b2pm';
 
-delete from PM_HIVE_DATA where DOMAIN_ID = 'BRISSKIT';
-
 INSERT INTO i2b2pm.PM_HIVE_DATA(domain_id, helpurl, domain_name, environment_cd, active, change_date, entry_date, changeby_char, status_cd)
-VALUES ('BRISSKIT', 'www.brisskit.le.ac.uk', 'BRISSKIT', 'DEVELOPMENT', 1, now(), now(), '', 'A' ) ;
+(
+   SELECT 'BRISSKIT', 'www.brisskit.le.ac.uk', 'BRISSKIT', 'DEVELOPMENT', 1, now(), now(), '', 'A' 
+   WHERE NOT EXISTS( SELECT * FROM I2B2PM.PM_HIVE_DATA WHERE DOMAIN_ID = 'BRISSKIT' ) 
+) ;
 
 INSERT INTO i2b2pm.PM_PROJECT_DATA (PROJECT_ID, PROJECT_NAME, PROJECT_WIKI, PROJECT_KEY, PROJECT_PATH, PROJECT_DESCRIPTION, CHANGE_DATE, ENTRY_DATE, CHANGEBY_CHAR, STATUS_CD)
 VALUES ('<PROJECT_ID>', '<PROJECT_ID>', 'http://www.i2b2.org', null, '/<PROJECT_ID>', null, now(), now(), null, 'A');
