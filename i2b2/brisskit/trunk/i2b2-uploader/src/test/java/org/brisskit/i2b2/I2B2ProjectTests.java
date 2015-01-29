@@ -35,9 +35,10 @@ public class I2B2ProjectTests extends TestCase {
 	public void testI2B2Project() {
 		
 		try {
+			File spreadsheetFile = new File(getClass().getClassLoader().getResource("spreadsheets/test-02.xls").getFile());
 			I2B2Project project = new I2B2Project( "project1"
-					 , "kjshf"
-                    , new File( "somespreadsheet.xls" ) ) ;
+					                             , "kjshf"
+                                                 , spreadsheetFile ) ;
 
 			assert( project.getProjectId().equals( "project1" ) ) ;
 			assert( project.getSpreadsheetFile().getName().equals( "somespreadsheet.xls" ) ) ;
@@ -48,6 +49,16 @@ public class I2B2ProjectTests extends TestCase {
 		}
 			
 	}
+	
+//	public void testDeleteProject() {
+//	try {
+//		I2B2Project.deleteProject( "laheart" ) ;
+//	}
+//	catch( UploaderException cex ) {			
+//		cex.printStackTrace( System.out ) ;
+//		fail( "CreationException thrown: " + cex.getLocalizedMessage() ) ;
+//	}
+//}
 
 	
 	public void testCreate() { 
@@ -71,15 +82,7 @@ public class I2B2ProjectTests extends TestCase {
 	}
 
 	
-//	public void testDeleteProject() {
-//		try {
-//			I2B2Project.deleteProject( "laheart" ) ;
-//		}
-//		catch( UploaderException cex ) {			
-//			cex.printStackTrace( System.out ) ;
-//			fail( "CreationException thrown: " + cex.getLocalizedMessage() ) ;
-//		}
-//	}
+
 
 	public void testReadSpreadsheet() {
 		

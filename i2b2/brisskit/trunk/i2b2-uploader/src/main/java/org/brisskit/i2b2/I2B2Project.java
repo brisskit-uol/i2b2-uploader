@@ -154,6 +154,7 @@ public class I2B2Project {
     	this.projectId = projectId ;
     	this.userName = userName ;
     	this.spreadsheetFile = spreadsheetFile ;
+    	checkSpreadsheet() ;
     	CreateDBPG.setUp() ;
     	exitTrace( "I2B2Project()" ) ;
     }
@@ -210,8 +211,8 @@ public class I2B2Project {
     }
 	
 	
-	protected void readSpreadsheet() throws UploaderException {
-		enterTrace( "readSpreadsheet()" ) ;
+	protected void checkSpreadsheet() throws UploaderException {
+		enterTrace( "checkSpreadsheet()" ) ;
 		try {
 			//
 			// We read the file and create the workbook
@@ -226,8 +227,34 @@ public class I2B2Project {
 		    //
 	    	// Get the data sheet, which must be the first sheet... 
 	    	dataSheet = workbook.getSheetAt( DATA_SHEET_INDEX ) ;
+	    	 
+		    //
+		    // Check we have sufficient data rows...
+		    int numberDataRows = dataSheet.getLastRowNum() - FIRST_DATA_ROW_INDEX + 1;
+			if( numberDataRows < 1 ) {
+				throw new UploaderException( "The workbook has insufficient data rows: " + numberDataRows ) ;
+			}
+			//
+			// Check we do not have too many data rows...
+			if( numberDataRows > 5000 ) {
+				throw new UploaderException( "The workbook has more than the maximum of data rows: " + numberDataRows ) ;
+			}		    
+		}
+		catch( Exception ex ) {
+			throw new UploaderException( ex ) ;
+		}
+		finally {
+			exitTrace( "checkSpreadsheet()" ) ;
+		}
+	}
+	
+	
+	protected void readSpreadsheet() throws UploaderException {
+		enterTrace( "readSpreadsheet()" ) ;
+		try {
 	    	//
 	    	// Injest any lookups and breakdowns described in additional sheets...
+	    	int noSheets = workbook.getNumberOfSheets() ;
 		    if( noSheets > 1 ) {
 		    	
 		    	for( int i=1; i<noSheets ; i++ ) {
@@ -246,12 +273,6 @@ public class I2B2Project {
 		    	}
 		 		       	
 		    }		    
-		    //
-		    // Check we have sufficient data rows...
-		    int numberDataRows = dataSheet.getLastRowNum() - FIRST_DATA_ROW_INDEX + 1;
-			if( numberDataRows < 1 ) {
-				throw new UploaderException( "The workbook has insufficient data rows: " + numberDataRows ) ;
-			}
 		    //
 		    // The first three rows contain required metadata...
 			// (Perhaps in future one more row for ontology tree structure? 
