@@ -238,7 +238,14 @@ public class I2B2Project {
 			// Check we do not have too many data rows...
 			if( numberDataRows > 5000 ) {
 				throw new UploaderException( "The workbook has more than the maximum of data rows: " + numberDataRows ) ;
-			}		    
+			}		 	    
+		    //
+		    // Check number of columns in the first row of the data sheet...
+		    int numberColumns = dataSheet.getRow( COLUMN_NAME_ROW_INDEX ).getLastCellNum() ;
+		    if( numberColumns > 50 ) {
+				throw new UploaderException( "The workbook has more than the maximum of data columns: " + numberColumns ) ;
+			}
+						
 		}
 		catch( Exception ex ) {
 			throw new UploaderException( ex ) ;
