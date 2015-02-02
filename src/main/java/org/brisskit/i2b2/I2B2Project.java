@@ -196,6 +196,32 @@ public class I2B2Project {
 	}
     
     
+    /**
+     * This will delete a project and all of its data.
+     * 
+     * 
+     * @throws UploaderException
+     */
+    public static void deleteProject( String projectId ) throws UploaderException {
+		enterTrace( "i2b2Project.deleteProject(String)" ) ;
+		try {
+			String sqlCmd = COMPLETELY_DELETE_PROJECT_SQL_COMMAND ;							
+			sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", projectId ) ;
+			sqlCmd = sqlCmd.replace( "<DB_USER_NAME>", projectId ) ;
+			sqlCmd = sqlCmd.replace( "<PROJECT_ID>", projectId ) ;
+			Base.setUp() ;
+			Statement st = Base.getSimpleConnectionPG().createStatement() ;
+			st.execute( sqlCmd ) ;				
+		}
+		catch( SQLException sqlex ) {
+			throw new UploaderException( sqlex ) ;
+		}
+		finally {
+			exitTrace( "i2b2Project.deleteProject(String)" ) ;
+		}
+	}
+    
+    
     public void processSpreadsheet() throws UploaderException {
     	enterTrace( "I2B2Project.processSpreadsheet" ) ;
     	try {
