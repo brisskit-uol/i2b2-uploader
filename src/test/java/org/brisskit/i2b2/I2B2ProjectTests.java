@@ -50,15 +50,15 @@ public class I2B2ProjectTests extends TestCase {
 			
 	}
 	
-//	public void testDeleteProject() {
-//	try {
-//		I2B2Project.deleteProject( "laheart" ) ;
-//	}
-//	catch( UploaderException cex ) {			
-//		cex.printStackTrace( System.out ) ;
-//		fail( "CreationException thrown: " + cex.getLocalizedMessage() ) ;
-//	}
-//}
+	public void testDeleteProject() {
+	try {
+		I2B2Project.deleteProject( "laheart" ) ;
+	}
+	catch( UploaderException cex ) {			
+		cex.printStackTrace( System.out ) ;
+		fail( "CreationException thrown: " + cex.getLocalizedMessage() ) ;
+	}
+}
 
 	
 	public void testCreate() { 
@@ -70,7 +70,7 @@ public class I2B2ProjectTests extends TestCase {
 			I2B2Project project = new I2B2Project( "laheart"
                     , "qwerty"
                     , spreadsheetFile ) ;
-			project.deleteProject() ;
+//			project.deleteProject() ;
 			project.createDBArtifacts() ;
 			project.processSpreadsheet() ;
 		}
@@ -80,8 +80,6 @@ public class I2B2ProjectTests extends TestCase {
 		}
 		
 	}
-
-	
 
 
 	public void testReadSpreadsheet() {
