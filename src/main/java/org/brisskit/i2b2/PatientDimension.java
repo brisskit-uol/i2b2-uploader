@@ -4,6 +4,7 @@
 package org.brisskit.i2b2;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Date;
@@ -128,6 +129,42 @@ public class PatientDimension {
 		finally {
 			exitTrace( "PatientDimension.serializeToDatabase()" ) ;
 		}
+	}
+	
+	public boolean patientExists( Connection connection ) throws UploaderException {
+		enterTrace( "PatientDimension.patientExists()" ) ;
+		boolean exists = false ;
+		try {
+			//
+			// See whether the appropriate patient already exists in the db...
+			Statement st = connection.createStatement() ;
+			st.executeQuery( "select COUNT(*) from " + schema_name + ".PATIENT_DIMENSION "  
+				           + " where " 
+				           + " PATIENT_NUM = '" + patient_num + "' ;" ) ;			
+		    ResultSet rs = st.getResultSet() ;
+		    if( rs.next() ) {
+		    	int count = rs.getInt(1) ;
+		    	if( count > 0 ) {
+		    		exists = true ;
+		    	}			 
+				rs.close() ;
+		    }
+		    else {
+		    	String message = "Failed to detect whether the appropriate patient already exists in the db.\n" +
+		    			         " Retrieved no result." ;
+				log.error( message ) ;
+				throw new UploaderException( message ) ;
+		    }
+			return exists ;
+		}
+		catch( SQLException sqlx ) {
+			String message = "Failed to detect whether the appropriate patient already exists in the db." ;
+			log.error( message, sqlx ) ;
+			throw new UploaderException( message, sqlx ) ;
+		}
+		finally {
+			exitTrace( "PatientDimension.patientExists()()" ) ;
+		}		
 	}
 	
 	

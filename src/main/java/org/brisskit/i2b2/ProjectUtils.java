@@ -7,6 +7,7 @@ import java.util.Date;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
 
 public class ProjectUtils {
 	
@@ -21,7 +22,17 @@ public class ProjectUtils {
 	private DataFormatter stringFormat = new DataFormatter() ;
 	//
 	// We are accepting dates in spreadsheet cells only in the following format (to begin with!)...
-	private SimpleDateFormat cellDateFormat = new SimpleDateFormat( "yyyy-MM-dd" ) ;
+	private SimpleDateFormat[] celldateFormats =
+		{
+			new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss" ) ,
+			new SimpleDateFormat( "dd-MM-yyyy'T'HH:mm:ss" ) ,
+			new SimpleDateFormat( "yyyy-MM-dd" ) ,
+			new SimpleDateFormat( "dd-MM-yyyy" ) ,	
+		} ;
+	private SimpleDateFormat cellDateFormat = new SimpleDateFormat( "yyyy-MM-dd" ) ;	
+	private SimpleDateFormat cellDateTimeFormat = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss" ) ;
+	
+	private FormulaEvaluator formulaeEvaluator = null ;
 	
 	
 	public String enfoldNullableString( String value ) {	
@@ -109,14 +120,46 @@ public class ProjectUtils {
 	}
 	
 	
-	public  boolean isNull( String value ) {
+	public String _getValueAsString( Cell cell ) {
+		if( cell == null ) {
+			return "" ;
+		}
+		if( this.formulaeEvaluator == null ) {
+			formulaeEvaluator = cell.getRow()
+									.getSheet()
+									.getWorkbook()
+									.getCreationHelper()
+									.createFormulaEvaluator() ;
+		}
+		formulaeEvaluator.evaluateInCell( cell ) ;
+		switch ( cell.getCellType() ) {
+        case Cell.CELL_TYPE_BOOLEAN:
+        case Cell.CELL_TYPE_NUMERIC:
+        case Cell.CELL_TYPE_STRING:
+        	String value = stringFormat.formatCellValue( cell ) ;
+			if( value != null ) {
+				value = value.trim() ;
+				return value ;
+			}
+			return "" ;
+        default:
+            return "" ;
+		}
+	}
+	
+	
+	public boolean isEmpty( String value ) {
 		if( value == null ) {
 			return true ;
 		}
+		value = value.trim() ;
 		if( value.equalsIgnoreCase( "null" ) ) {
 			return true ;
 		}
 		if( value.equalsIgnoreCase( "nul" ) ) {
+			return true ;
+		}
+		if( value.length() == 0 ) {
 			return true ;
 		}
 		return false ;
@@ -132,17 +175,30 @@ public class ProjectUtils {
 		return value.matches( "^\\d+$" ) ;
 	}
 	
-	public boolean isDate( String value ) {				
-		try {
-			cellDateFormat.parse( value ) ;
-		    return true ;
-		} catch( ParseException pex ) {
-		    return false ;
+	public boolean isDate( String value ) {
+		for( int i=0; i<celldateFormats.length; i++ ) {
+			try {
+				celldateFormats[i].parse( value ) ;
+			    return true ;
+			} catch( ParseException pex ) {
+			    ;
+			}
 		}
+		return false ;
 	}
 	
 	public Date parseDate( String value ) throws ParseException {
-		return cellDateFormat.parse( value ) ;
+		Date date = null ;
+		ParseException parseException = null ;
+		for( int i=0; i<celldateFormats.length; i++ ) {
+			try {
+				date = celldateFormats[i].parse( value ) ;
+			    return date ;
+			} catch( ParseException pex ) {
+				parseException = pex ;
+			}
+		}
+		throw parseException ;
 	}
 	
 	public String formatDate( Date date ) {

@@ -32,8 +32,9 @@ public static final String OBSERVATION_FACT_INSERT_COMMAND =
 		"SET SCHEMA '<DB_SCHEMA_NAME>';" +
 		"" +
 		"INSERT INTO <DB_SCHEMA_NAME>.OBSERVATION_FACT" +
-               "( ENCOUNTER_NUM" +    		// INT NOT NULL,
-               ", PATIENT_NUM   " +  		// INT NOT NULL,
+               "( " +
+//               "  ENCOUNTER_NUM" +    		// INT NOT NULL,
+               "  PATIENT_NUM   " +  		// INT NOT NULL,
                ", CONCEPT_CD    " +  		// VARCHAR(50) NOT NULL,
                ", PROVIDER_ID   " +  		// VARCHAR(50) NOT NULL,
                ", START_DATE    " +  		// TIMESTAMP NOT NULL,
@@ -53,8 +54,9 @@ public static final String OBSERVATION_FACT_INSERT_COMMAND =
                ", SOURCESYSTEM_CD" + 		// VARCHAR(50) NULL, 
 	           ", UPLOAD_ID" +          	// INT NULL,  
 			   ") " +
-		 "VALUES( <ENCOUNTER_NUM>" +
-			   ", <PATIENT_NUM>" +
+		 "VALUES( " +
+//		       "  <ENCOUNTER_NUM>" +
+			   "  <PATIENT_NUM>" +
 			   ", <CONCEPT_CD>" +
 			   ", <PROVIDER_ID>" +         
 			   ", <START_DATE>" +   
@@ -79,7 +81,7 @@ private ProjectUtils utils ;
 private String schema_name ;
 //
 // Observation Fact columns...
-private Integer encounter_num = null ;
+//private Integer encounter_num = null ;
 private Integer patient_num = null ;
 private String concept_cd = null ;
 private String provider_id = null ;
@@ -109,7 +111,7 @@ public void serializeToDatabase( Connection connection ) throws UploaderExceptio
 		
 		sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", schema_name ) ;
 		
-		sqlCmd = sqlCmd.replace( "<ENCOUNTER_NUM>", utils.enfoldInteger( encounter_num ) ) ;		
+//		sqlCmd = sqlCmd.replace( "<ENCOUNTER_NUM>", utils.enfoldInteger( encounter_num ) ) ;		
 		sqlCmd = sqlCmd.replace( "<PATIENT_NUM>", utils.enfoldInteger( patient_num ) ) ;
 		sqlCmd = sqlCmd.replace( "<CONCEPT_CD>", utils.enfoldString( concept_cd ) ) ;
 		sqlCmd = sqlCmd.replace( "<PROVIDER_ID>", utils.enfoldString( provider_id ) ) ;		
@@ -167,9 +169,9 @@ public static void exitTrace( String entry ) {
 	I2B2Project.exitTrace( log, entry ) ;
 }
 
-public void setEncounter_num(Integer encounter_num) {
-	this.encounter_num = encounter_num;
-}
+//public void setEncounter_num(Integer encounter_num) {
+//	this.encounter_num = encounter_num;
+//}
 
 public void setPatient_num(Integer patient_num) {
 	this.patient_num = patient_num;
@@ -234,7 +236,7 @@ public void setSchema_name(String schema_name) {
 public String toString() {
 	StringBuilder b = new StringBuilder() ;
 	b.append( "schema_name: " ).append( schema_name ).append( "\n" )
-	 .append( "encounter_num: " ).append( encounter_num ).append( "\n" )
+//	 .append( "encounter_num: " ).append( encounter_num ).append( "\n" )
 	 .append( "patient_num: " ).append( patient_num ).append( "\n" )
 	 .append( "concept_cd: " ).append( concept_cd ).append( "\n" )
 	 .append( "provider_id: " ).append( provider_id ).append( "\n" )

@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
@@ -29,6 +30,10 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import org.brisskit.i2b2.OntologyBranch.Type;
 
+/**
+ * @author jeff
+ *
+ */
 /**
  * @author jeff
  *
@@ -62,7 +67,7 @@ public class I2B2Project {
 			"DELETE FROM I2B2HIVE.IM_DB_LOOKUP WHERE C_PROJECT_PATH = '<PROJECT_ID>/' ;" +
 			"DELETE FROM I2B2PM.PM_PROJECT_DATA WHERE PROJECT_ID = '<PROJECT_ID>' ;" +
 			"DELETE FROM I2B2PM.PM_PROJECT_USER_ROLES WHERE PROJECT_ID = '<PROJECT_ID>' ;" ;
-	
+		
 	public static final int DATA_SHEET_INDEX = 0 ;
 	public static final int LOOKUP_SHEET_INDEX = 1 ;
 	
@@ -105,8 +110,8 @@ public class I2B2Project {
 	private static StringBuffer logIndent = null ;
 	
 	private String projectId ;
-	private String userName ;
     private File spreadsheetFile ;
+    private boolean spreadsheetHasStartDateColumn = false ;
     private Workbook workbook ;
     private Sheet dataSheet ;
     private Sheet lookupSheet ;
@@ -116,12 +121,7 @@ public class I2B2Project {
     private Row ontologyCodes ;
     private int numberColumns ;
     
-    //
-    // Initial encounter number
-    private int encounterNumber = 1 ;
-    //
-    // Initial patient number
-    private int patientNumber = 1 ;
+    private boolean newProject = true ;
     
     private Map<String,Integer> patientMappings = new HashMap<String,Integer>() ;
     
@@ -136,8 +136,7 @@ public class I2B2Project {
     
     private ProjectUtils utils = new ProjectUtils() ;
     
-    @SuppressWarnings("unused")
-	private I2B2Project() {}
+	protected I2B2Project() {}
     
     //
     // Removed admin userid and password.
@@ -147,98 +146,53 @@ public class I2B2Project {
     //
     // projectId must be alpha-numeric starting with an alpha,
     // and with no spaces.
-    public I2B2Project( String projectId
-    				  , String userName
-    		          , File spreadsheetFile ) throws UploaderException {
+    private I2B2Project( String projectId ) throws UploaderException {
     	enterTrace( "I2B2Project()" ) ;
     	this.projectId = projectId ;
-    	this.userName = userName ;
-    	this.spreadsheetFile = spreadsheetFile ;
-    	checkSpreadsheet() ;
     	CreateDBPG.setUp() ;
     	exitTrace( "I2B2Project()" ) ;
     }
     
     
-    public void createDBArtifacts() throws UploaderException {
-		enterTrace( "I2B2Project.createDBArtifacts()" ) ;
-		try {
-			CreateDBPG.createI2B2Database( projectId, userName );
-		}
-		finally {
-			exitTrace( "I2B2Project.createDBArtifacts()" ) ;
-		}
-	}
-    
-    
-    /**
-     * This will delete a project and all of its data.
-     * 
-     * 
-     * @throws UploaderException
-     */
-    public void deleteProject() throws UploaderException {
-		enterTrace( "i2b2Project.deleteProject()" ) ;
-		try {
-			String sqlCmd = COMPLETELY_DELETE_PROJECT_SQL_COMMAND ;							
-			sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", projectId ) ;
-			sqlCmd = sqlCmd.replace( "<DB_USER_NAME>", projectId ) ;
-			sqlCmd = sqlCmd.replace( "<PROJECT_ID>", projectId ) ;
-			Statement st = Base.getSimpleConnectionPG().createStatement() ;
-			st.execute( sqlCmd ) ;				
-		}
-		catch( SQLException sqlex ) {
-			throw new UploaderException( sqlex ) ;
-		}
-		finally {
-			exitTrace( "i2b2Project.deleteProject()" ) ;
-		}
-	}
-    
-    
-    /**
-     * This will delete a project and all of its data.
-     * 
-     * 
-     * @throws UploaderException
-     */
-    public static void deleteProject( String projectId ) throws UploaderException {
-		enterTrace( "i2b2Project.deleteProject(String)" ) ;
-		try {
-			String sqlCmd = COMPLETELY_DELETE_PROJECT_SQL_COMMAND ;							
-			sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", projectId ) ;
-			sqlCmd = sqlCmd.replace( "<DB_USER_NAME>", projectId ) ;
-			sqlCmd = sqlCmd.replace( "<PROJECT_ID>", projectId ) ;
-			Base.setUp() ;
-			Statement st = Base.getSimpleConnectionPG().createStatement() ;
-			st.execute( sqlCmd ) ;				
-		}
-		catch( SQLException sqlex ) {
-			throw new UploaderException( sqlex ) ;
-		}
-		finally {
-			exitTrace( "i2b2Project.deleteProject(String)" ) ;
-		}
-	}
-    
-    
-    public void processSpreadsheet() throws UploaderException {
-    	enterTrace( "I2B2Project.processSpreadsheet" ) ;
+    public synchronized void processSpreadsheet( File spreadSheetFile ) throws UploaderException {
+    	enterTrace( "I2B2Project.processSpreadsheet(File)" ) ;
     	try {
-    		readSpreadsheet() ;
-			produceOntology() ;
-			producePatientMapping() ;
-			producePatientDimension() ;		
-			produceFacts() ;
+    		//
+    		// Default observation date set to run date...
+    		processSpreadsheet( spreadSheetFile, new Date() ) ;
     	}
     	finally {
-    		exitTrace( "I2B2Project.processSpreadsheet" ) ;
+    		exitTrace( "I2B2Project.processSpreadsheet(File)" ) ;
+    	}
+    }
+    
+    
+    public synchronized void processSpreadsheet( File spreadSheetFile
+    										   , Date defaultObservationDate ) throws UploaderException {
+    	enterTrace( "I2B2Project.processSpreadsheet(File,Date)" ) ;
+    	try {
+    		this.spreadsheetFile = spreadSheetFile ;
+    			readSpreadsheet() ;
+    			produceOntology() ;
+    			producePatientMapping() ;
+    			producePatientDimension() ;		
+    			produceFacts( defaultObservationDate ) ;
+    			newProject = false ;    		
+    	}
+    	catch( Exception ex ) {
+    		if( ex instanceof UploaderException ) {
+    			throw (UploaderException)ex ;
+    		}
+    		throw new UploaderException( "Internal Error.", ex ) ;
+    	}
+    	finally {
+    		exitTrace( "I2B2Project.processSpreadsheet(File,Date)" ) ;
     	}
     }
 	
 	
-	protected void checkSpreadsheet() throws UploaderException {
-		enterTrace( "checkSpreadsheet()" ) ;
+	protected void readSpreadsheet() throws UploaderException {
+		enterTrace( "readSpreadsheet()" ) ;
 		try {
 			//
 			// We read the file and create the workbook
@@ -253,7 +207,6 @@ public class I2B2Project {
 		    //
 	    	// Get the data sheet, which must be the first sheet... 
 	    	dataSheet = workbook.getSheetAt( DATA_SHEET_INDEX ) ;
-	    	 
 		    //
 		    // Check we have sufficient data rows...
 		    int numberDataRows = dataSheet.getLastRowNum() - FIRST_DATA_ROW_INDEX + 1;
@@ -263,31 +216,20 @@ public class I2B2Project {
 			//
 			// Check we do not have too many data rows...
 			if( numberDataRows > 5000 ) {
-				throw new UploaderException( "The workbook has more than the maximum of data rows: " + numberDataRows ) ;
+				if( maxDataRowsExceeded( dataSheet ) ) {
+					throw new UploaderException( "The workbook exceeds the maximum of 5000 rows containing data." ) ;
+				}			
 			}		 	    
 		    //
 		    // Check number of columns in the first row of the data sheet...
-		    int numberColumns = dataSheet.getRow( COLUMN_NAME_ROW_INDEX ).getLastCellNum() ;
+			// (This really needs the same treatment as given to rows (see above)
+		    numberColumns = dataSheet.getRow( COLUMN_NAME_ROW_INDEX ).getLastCellNum() ;
 		    if( numberColumns > 50 ) {
 				throw new UploaderException( "The workbook has more than the maximum of data columns: " + numberColumns ) ;
 			}
-						
-		}
-		catch( Exception ex ) {
-			throw new UploaderException( ex ) ;
-		}
-		finally {
-			exitTrace( "checkSpreadsheet()" ) ;
-		}
-	}
-	
-	
-	protected void readSpreadsheet() throws UploaderException {
-		enterTrace( "readSpreadsheet()" ) ;
-		try {
+		    
 	    	//
 	    	// Injest any lookups and breakdowns described in additional sheets...
-	    	int noSheets = workbook.getNumberOfSheets() ;
 		    if( noSheets > 1 ) {
 		    	
 		    	for( int i=1; i<noSheets ; i++ ) {
@@ -305,16 +247,15 @@ public class I2B2Project {
 		    		}
 		    	}
 		 		       	
-		    }		    
+		    }	
+		    
 		    //
 		    // The first three rows contain required metadata...
 			// (Perhaps in future one more row for ontology tree structure? 
 			//  ie: a path statement)
 		    columnNames = dataSheet.getRow( COLUMN_NAME_ROW_INDEX ) ;
 		    toolTips = dataSheet.getRow( TOOLTIPS_ROW_INDEX ) ;
-		    ontologyCodes = dataSheet.getRow( ONTOLOGY_CODES_ROW_INDEX ) ;		    
-		    //
-		    // Could do with some basic checks to see all rows have the same number of columns!
+		    ontologyCodes = dataSheet.getRow( ONTOLOGY_CODES_ROW_INDEX ) ;	
 		    numberColumns = columnNames.getLastCellNum() ;
 		    
 		    //
@@ -338,6 +279,31 @@ public class I2B2Project {
 		    		addDefaultBreakdown( columnName ) ;
 		    	}
 		    }
+		    
+		    //
+		    // The first three rows contain required metadata...
+			// (Perhaps in future one more row for ontology tree structure? 
+			//  ie: a path statement)
+		    columnNames = dataSheet.getRow( COLUMN_NAME_ROW_INDEX ) ;
+		    toolTips = dataSheet.getRow( TOOLTIPS_ROW_INDEX ) ;
+		    ontologyCodes = dataSheet.getRow( ONTOLOGY_CODES_ROW_INDEX ) ;	
+		    //
+		    // Check on the existence (or not) of observation start date column:
+		    Iterator<Cell> it = columnNames.cellIterator() ;
+		    spreadsheetHasStartDateColumn = false ;
+		    while( it.hasNext() ) {
+		    	Cell cell = it.next() ;
+		    	String value = utils.getValueAsString( cell ) ;
+		    	if( !utils.isEmpty( value ) ) {
+		    		if( value.equalsIgnoreCase( "OBS_START_DATE" ) ) {
+		    			spreadsheetHasStartDateColumn = true ;
+		    			break ;
+		    		}
+		    	}
+		    }
+		    //
+		    // Could do with some basic checks to see all rows have the same number of columns!
+		    numberColumns = columnNames.getLastCellNum() ;
 		    		    
 		}
 		catch( Exception ex ) {
@@ -349,6 +315,54 @@ public class I2B2Project {
 	}
 	
 	
+	private boolean maxDataRowsExceeded( Sheet dataSheet ) {
+		enterTrace( "i2b2Project.maxDataRowsExceeded()" ) ;
+		try {
+			int numberOfRows = dataSheet.getLastRowNum() ;			
+			log.debug( "numberOfRows: [" + numberOfRows + "]" ) ;
+			Iterator<Row> it = dataSheet.iterator() ;
+			int iRowsWithDataPresent = 0 ;
+			while( it.hasNext() ) {
+				Row row = it.next() ;
+				if( !dataRowEmpty( row ) ) {
+					iRowsWithDataPresent++ ;
+					if( iRowsWithDataPresent > 5000 ) {
+						log.debug( "max data rows exceeded" ) ;
+						return true ;
+					}
+				}
+			}
+			log.debug( "max data rows not exceeded" ) ;
+			return false ;
+//			for( int i=numberOfRows; i>0; i-- ) {
+//				if( i == 5000 ) {
+//					log.debug( "5000 reached" ) ;
+//				}
+//				Row row = dataSheet.getRow( i ) ;
+//				log.debug( "row number: " + row.getRowNum() ) ;
+//				if( i > 5000 && i < 5011 ) {
+//					log.debug( "between 5000 and 5010" ) ;
+//				}
+//				if( !isDataRowEmpty( row ) ) {
+//					log.debug( "found non empty row: " + i ) ;
+//					if( i > 5003 ) {
+//						log.debug( "returning true" ) ;
+//						return true ;
+//					}
+//				}
+//				else {
+//					log.debug( "found empty row: " + i ) ;
+//				}
+//			}
+//			log.debug( "returning false" ) ;
+//			return false ;
+		}
+		finally {
+			exitTrace( "i2b2Project.maxDataRowsExceeded()" ) ;
+		}
+	}
+	
+	
 	private boolean breakdownExists( String columnName ) {
 		enterTrace( "i2b2Project.breakdownExists()" ) ;
 		try {
@@ -356,7 +370,7 @@ public class I2B2Project {
 			while( it.hasNext() ) {
 				Cell cell = it.next() ;
 				String value = utils.getValueAsString( cell ) ;
-				if( value.equals( columnName ) ) {
+				if( value.equalsIgnoreCase( columnName ) ) {
 					return true ;
 				}
 			}			
@@ -380,7 +394,11 @@ public class I2B2Project {
 			it.next() ;
 			while( it.hasNext() ) {
 				Row row = it.next() ;
-				row.createCell( numberColumns, Cell.CELL_TYPE_STRING ).setCellValue( "unknown" ) ;
+				//
+				// Safety first...
+				if( !dataRowEmpty( row ) ) {
+					row.createCell( numberColumns, Cell.CELL_TYPE_STRING ).setCellValue( "unknown" ) ;
+				}				
 			}
 			numberColumns++ ;
 		}
@@ -561,6 +579,11 @@ public class I2B2Project {
 				if( !breakdowns.containsKey( breakdownName ) ) {
 					breakdowns.put( STANDARD_BREAKDOWNS[i][0], STANDARD_BREAKDOWNS[i][0] ) ;
 				}
+				if( !newProject ) {
+					continue ;
+				}
+				//
+				// Only write them to the DB if a new project...
 				headingName = breakdowns.get( breakdownName ) ;
 				path = "\\\\" + projectId + "\\" + projectId + "\\" + headingName + "\\" ;
 				sqlCmd = BREAKDOWNS_SQL_INSERT_COMMAND ;				
@@ -583,8 +606,9 @@ public class I2B2Project {
 		enterTrace( "producePatientMapping()" ) ;
 		String value = null ;
 		String name = null ;
+		int countPatientIdsNull = 0 ;
 		try {
-			Iterator<Row> rowIt = dataSheet.rowIterator() ;
+			Iterator<Row> rowIt = dataSheet.iterator() ;
 			//
 			// Tab past metadata rows...
 			rowIt.next() ;
@@ -594,38 +618,47 @@ public class I2B2Project {
 			// Process data rows...
 			while( rowIt.hasNext() ) {
 				Row dataRow = rowIt.next() ;	
+				if( dataRowEmpty( dataRow ) ) {
+					continue ;
+				}
 				
 				PatientMapping	pMap = new PatientMapping( utils ) ;
 				pMap.setSchema_name( projectId ) ;
 				pMap.setSourcesystem_id( projectId ) ;
 				
-				Iterator<Cell> cellIt = dataRow.cellIterator() ;
-				Iterator<Cell> namesIt = columnNames.cellIterator() ;
+				Iterator<Cell> cellIt = dataRow.iterator() ;
+				Iterator<Cell> namesIt = columnNames.iterator() ;
 				//
 				// We process each cell according to its code...
 				while( cellIt.hasNext() ) {
 					value = utils.getValueAsString( cellIt.next() ) ;
 					name = utils.getValueAsString( namesIt.next() ) ;
 					if( name.equalsIgnoreCase( "id" ) ) {
-							pMap.setPatient_ide( value ) ;
-							pMap.setPatient_ide_source( projectId ) ;
-							pMap.setProject_id( projectId ) ;
-							pMap.setPatient_ide_status( "?" ) ;
-							break ;
+						pMap.setPatient_ide( value ) ;
+						pMap.setPatient_ide_source( projectId ) ;
+						pMap.setProject_id( projectId ) ;
+						pMap.setPatient_ide_status( "?" ) ;
+						break ;
 					}
 					
 				} // end of inner while - processing cell	
 				
 				//
-				// We set the internal i2b2 number for the mapping to source...
-				// NB: patientNumber must only be changed in the current method!!!!
-				pMap.setPatient_num( patientNumber++ ) ;
-				this.patientMappings.put( pMap.getPatient_ide(), pMap.getPatient_num() ) ;
-				
-				//
 				// Write mapping to i2b2
-				pMap.serializeToDatabase( Base.getSimpleConnectionPG() ) ;
-				
+				if( pMap.getPatient_ide() != null ) {
+					Connection connection = Base.getSimpleConnectionPG() ;
+					if( !pMap.mappingExists( connection ) ) {
+						pMap.serializeToDatabase( connection ) ;
+					}
+					//
+					// Record the mapping between external id and internal id...
+					this.patientMappings.put( pMap.getPatient_ide(), pMap.getPatient_num() ) ;
+				}
+				else {
+					countPatientIdsNull++ ;
+					log.debug( "Row with no id: " + countPatientIdsNull ) ;
+				}
+																
 			} // end of outer while - processing row
 			
 		}
@@ -640,7 +673,8 @@ public class I2B2Project {
 		String value = null ;
 		String code = null ;
 		String name = null ;
-
+		String sourceSystemPatientID = null ;
+		int countPatientIdsNull = 0 ;
 		try {
 			Iterator<Row> rowIt = dataSheet.rowIterator() ;
 			//
@@ -653,6 +687,9 @@ public class I2B2Project {
 			while( rowIt.hasNext() ) {
 				
 				Row dataRow = rowIt.next() ;
+				if( dataRowEmpty( dataRow ) ) {
+					continue ;
+				}
 				
 				PatientDimension pDim = new PatientDimension( utils ) ;
 				pDim.setSchema_name( projectId ) ;
@@ -704,24 +741,34 @@ public class I2B2Project {
 						}
 					}
 					else if( name.equalsIgnoreCase( "id" ) ) {
+						sourceSystemPatientID = value ;
 						//
 						// We do not expect the spreadsheet to contain the i2b2 internal patient number,
-						// but we can use the source-system id to retrieve the internal number we gave 
-						// the patient at patient mapping time...
-						String sourceSystemPatientID = value ;
+						// but we can use the source-system id to retrieve the internal number generated
+						// at patient mapping time...
 						pDim.setPatient_num( patientMappings.get( sourceSystemPatientID ) ) ;
 						//
 						// Dirty  hack to enable short-term identification of participant in brisskit portal
 						// (PLEASE REMOVE - Jeff)
 						pDim.setZip_cd( sourceSystemPatientID ) ;
+				
 					}
 					
 				} // end of inner while - processing cell	
 				
 				//
 				// Write patient dimension to i2b2...
-				pDim.serializeToDatabase( Base.getSimpleConnectionPG() ) ;
-								
+				if( pDim.getPatient_num() != null ) {
+					Connection connection = Base.getSimpleConnectionPG() ;
+					if( !pDim.patientExists( connection ) ) {
+						pDim.serializeToDatabase( connection ) ;
+					}
+				}
+				else {
+					countPatientIdsNull++ ;
+					log.debug( "Row with no id: " + countPatientIdsNull ) ;
+				}
+													
 			} // end of outer while - processing row
 		}
 		catch( ParseException pex ) {
@@ -737,14 +784,6 @@ public class I2B2Project {
 		enterTrace( "produceOntology()" ) ;
 		try {
 			Row codesRow = dataSheet.getRow( ONTOLOGY_CODES_ROW_INDEX ) ;
-			//
-			// pathsAndCodes is a collection to help us write out
-			// hierarchical ontology paths in the DB without
-			// attempting to (erroneously) insert duplicated nodes.
-			// For example: path root-node/demographics/age involves
-			// writing three nodes, but the first two will be repeated
-			// for some other path, for example: root-node/demographics/marital-status
-			HashSet<String> pathsAndCodes = new HashSet<String>() ;
 			String colName = null ;
 			String toolTip = null ;
 			String ontCode = null ;
@@ -771,9 +810,6 @@ public class I2B2Project {
 					continue ;
 				}
 				//
-				// The default value is String
-				OntologyBranch.Type type = Type.STRING ;
-				//
 				// Units are derived from the ontCode value in the spreadsheet.
 				// Square brackets, eg: [cms] will contain the unit measure.
 				// If the brackets are empty, the units are an implied value (eg: age[] would imply years)
@@ -793,8 +829,8 @@ public class I2B2Project {
 					log.debug( "concept column value: " + ontCode ) ;
 					int firstBracket = ontCode.indexOf( "[" ) ;
 					int secondBracket = ontCode.indexOf( "]" ) ;
-					units = ontCode.substring( firstBracket+1, secondBracket ) ;
-					ontCode = ontCode.substring( 0, firstBracket ) ;
+					units = ontCode.substring( firstBracket+1, secondBracket ).trim() ;
+					ontCode = ontCode.substring( 0, firstBracket ).trim() ;
 					log.debug( "which yields concept: " + ontCode + " with units: " + units ) ;
 				}
 								
@@ -810,64 +846,73 @@ public class I2B2Project {
 
 				while( rowIt.hasNext() ) {
 					Row row = rowIt.next() ;
-					Cell dataCell = row.getCell( colIndex ) ;
-					String value = utils.getValueAsString( dataCell ) ;
-					if( utils.isNull( value ) ) {
-						log.debug( "Encountered a cell with null value" ) ;
-						continue ;
-					}
-					//
-					// Add to the range of values encountered...
-					values.add( value ) ;
-					//
-					// Decide whether numeric, date or string...
-					if( utils.isNumeric( value ) ) {
-						log.debug( "Cell with numeric value: " + value ) ;
-						if( type == Type.STRING ) {
-							type = Type.NUMERIC ;
+					if( !dataRowEmpty( row ) ) {
+						Cell dataCell = row.getCell( colIndex ) ;
+						String value = utils.getValueAsString( dataCell ) ;
+						if( utils.isEmpty( value ) ) {
+							log.debug( "Encountered a cell with no value" ) ;
+							continue ;
 						}
-						else if( type == Type.NUMERIC ) {
-							// If type has already been established as a decimal, do nothing
-						}
+						//
+						// Add to the range of values encountered...
+						values.add( value ) ;
 					}
-					else if( utils.isDate( value ) ) {
-						log.debug( "Cell with date value: " + value ) ;
-						if( type == Type.STRING ) {
-							type = Type.DATE ;
-						}
-						else if( type != Type.DATE ) {
-							log.error( "Cells with incompatible values; current value: " + value ) ;
-						}
-					}
-					else {
-						// We assume a string
-						log.debug( "Cell with string value: " + value ) ;
-					}
-
 				} // end inner while
 
-				
 				//
-				// If there is a code lookup, however,
-				// we must treat this as of type STRING.
+				// Decide whether numeric, date or string...
+				//
+				Type type = null ;
 				if( lookups.containsKey( colName ) ) {
+					// If there is a code lookup,
+					// we must treat this as of type STRING.
 					type = Type.STRING ;
 					units = "enum" ;
 				}
-													
+				else {
+					Iterator<String> it = values.iterator() ;				
+					while( it.hasNext() ) {
+						String value = it.next() ;
+						if( utils.isNumeric( value ) ) {
+							if( type == null ) {
+								type = Type.NUMERIC ;
+							}
+							else if( type == Type.NUMERIC ){
+								; // do nothing
+							}
+							else {
+								type = Type.STRING ;
+							}						
+						}
+						else if( utils.isDate( value ) ) {
+							if( type == null ) {
+								type = Type.DATE ;
+							}
+							else if( type == Type.DATE ){
+								; // do nothing
+							}
+							else {
+								type = Type.STRING ;
+							}	
+						}
+						else {
+							type = Type.STRING ;
+						}
+					} // end while
+				}
+				
 				//
 				// We build each branch in memory and save it in a collection 
 				OntologyBranch 
-					branch = new OntologyBranch( projectId
-							                   , colName
-							                   , toolTip
-							                   , ontCode
-							                   , type
-							                   , units
-							                   , lookups
-							                   , values
-							                   , pathsAndCodes
-							                   , utils ) ;
+					branch = OntologyBranch.Factory.newInstance( projectId
+											                   , colName
+											                   , toolTip
+											                   , ontCode
+											                   , type
+											                   , units
+											                   , lookups
+											                   , values
+											                   , utils ) ;
 				
 				ontBranches.put( branch.getOntCode(), branch ) ;
 				
@@ -875,21 +920,43 @@ public class I2B2Project {
 			
 			
 			//
-			// Indicates that we are creating the project's ontology
-			// here for the very first time, as derived from the spreadsheet.
-			if( isVirginOntology() ) {
-				Iterator<OntologyBranch> itOb = ontBranches.values().iterator() ;
-				while( itOb.hasNext() ) {
-					OntologyBranch ob = itOb.next() ;
-					ob.serializeToDatabase( Base.getSimpleConnectionPG() ) ;
+			// Process ontology branches into the database ...
+			OntologyBranch obThis = null ;
+			OntologyBranch obThat = null ;
+			Iterator<OntologyBranch> itOb = ontBranches.values().iterator() ;
+			while( itOb.hasNext() ) {
+				obThis = itOb.next() ;
+				//
+				// Are we creating the project's ontology
+				// here for the very first time, as derived from the spreadsheet?
+				obThat = OntologyBranch.Factory.newInstance( obThis.getProjectId()
+														   , obThis.getColName()
+														   , obThis.getOntCode()
+														   , obThis.getToolTip()
+														   , lookups
+														   , utils ) ;
+				if( obThat == null ) {				
+					obThis.serializeToDatabase( Base.getSimpleConnectionPG() ) ;
 				}
 				//
-		    	// Breakdowns may or may not be there as a separate sheet.
-		    	// In any case, we must create some breakdown metadata
-		    	// in order for breakdowns not to raise errors.
-		    	// So we build all breakdowns here (defaulting if need be)...
-		    	buildBreakdowns() ;
+				// But if this is an existing ontology, 
+				// we need to check new against old metadata...
+				else {
+					//
+					// If there's a difference, we need to write the differences...
+					if( !obThis.equals( obThat ) ) {
+						obThis.serializeDifferencesToDatabase( Base.getSimpleConnectionPG()
+								                             , obThat ) ;
+					}
+				}
 			}
+			
+			//
+	    	// Breakdowns may or may not be there as a separate sheet.
+	    	// In any case, we must create some breakdown metadata
+	    	// in order for breakdowns not to raise errors.
+	    	// So we build all breakdowns here (defaulting if need be)...
+	    	buildBreakdowns() ;
 			
 		}
 		finally {
@@ -897,44 +964,12 @@ public class I2B2Project {
 		}		
 	}
 	
-	//
-	// Indicates that we are creating the project's ontology
-	// here for the very first time, as derived from the spreadsheet.
-	// It means we must write the stuff to the database!!!
-	// The setting is derived from the spreadsheet by implication; ie: if tooltips
-	// are missing (row present but no values), then this is the situation where
-	// we are simply processing the spreadsheet for data (observation facts etc)
-	// and we need ontology data simply for producing observation facts.
-	//
-	// This method requires more work, or at least some experimentation.
-	private boolean isVirginOntology() {
-		boolean virginOntology = true ;
-		//
-		// The first column is for id and may not have a tool tip anyway
-		for( int i=1; i<6; i++ ) {
-			
-			Cell toolTipCell = dataSheet.getRow( I2B2Project.TOOLTIPS_ROW_INDEX ).getCell( i ) ;
-			try {
-				String tooltip = utils.getValueAsString( toolTipCell ) ;
-				if( utils.isNull( tooltip ) ) {
-					virginOntology = false ;
-				}
-				else if( tooltip.length() == 0 ) {
-					virginOntology = false ;
-				}
-			}
-			catch( Throwable th ) {
-				virginOntology = false ;
-			}
-		}
-		return virginOntology ;
-	}
 	
-	
-	protected void produceFacts() throws UploaderException {
+	protected void produceFacts( Date defaultObservationStartDate ) throws UploaderException {
 		enterTrace( "I2B2Project.produceFacts()" ) ;
 		try {
 			Iterator<Row> rowIt = dataSheet.iterator() ;
+			Date observationStartDate = null ;
 			//
 			// Tab past metadata rows...
 			rowIt.next() ;
@@ -944,39 +979,81 @@ public class I2B2Project {
 			// Process data rows...
 			while( rowIt.hasNext() ) {
 				Row dataRow = rowIt.next() ;
+				if( dataRowEmpty( dataRow ) ) {
+					continue ;
+				}
 				int patientNumber = getPatientNumber( dataRow ) ;
 				//
+				// If the patient number column is empty, we check the whole row for emptiness.
+				// (An empty patient number column gets a value of -999)
+				// If row is completely empty, we ignore it.
+				// If row is non-empty, we throw an exception...
+				if( patientNumber < 0 ) {
+					if( dataRowEmpty( dataRow ) ) {
+						continue ;
+					}
+					else {
+						int OneBasedArrayNumber = dataRow.getRowNum()+1 ;
+						String message = 
+							"Encountered a non-empty row with no external id value. Row number: [" + OneBasedArrayNumber + "]" ;
+						printDuffRowToLog( dataRow ) ;					
+						throw new UploaderException( message ) ;
+					}
+				}
+				if( spreadsheetHasStartDateColumn ) {
+					observationStartDate = getObservationStartDate( dataRow ) ;
+					//
+					// It might still return null if the column is empty...
+					if( observationStartDate == null ) {
+						observationStartDate = defaultObservationStartDate ;
+					}
+				}
+				else {
+					observationStartDate = defaultObservationStartDate ;
+				}
+				//
 				// Process the cells for each row...
-				Iterator<Cell> cellIt = dataRow.cellIterator() ;
+				Iterator<Cell> cellIt = dataRow.iterator() ;
 				while( cellIt.hasNext() ) {
 					Cell cell = cellIt.next() ;		
-					if( utils.isNull( utils.getValueAsString( cell ) ) ) {
+					if( utils.isEmpty( utils.getValueAsString( cell ) ) ) {
 						continue ;
 					}
 					String ontCode = getOntCode( cell ) ;
 					//
 					// We bypass any columns which are not connected to ontological facts
-					if( utils.isNull( ontCode ) ) {
+					if( utils.isEmpty( ontCode ) ) {
 						continue ;
 					}
 					else if( ontCode.startsWith( "p_map:" ) || ontCode.startsWith( "p_dim:" ) ) {
+						continue ;
+					}
+					else if( ontCode.equalsIgnoreCase( "OBS_START_DATE" ) ) {
 						continue ;
 					}
 					else {
 						OntologyBranch ontBranch = getOntologyBranch( ontCode ) ;
 						OntologyBranch.Type type = ontBranch.getType() ;
 						String units = ontBranch.getUnits() ;
-						ObservationFact of = null ;
+						ObservationFact of = null ;						
 						switch ( type ) {
 						case DATE:
 							of = produceDateFact( patientNumber, ontCode, cell ) ;
 							break ;
 						case NUMERIC:
-							of = produceNumericFact( patientNumber, ontCode, units, cell ) ;
+							of = produceNumericFact( patientNumber
+									               , ontCode
+									               , units
+									               , cell 
+									               , observationStartDate ) ;
 							break ;
 						case STRING:
 						default:
-							of = produceStringFact( patientNumber, ontCode, units, cell ) ;
+							of = produceStringFact( patientNumber
+									              , ontCode
+									              , units
+									              , cell 
+									              , observationStartDate ) ;
 							break;
 						}
 						
@@ -996,13 +1073,70 @@ public class I2B2Project {
 	}
 	
 	
+	private void printDuffRowToLog( Row dataRow ) {
+		enterTrace( "I2B2Project.printDuffRowToLog()" ) ;
+		try {
+			int oneBasedArrayNumber = dataRow.getRowNum() + 1 ;
+			log.error( "Printing contents of duff Row: [" + oneBasedArrayNumber + "] ..."  ) ;
+			//
+			// Process the cells for the row...
+			int noCols = dataRow.getLastCellNum() ;
+			if( noCols < 0 ) {
+				log.error( "Row possesses no cells!"  ) ;
+			}
+			else {
+				for( int i=0; i<noCols+1; i++ ) {
+					try {
+						Cell cell = dataRow.getCell(i) ;
+						String value = utils.getValueAsString( cell ) ;
+						oneBasedArrayNumber = cell.getColumnIndex() + 1 ;
+						log.error( "  Cell: [" + oneBasedArrayNumber + "] has contents: [" + value + "]"  ) ;
+					}
+					catch( Exception ex ) {
+						log.error( "Unexpected exception thrown in diagnostics. Will continue!", ex ) ;
+					}
+					
+				}
+			}			
+		}
+		finally {
+			exitTrace( "I2B2Project.printDuffRowToLog()" ) ;
+		}		
+	}
+	
+	
+	private boolean dataRowEmpty( Row dataRow ) {
+//		enterTrace( "I2B2Project.dataRowEmpty()" ) ;
+		try {
+			//
+			// Process the cells for each row...
+			int noCols = dataRow.getLastCellNum() ;
+			if( noCols <= 0 ) {
+				return true ; 
+			}
+			else {
+				for( int i=0; i<noCols; i++ ) {
+					Cell cell = dataRow.getCell(i) ;
+					if( !utils.isEmpty( utils.getValueAsString( cell ) ) ) {
+						return false ;
+					}
+				}
+			}			
+			return true ;
+		}
+		finally {
+//			exitTrace( "I2B2Project.dataRowEmpty()" ) ;
+		}		
+	}
+	
+	
 	private ObservationFact produceDateFact( int patientNumber
 			                               , String ontCode
 			                               , Cell cell ) throws UploaderException {
 		enterTrace( "I2B2Project.produceDateFact()" ) ;
 		try {
 			ObservationFact of = new ObservationFact( utils ) ;				
-			of.setEncounter_num( encounterNumber++ ) ;
+//			of.setEncounter_num( encounterNumber++ ) ;
 			of.setPatient_num( patientNumber ) ;
 			
 			of.setConcept_cd( ontCode ) ;
@@ -1034,15 +1168,16 @@ public class I2B2Project {
 	private ObservationFact produceNumericFact( int patientNumber
                                               , String ontCode
                                               , String units
-                                              , Cell cell ) throws UploaderException {
+                                              , Cell cell
+                                              , Date observationStartDate ) throws UploaderException {
 		enterTrace( "I2B2Project.produceNumericFact()" ) ;
 		try {
 			ObservationFact of = new ObservationFact( utils ) ;				
-			of.setEncounter_num( encounterNumber++ ) ;
+//			of.setEncounter_num( encounterNumber++ ) ;
 			of.setPatient_num( patientNumber ) ;
 				
 			of.setProvider_id( "@" ) ;
-			of.setStart_date( new Date() ) ;
+			of.setStart_date( observationStartDate ) ;
 			
 			String value = utils.getValueAsString( cell ) ;			
 			//
@@ -1074,25 +1209,28 @@ public class I2B2Project {
 	private ObservationFact produceStringFact( int patientNumber
                                              , String ontCode
                                              , String units
-                                             , Cell cell ) throws UploaderException {
+                                             , Cell cell
+                                             , Date observationStartDate ) throws UploaderException {
 		enterTrace( "I2B2Project.produceStringFact()" ) ;
 		try {
 			ObservationFact of = new ObservationFact( utils ) ;				
-			of.setEncounter_num( encounterNumber++ ) ;
+//			of.setEncounter_num( encounterNumber++ ) ;
 			of.setPatient_num( patientNumber ) ;
 			
 			
 			of.setProvider_id( "@" ) ;
-			of.setStart_date( new Date() ) ;
+			of.setStart_date( observationStartDate ) ;
 		
 			of.setValtype_cd( "T" ) ;					
 			String value = utils.getValueAsString( cell ) ;	
-			of.setTval_char( value ) ;
+			
 			
 			if( units.equalsIgnoreCase( "enum" ) ) {
-				of.setConcept_cd( ontCode + ":" + value ) ;
+				of.setTval_char( OntologyBranch.formEnumeratedValue( value ) );
+				of.setConcept_cd( OntologyBranch.formEnumeratedBaseCode( ontCode, value ) ) ;
 			}
 			else {
+				of.setTval_char( value ) ;
 				of.setConcept_cd( ontCode ) ;
 			}
 			
@@ -1115,14 +1253,14 @@ public class I2B2Project {
 				utils.getValueAsString( dataSheet.getRow( I2B2Project.ONTOLOGY_CODES_ROW_INDEX ).getCell( dataCell.getColumnIndex() ) ) ;
 		int indexFirstUnitsBracket = ontCodeCellValue.indexOf( '[' ) ;
 		if( indexFirstUnitsBracket != -1 ) {
-			ontCodeCellValue = ontCodeCellValue.substring( 0, indexFirstUnitsBracket ) ;			
+			ontCodeCellValue = ontCodeCellValue.substring( 0, indexFirstUnitsBracket ).trim() ;			
 		}
 		return ontCodeCellValue ;
 	}
 	
 	
-	public int getPatientNumber( Row dataRow ) {
-		Iterator<Cell> cellIt = dataRow.getSheet().getRow( I2B2Project.COLUMN_NAME_ROW_INDEX ).cellIterator() ;
+	public int getPatientNumber( Row dataRow ) throws UploaderException {
+		Iterator<Cell> cellIt = dataRow.getSheet().getRow( I2B2Project.COLUMN_NAME_ROW_INDEX ).iterator() ;
 		int patientNumberIndex = -1 ;
 		while( cellIt.hasNext() ) {
 			Cell cell = cellIt.next() ;
@@ -1137,8 +1275,69 @@ public class I2B2Project {
 		String sourcePatientNoAsString = utils.getValueAsString( dataRow.getCell( patientNumberIndex ) )  ;		
 		//
 		// Given the source system patient identifier (as a string), 
-		// we use the mappings to get the i2b2 internal id...		
-		return this.patientMappings.get( sourcePatientNoAsString ) ;
+		// we use the mappings to get the i2b2 internal id...	
+		int internalPatientNo = -999 ;
+		int oneBasedArrayNumber = dataRow.getRowNum() + 1 ;
+		try {			
+			if( log.isDebugEnabled() ) {
+				log.debug( "dataRow number: [" + oneBasedArrayNumber + "] aligns with sourcePatientNo: [" + sourcePatientNoAsString + "]" ) ;
+			}
+			//
+			// NB: If the source column is empty, we return -999
+			if( !utils.isEmpty( sourcePatientNoAsString ) ) {
+				internalPatientNo = this.patientMappings.get( sourcePatientNoAsString ) ;
+			}		
+		}
+		catch( Exception ex ) {		
+			String message = "Failure in getting patient number" ;
+			log.error( message ) ;
+			log.error( "getPatientNumber(Row dataRow) failed", ex ) ;
+			log.error( "dataRow number: [" + oneBasedArrayNumber + "]" ) ;
+			log.error( "patientNumberIndex: [" + patientNumberIndex + "]" ) ;
+			log.error( "sourcePatientNoAsString: [" + sourcePatientNoAsString + "]" ) ;
+			log.error( "internalPatientNo: [" + internalPatientNo + "]" ) ;
+			throw new UploaderException( message, ex ) ;
+		}
+		return internalPatientNo ;
+	}
+	
+	
+	public Date getObservationStartDate( Row dataRow ) throws UploaderException {
+		enterTrace( "I2B2Project.getObservationStartDate()" ) ;
+		Date obsStartDate = null ;
+		String dateAsString = null ;
+		try {
+			Iterator<Cell> cellIt = dataRow.getSheet().getRow( I2B2Project.COLUMN_NAME_ROW_INDEX ).iterator() ;			
+			int startDateIndex = -1 ;
+			while( cellIt.hasNext() ) {
+				Cell cell = cellIt.next() ;
+				String value = utils.getValueAsString( cell ) ;
+				//
+				// Search for the source systems id...
+				if( value.equalsIgnoreCase( "OBS_START_DATE" ) ) {
+					startDateIndex = cell.getColumnIndex() ;
+					break ;
+				}			
+			}
+			if( startDateIndex != -1 ) {
+				dateAsString = utils.getValueAsString( dataRow.getCell( startDateIndex ) ) ;
+				if( utils.isEmpty( dateAsString ) ) {
+					dateAsString = null ;
+				}
+				else {
+					obsStartDate = utils.parseDate( dateAsString )  ;	
+				}
+			}
+			return obsStartDate ;
+		}
+		catch( ParseException  pex) {
+			String message = "Failed to parse column value as a observation start date: " + dateAsString ;
+			log.error( message, pex ) ;
+			throw new UploaderException( message, pex ) ;
+		}
+		finally {
+			exitTrace( "I2B2Project.getObservationStartDate()" ) ;
+		}		
 	}
 	
 
@@ -1213,6 +1412,10 @@ public class I2B2Project {
 	}
 
 
+	protected void setSpreadsheetFile( File file )  {
+		this.spreadsheetFile = file ;
+	}
+	
 	public File getSpreadsheetFile() {
 		return spreadsheetFile;
 	}
@@ -1250,6 +1453,136 @@ public class I2B2Project {
 	public ArrayList<ObservationFact> getObservatonFacts() {
 		return observatonFacts;
 	}
+	
+	public static class Factory {
+		
+		public static I2B2Project newInstance( String projectId ) throws UploaderException {
+			enterTrace( "I2B2Project.Factory.newInstance()" ) ;
+			I2B2Project project = new I2B2Project( projectId ) ;
+			try {
+				if( projectExists( project ) ) {
+					project.newProject = false ;
+				}
+				else {
+					CreateDBPG.createI2B2Database( projectId );
+				}
+				return project ;
+			}
+			finally {
+				exitTrace( "I2B2Project.Factory.newInstance()" ) ;
+			}
+		}
+		
+		
+		public static void delete( String projectId ) throws UploaderException {
+			enterTrace( "I2B2Project.Factory.delete(String)" ) ;
+			try {
+				I2B2Project project = new I2B2Project( projectId ) ;
+				delete( project ) ;
+			}	
+			finally {
+				exitTrace( "I2B2Project.Factory.delete(String)" ) ;
+			}
+		}
+		
+		
+		public static void delete( I2B2Project project ) throws UploaderException {
+			enterTrace( "I2B2Project.Factory.delete(I2B2Project)" ) ;
+			Connection connection = null ;
+			try {
+				if( projectExists( project.getProjectId() ) ) {
+					connection = Base.getSimpleConnectionPG() ;
+//					connection.setTransactionIsolation( Connection.TRANSACTION_SERIALIZABLE ) ;
+//					connection.setAutoCommit( false ) ;
+					String sqlCmd = COMPLETELY_DELETE_PROJECT_SQL_COMMAND ;							
+					sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", project.getProjectId() ) ;
+					sqlCmd = sqlCmd.replace( "<DB_USER_NAME>", project.getProjectId() ) ;
+					sqlCmd = sqlCmd.replace( "<PROJECT_ID>", project.getProjectId() ) ;
+					Statement st = connection.createStatement() ;
+					st.execute( sqlCmd ) ;
+//					connection.commit() ;
+//					connection.setTransactionIsolation( Connection.TRANSACTION_SERIALIZABLE ) ;
+//					connection.setAutoCommit( true ) ;
+					CreateDBPG.undeployFromJBoss( project.getProjectId() ) ;
+				}	
+				else {
+					throw new UploaderException( "Cannot delete non-existent project: " + project.getProjectId() ) ;
+				}
+			}
+			catch( SQLException sqlex ) {
+				throw new UploaderException( "Failed to delete project: " + project.getProjectId(), sqlex ) ;
+			}	
+			finally {
+				exitTrace( "I2B2Project.Factory.delete(I2B2Project)" ) ;
+			}
+		}
+		
+		
+		public static boolean projectExists( I2B2Project project ) throws UploaderException {
+			enterTrace( "I2B2Project.Factory.projectExists(I2B2Project)" ) ;
+			boolean exists = false ;
+			Connection connection = null ;
+			try {
+				//
+				// We make two attempts to see whether a project exists
+				// First by querying the pm table
+				// Second by seeing whether the schema exists
+				// (If either of these returns true, the project exists in our terms)...
+				String sqlPMCmd = "select * from i2b2pm.pm_project_data where project_id = '<PROJECT_ID>' ;" ;
+				sqlPMCmd = sqlPMCmd.replaceAll( "<PROJECT_ID>", project.getProjectId() ) ;
+				connection = Base.getSimpleConnectionPG() ;
+//				connection.setTransactionIsolation( Connection.TRANSACTION_SERIALIZABLE ) ;
+//				connection.setAutoCommit( false ) ;
+				Statement st = connection.createStatement() ;
+				ResultSet rs = st.executeQuery( sqlPMCmd ) ;
+				if( rs.next() ) {
+					exists = true ;
+				}
+				else {
+					String sqlSchemaCmd = "SELECT schema_name FROM information_schema.schemata WHERE schema_name = '<SCHEMA_NAME>';" ;
+					sqlSchemaCmd = sqlSchemaCmd.replaceAll( "<SCHEMA_NAME>", project.getProjectId() ) ;
+					rs = st.executeQuery( sqlSchemaCmd ) ;
+					if( rs.next() ) {
+						exists = true ;
+					}
+				}				
+				rs.close() ;
+//				connection.commit() ;
+//				connection.setTransactionIsolation( Connection.TRANSACTION_SERIALIZABLE ) ;
+//				connection.setAutoCommit( true ) ;
+				return exists ;
+			}
+			catch( SQLException sqlx ) {
+				String message =  "Could not confirm project existed or not. Project id: " + project.getProjectId() ;
+				log.error( message, sqlx ) ;
+				if( connection != null ) {
+					try { 
+						connection.rollback() ; 
+					} catch( SQLException ex ) 
+					{ 
+						; 
+					}
+				}
+				throw new UploaderException( message, sqlx ) ;
+			}
+			finally {
+				exitTrace( "I2B2Project.Factory.projectExists(I2B2Project)" ) ;
+			}
+		}
+		
+		
+		public static boolean projectExists( String projectId ) throws UploaderException {
+			enterTrace( "I2B2Project.Factory.projectExists(I2B2Project)" ) ;		
+			try {
+				I2B2Project project = new I2B2Project( projectId ) ;
+				return projectExists( project ) ;
+			}
+			finally {
+				exitTrace( "I2B2Project.Factory.projectExists(I2B2Project)" ) ;
+			}
+		}
+		
+	} // end of Factory class
 
 	
 }
