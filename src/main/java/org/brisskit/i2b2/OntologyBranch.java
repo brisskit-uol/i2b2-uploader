@@ -621,6 +621,10 @@ public class OntologyBranch {
 			}
 			// Otherwise we use ranges of values based on a base range of 10...
 			else {
+				if( (highestValue - lowestValue) > 5000 ) {
+					throw new UploaderException( "Column " + colName + " produces an enumerated numeric containing more than 5000 nodes." +
+							"Please define this as a numeric value column using the [] parameter. Or are you failing to format a date properly?" ) ;
+				}
 				//
 				// Insert the ranges...
 				String rangeFullName = null ;

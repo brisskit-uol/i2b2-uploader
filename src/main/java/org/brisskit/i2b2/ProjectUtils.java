@@ -1,5 +1,6 @@
 package org.brisskit.i2b2;
 
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -21,14 +22,34 @@ public class ProjectUtils {
 	// The simplest object to format values from a cell into a string...
 	private DataFormatter stringFormat = new DataFormatter() ;
 	//
-	// We are accepting dates in spreadsheet cells only in the following format (to begin with!)...
-	private SimpleDateFormat[] celldateFormats =
+	// We are accepting dates in spreadsheet cells only in the following 
+	// long or short formats (to begin with!)...
+	private SimpleDateFormat yyyymmddThhmmss = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss" ) ;
+	private SimpleDateFormat yyyymmddhhmmss = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" ) ;
+	private SimpleDateFormat ddmmyyyyThhmmss = new SimpleDateFormat( "dd-MM-yyyy'T'HH:mm:ss" ) ;
+	private SimpleDateFormat ddmmyyyyhhmmss = new SimpleDateFormat( "dd-MM-yyyy HH:mm:ss" ) ;
+	private SimpleDateFormat yyyymmdd = new SimpleDateFormat( "yyyy-MM-dd" ) ;
+	private SimpleDateFormat ddmmyyyy = new SimpleDateFormat( "dd-MM-yyyy" ) ;
+	
+	
+	
+	
+	
+	private SimpleDateFormat[] longCellDateFormats =
 		{
 			new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss" ) ,
+			new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" ) ,
 			new SimpleDateFormat( "dd-MM-yyyy'T'HH:mm:ss" ) ,
-			new SimpleDateFormat( "yyyy-MM-dd" ) ,
-			new SimpleDateFormat( "dd-MM-yyyy" ) ,	
+			new SimpleDateFormat( "dd-MM-yyyy HH:mm:ss" )	
 		} ;
+	private SimpleDateFormat[] shortCellDateFormats =
+		{
+			new SimpleDateFormat( "yyyy-MM-dd" ) ,
+			new SimpleDateFormat( "dd-MM-yyyy" ) 	
+		} ;
+	
+	
+	
 	private SimpleDateFormat cellDateFormat = new SimpleDateFormat( "yyyy-MM-dd" ) ;	
 	private SimpleDateFormat cellDateTimeFormat = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss" ) ;
 	
@@ -176,29 +197,82 @@ public class ProjectUtils {
 	}
 	
 	public boolean isDate( String value ) {
-		for( int i=0; i<celldateFormats.length; i++ ) {
+		if( value.matches( "....-..-..*:..:.." ) ) {
 			try {
-				celldateFormats[i].parse( value ) ;
-			    return true ;
-			} catch( ParseException pex ) {
-			    ;
+				this.yyyymmddThhmmss.parse( value ) ;
+				return true ;
+			}
+			catch( ParseException pex1 ) {
+				try {
+					this.yyyymmddhhmmss.parse( value ) ;
+					return true ;
+				}
+				catch( ParseException pex2 ) {
+					return false ;
+				}
+			}
+		}
+		else if( value.matches( "..-..-....*:..:.." ) ) {
+			try {
+				this.ddmmyyyyThhmmss.parse( value ) ;
+				return true ;
+			}
+			catch( ParseException pex1 ) {
+				try {
+					this.ddmmyyyyhhmmss.parse( value ) ;
+					return true ;
+				}
+				catch( ParseException pex2 ) {
+					return false ;
+				}
+			}
+		}
+		else if( value.matches( "....-..-.." ) ) {
+			try {
+				this.yyyymmdd.parse( value ) ;
+				return true ;
+			}
+			catch( ParseException pex1 ) {
+				return false ;
+			}
+		}
+		else if( value.matches( "..-..-...." ) ) {
+			try {
+				this.ddmmyyyy.parse( value ) ;
+				return true ;
+			}
+			catch( ParseException pex1 ) {
+				return false ;
 			}
 		}
 		return false ;
 	}
+
 	
 	public Date parseDate( String value ) throws ParseException {
-		Date date = null ;
-		ParseException parseException = null ;
-		for( int i=0; i<celldateFormats.length; i++ ) {
+		if( value.matches( "....-..-..*:..:.." ) ) {
 			try {
-				date = celldateFormats[i].parse( value ) ;
-			    return date ;
-			} catch( ParseException pex ) {
-				parseException = pex ;
+				return this.yyyymmddThhmmss.parse( value ) ;
+			}
+			catch( ParseException pex1 ) {
+				return this.yyyymmddhhmmss.parse( value ) ;
 			}
 		}
-		throw parseException ;
+		else if( value.matches( "..-..-....*:..:.." ) ) {
+			try {
+				return this.ddmmyyyyThhmmss.parse( value ) ;
+			}
+			catch( ParseException pex1 ) {
+				return this.ddmmyyyyhhmmss.parse( value ) ;
+			}
+		}
+		else if( value.matches( "....-..-.." ) ) {
+			return this.yyyymmdd.parse( value ) ;
+		}
+		else if( value.matches( "..-..-...." ) ) {
+			return this.ddmmyyyy.parse( value ) ;
+		}
+		throw new ParseException( "String is not a valide date: " + value, 0 ) ;
 	}
 	
 	public String formatDate( Date date ) {

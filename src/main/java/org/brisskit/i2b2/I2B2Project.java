@@ -120,10 +120,19 @@ public class I2B2Project {
     private Row toolTips ;
     private Row ontologyCodes ;
     private int numberColumns ;
+    private int numberRows ;
     
     private boolean newProject = true ;
     
+    /*
+     * This maps patient_ide to internal i2b2 patient_num
+     */
     private Map<String,Integer> patientMappings = new HashMap<String,Integer>() ;
+    
+    /*
+     * 	This maps encounter_ide to internal i2b2 encounter_num
+     */
+    private Map<String,Integer> encounterMappings = new HashMap<String,Integer>() ;
     
     private Map<String,String> lookups = new HashMap<String,String>() ;
     
@@ -175,7 +184,8 @@ public class I2B2Project {
     			readSpreadsheet() ;
     			produceOntology() ;
     			producePatientMapping() ;
-    			producePatientDimension() ;		
+    			producePatientDimension() ;
+    			produceEncounters( defaultObservationDate ) ;
     			produceFacts( defaultObservationDate ) ;
     			newProject = false ;    		
     	}
@@ -207,26 +217,24 @@ public class I2B2Project {
 		    //
 	    	// Get the data sheet, which must be the first sheet... 
 	    	dataSheet = workbook.getSheetAt( DATA_SHEET_INDEX ) ;
+	    	//
+	    	// Get basic row and column info...
+		    numberRows = dataSheet.getLastRowNum() - FIRST_DATA_ROW_INDEX + 1;
+		    numberColumns = dataSheet.getRow( COLUMN_NAME_ROW_INDEX ).getLastCellNum() ;
 		    //
 		    // Check we have sufficient data rows...
-		    int numberDataRows = dataSheet.getLastRowNum() - FIRST_DATA_ROW_INDEX + 1;
-			if( numberDataRows < 1 ) {
-				throw new UploaderException( "The workbook has insufficient data rows: " + numberDataRows ) ;
+			if( numberRows < 1 ) {
+				throw new UploaderException( "The workbook has insufficient data rows: " + numberRows ) ;
 			}
 			//
-			// Check we do not have too many data rows...
-			if( numberDataRows > 5000 ) {
-				if( maxDataRowsExceeded( dataSheet ) ) {
+			// Check we do not have too many data rows and columns...
+			if( numberRows > 5000 || numberColumns > 50 ) {
+				if( limitsExceeded( dataSheet ) ) {
+					//
+					// The exception for columns exceeded is thrown lower in the code.
 					throw new UploaderException( "The workbook exceeds the maximum of 5000 rows containing data." ) ;
 				}			
 			}		 	    
-		    //
-		    // Check number of columns in the first row of the data sheet...
-			// (This really needs the same treatment as given to rows (see above)
-		    numberColumns = dataSheet.getRow( COLUMN_NAME_ROW_INDEX ).getLastCellNum() ;
-		    if( numberColumns > 50 ) {
-				throw new UploaderException( "The workbook has more than the maximum of data columns: " + numberColumns ) ;
-			}
 		    
 	    	//
 	    	// Injest any lookups and breakdowns described in additional sheets...
@@ -315,7 +323,7 @@ public class I2B2Project {
 	}
 	
 	
-	private boolean maxDataRowsExceeded( Sheet dataSheet ) {
+	private boolean _maxDataRowsExceeded( Sheet dataSheet ) throws UploaderException {
 		enterTrace( "i2b2Project.maxDataRowsExceeded()" ) ;
 		try {
 			int numberOfRows = dataSheet.getLastRowNum() ;			
@@ -334,31 +342,35 @@ public class I2B2Project {
 			}
 			log.debug( "max data rows not exceeded" ) ;
 			return false ;
-//			for( int i=numberOfRows; i>0; i-- ) {
-//				if( i == 5000 ) {
-//					log.debug( "5000 reached" ) ;
-//				}
-//				Row row = dataSheet.getRow( i ) ;
-//				log.debug( "row number: " + row.getRowNum() ) ;
-//				if( i > 5000 && i < 5011 ) {
-//					log.debug( "between 5000 and 5010" ) ;
-//				}
-//				if( !isDataRowEmpty( row ) ) {
-//					log.debug( "found non empty row: " + i ) ;
-//					if( i > 5003 ) {
-//						log.debug( "returning true" ) ;
-//						return true ;
-//					}
-//				}
-//				else {
-//					log.debug( "found empty row: " + i ) ;
-//				}
-//			}
-//			log.debug( "returning false" ) ;
-//			return false ;
 		}
 		finally {
 			exitTrace( "i2b2Project.maxDataRowsExceeded()" ) ;
+		}
+	}
+	
+	
+	private boolean limitsExceeded( Sheet dataSheet ) throws UploaderException{
+		enterTrace( "i2b2Project.limitsExceeded()" ) ;
+		try {
+			int numberOfRows = dataSheet.getLastRowNum() ;			
+			log.debug( "numberOfRows: [" + numberOfRows + "]" ) ;
+			Iterator<Row> it = dataSheet.iterator() ;
+			int iRowsWithDataPresent = 0 ;
+			while( it.hasNext() ) {
+				Row row = it.next() ;
+				if( !dataRowEmpty( row ) ) {
+					iRowsWithDataPresent++ ;
+					if( iRowsWithDataPresent > 5000 ) {
+						log.debug( "maximum number of data rows exceeded" ) ;
+						return true ;
+					}
+				}
+			}
+			log.debug( "max data rows not exceeded" ) ;
+			return false ;
+		}
+		finally {
+			exitTrace( "i2b2Project.limitsExceeded()" ) ;
 		}
 	}
 	
@@ -382,7 +394,7 @@ public class I2B2Project {
 	}
 	
 	
-	private void addDefaultBreakdown( String columnName ) {
+	private void addDefaultBreakdown( String columnName ) throws UploaderException {
 		enterTrace( "i2b2Project.addDefaultBreakdown()" ) ;
 		try {
 			columnNames.createCell( numberColumns, Cell.CELL_TYPE_STRING ).setCellValue( columnName ) ;
@@ -780,6 +792,93 @@ public class I2B2Project {
 	}
 	
 	
+	
+    //  encounter_ide =  row number
+	//	Encounter_ide_source =  filename + : + sheet name
+	protected void produceEncounters( Date defaultEncounterStartDate ) throws UploaderException {
+		enterTrace( "produceEncounters()" ) ;
+		String value = null ;
+		String name = null ;
+		Date encounterStartDate = null ;
+		try {
+			Iterator<Row> rowIt = dataSheet.iterator() ;
+			//
+			// Tab past metadata rows...
+			rowIt.next() ;
+			rowIt.next() ;
+			rowIt.next() ;
+			//
+			// Process data rows...
+			while( rowIt.hasNext() ) {
+				Row dataRow = rowIt.next() ;	
+				if( dataRowEmpty( dataRow ) ) {
+					continue ;
+				}
+				
+				Encounter encounter = new Encounter( utils ) ;
+				encounter.setSchema_name( projectId ) ;
+				encounter.setProject_id( projectId ) ;
+				encounter.setSourcesystem_id( projectId ) ;
+				encounter.setEncounter_ide_status( "?" ) ;
+
+				//
+				// The encounter source is simply set to spreadsheet name + sheet name...
+				encounter.setEncounter_ide_source( spreadsheetFile.getName()
+												 + ":"
+												 + dataRow.getSheet().getSheetName() ) ;
+				//
+				// The source encounter id is just the row number...
+				encounter.setEncounter_ide( Integer.toString( dataRow.getRowNum() ) ) ;
+				
+				if( spreadsheetHasStartDateColumn ) {
+					encounterStartDate = getObservationStartDate( dataRow ) ;
+					//
+					// It might still return null if the column is empty...
+					if( encounterStartDate == null ) {
+						encounterStartDate = defaultEncounterStartDate ;
+					}
+				}
+				else {
+					encounterStartDate = defaultEncounterStartDate ;
+				}
+				encounter.setStartDate( encounterStartDate ) ;
+				
+				Iterator<Cell> cellIt = dataRow.iterator() ;
+				Iterator<Cell> namesIt = columnNames.iterator() ;
+				//
+				// We process each cell according to its code...
+				while( cellIt.hasNext() ) {
+					value = utils.getValueAsString( cellIt.next() ) ;
+					name = utils.getValueAsString( namesIt.next() ) ;
+					if( name.equalsIgnoreCase( "id" ) ) {
+						encounter.setPatient_ide( value ) ;
+						//
+						// May be obvious, but patient mappings are only valid after
+						// patient mappings have been written to the database...
+						encounter.setPatient_num( patientMappings.get( value ) ) ;
+						encounter.setPatient_ide_source( projectId ) ;					
+						break ;
+					}
+					
+				} // end of inner while - processing cell	
+		
+				//
+				// Write encounter mapping and visit dimension to i2b2
+				encounter.serializeToDatabase( Base.getSimpleConnectionPG() ) ;
+				
+				//
+				// Record the mapping between external id and internal id...
+				this.encounterMappings.put( encounter.getEncounter_ide(), encounter.getEncounter_num() ) ;
+																				
+			} // end of outer while - processing row
+			
+		}
+		finally {
+			exitTrace( "produceEncounters()" ) ;
+		}		
+	}
+	
+	
 	protected void produceOntology() throws UploaderException {
 		enterTrace( "produceOntology()" ) ;
 		try {
@@ -983,6 +1082,7 @@ public class I2B2Project {
 					continue ;
 				}
 				int patientNumber = getPatientNumber( dataRow ) ;
+				int encounterNumber = dataRow.getRowNum() ;
 				//
 				// If the patient number column is empty, we check the whole row for emptiness.
 				// (An empty patient number column gets a value of -999)
@@ -1038,10 +1138,14 @@ public class I2B2Project {
 						ObservationFact of = null ;						
 						switch ( type ) {
 						case DATE:
-							of = produceDateFact( patientNumber, ontCode, cell ) ;
+							of = produceDateFact( encounterNumber
+											    , patientNumber
+											    , ontCode
+											    , cell ) ;
 							break ;
 						case NUMERIC:
-							of = produceNumericFact( patientNumber
+							of = produceNumericFact( encounterNumber
+								    			   , patientNumber
 									               , ontCode
 									               , units
 									               , cell 
@@ -1049,7 +1153,8 @@ public class I2B2Project {
 							break ;
 						case STRING:
 						default:
-							of = produceStringFact( patientNumber
+							of = produceStringFact( encounterNumber
+								    			  , patientNumber
 									              , ontCode
 									              , units
 									              , cell 
@@ -1105,7 +1210,7 @@ public class I2B2Project {
 	}
 	
 	
-	private boolean dataRowEmpty( Row dataRow ) {
+	private boolean dataRowEmpty( Row dataRow ) throws UploaderException {
 //		enterTrace( "I2B2Project.dataRowEmpty()" ) ;
 		try {
 			//
@@ -1118,6 +1223,11 @@ public class I2B2Project {
 				for( int i=0; i<noCols; i++ ) {
 					Cell cell = dataRow.getCell(i) ;
 					if( !utils.isEmpty( utils.getValueAsString( cell ) ) ) {
+						//
+						// I'm using 55 rather than 50 because I can add transient columns during processing...
+						if( i > 55 ) {
+							throw new UploaderException( "Maximum number of data columns exceeded." ) ;
+						}
 						return false ;
 					}
 				}
@@ -1130,13 +1240,14 @@ public class I2B2Project {
 	}
 	
 	
-	private ObservationFact produceDateFact( int patientNumber
+	private ObservationFact produceDateFact( int encounterNumber
+										   , int patientNumber
 			                               , String ontCode
 			                               , Cell cell ) throws UploaderException {
 		enterTrace( "I2B2Project.produceDateFact()" ) ;
 		try {
 			ObservationFact of = new ObservationFact( utils ) ;				
-//			of.setEncounter_num( encounterNumber++ ) ;
+			of.setEncounter_num( encounterNumber ) ;
 			of.setPatient_num( patientNumber ) ;
 			
 			of.setConcept_cd( ontCode ) ;
@@ -1165,7 +1276,8 @@ public class I2B2Project {
 	}
 	
 	
-	private ObservationFact produceNumericFact( int patientNumber
+	private ObservationFact produceNumericFact( int encounterNumber
+			   								  , int patientNumber
                                               , String ontCode
                                               , String units
                                               , Cell cell
@@ -1173,7 +1285,7 @@ public class I2B2Project {
 		enterTrace( "I2B2Project.produceNumericFact()" ) ;
 		try {
 			ObservationFact of = new ObservationFact( utils ) ;				
-//			of.setEncounter_num( encounterNumber++ ) ;
+			of.setEncounter_num( encounterNumber ) ;
 			of.setPatient_num( patientNumber ) ;
 				
 			of.setProvider_id( "@" ) ;
@@ -1206,7 +1318,8 @@ public class I2B2Project {
 	}
 	
 	
-	private ObservationFact produceStringFact( int patientNumber
+	private ObservationFact produceStringFact( int encounterNumber
+											 , int patientNumber
                                              , String ontCode
                                              , String units
                                              , Cell cell
@@ -1214,7 +1327,7 @@ public class I2B2Project {
 		enterTrace( "I2B2Project.produceStringFact()" ) ;
 		try {
 			ObservationFact of = new ObservationFact( utils ) ;				
-//			of.setEncounter_num( encounterNumber++ ) ;
+			of.setEncounter_num( encounterNumber ) ;
 			of.setPatient_num( patientNumber ) ;
 			
 			
@@ -1458,7 +1571,7 @@ public class I2B2Project {
 		
 		public static I2B2Project newInstance( String projectId ) throws UploaderException {
 			enterTrace( "I2B2Project.Factory.newInstance()" ) ;
-			I2B2Project project = new I2B2Project( projectId ) ;
+			I2B2Project project = new I2B2Project( projectId.toLowerCase() ) ;
 			try {
 				if( projectExists( project ) ) {
 					project.newProject = false ;
@@ -1477,6 +1590,7 @@ public class I2B2Project {
 		public static void delete( String projectId ) throws UploaderException {
 			enterTrace( "I2B2Project.Factory.delete(String)" ) ;
 			try {
+				projectId = projectId.toLowerCase() ;
 				I2B2Project project = new I2B2Project( projectId ) ;
 				delete( project ) ;
 			}	

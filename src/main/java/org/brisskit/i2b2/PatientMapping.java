@@ -36,7 +36,7 @@ public class PatientMapping {
 			"VALUES" +
 			   "( <PATIENT_IDE>" +
 			   ", <PATIENT_IDE_SOURCE>" +
-			   ", <PATIENT_IDE_STATUS>" +         
+			   ", NULL" + 					// patient_ide_status        
 			   ", <PROJECT_ID>" +   
 			   ", now()" +
 			   ", now()" +
@@ -68,7 +68,6 @@ public class PatientMapping {
 			sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", schema_name ) ;			
 			sqlCmd = sqlCmd.replace( "<PATIENT_IDE>", utils.enfoldString( patient_ide ) ) ;
 			sqlCmd = sqlCmd.replace( "<PATIENT_IDE_SOURCE>", utils.enfoldString( patient_ide_source ) ) ;
-			sqlCmd = sqlCmd.replace( "<PATIENT_IDE_STATUS>", utils.enfoldNullableString( patient_ide_status ) ) ;
 			sqlCmd = sqlCmd.replace( "<PROJECT_ID>", utils.enfoldString( project_id ) ) ;
 			sqlCmd = sqlCmd.replace( "<SOURCESYSTEM_CD>", utils.enfoldNullableString( sourcesystem_id ) ) ;			
 			Statement st = connection.createStatement();			

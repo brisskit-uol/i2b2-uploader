@@ -471,11 +471,10 @@ public class I2B2ProjectTests extends TestCase {
 	}
 	
 	
-	public void test16_CreateLaHearts() { 
-		enterTrace( "==>>test16_CreateLaHearts()" ) ;
-		File spreadsheetFile1 = new File(getClass().getClassLoader().getResource("spreadsheets/EG1-laheart.xlsx").getFile());
-
-		String projectId = "lahearts" ;
+	public void _test16_CreateBiomed2() { 
+		enterTrace( "==>>_test17_CreateBiomed2()" ) ;
+		File spreadsheetFile1 = new File(getClass().getClassLoader().getResource( "spreadsheets/Biomed2.xlsx").getFile() ) ;
+		String projectId = "biomed2" ;
 		try {
 			//
 			// Delete project if it already exists...
@@ -494,7 +493,63 @@ public class I2B2ProjectTests extends TestCase {
 			fail( "UploaderException thrown: " + cex.getLocalizedMessage() ) ;
 		}
 		finally {
-			exitTrace( "==>>test16_CreateLaHearts()" ) ;
+			exitTrace( "==>>_test17_CreateBiomed2()" ) ;
+		}
+		
+	}
+	
+	
+	public void test17_Create_test01v01jeff() { 
+		enterTrace( "==>>test17_Create_test01v01jeff()" ) ;
+		File spreadsheetFile1 = new File(getClass().getClassLoader().getResource( "spreadsheets/test-01.xls").getFile() ) ;
+		String projectId = "test01v01jeff" ;
+		try {
+			//
+			// Delete project if it already exists...
+			if( I2B2Project.Factory.projectExists( projectId ) ) {
+				I2B2Project.Factory.delete( projectId ) ;				
+			}
+			//
+			// Create new project with all it db artifacts
+			I2B2Project project = I2B2Project.Factory.newInstance( projectId ) ;
+			//
+			// Process the first spreadsheet...
+			project.processSpreadsheet( spreadsheetFile1 ) ;
+		}
+		catch( UploaderException cex ) {			
+			cex.printStackTrace( System.out ) ;
+			fail( "UploaderException thrown: " + cex.getLocalizedMessage() ) ;
+		}
+		finally {
+			exitTrace( "==>>test17_Create_test01v01jeff()" ) ;
+		}
+		
+	}
+	
+	
+	public void test18_Create_test01obsdatecol() { 
+		enterTrace( "==>>_test18_Create_test01obsdatecol()" ) ;
+		File spreadsheetFile1 = new File(getClass().getClassLoader().getResource( "spreadsheets/test-01-obsdatecol.xls").getFile() ) ;
+		String projectId = "test01obsdatecol" ;
+		try {
+			//
+			// Delete project if it already exists...
+			if( I2B2Project.Factory.projectExists( projectId ) ) {
+				I2B2Project.Factory.delete( projectId ) ;				
+			}
+			//
+			// Create new project with all it db artifacts
+			I2B2Project project = I2B2Project.Factory.newInstance( projectId ) ;
+			//
+			// Process the first spreadsheet...
+			project.processSpreadsheet( spreadsheetFile1 ) ;
+		}
+		catch( UploaderException cex ) {			
+			cex.printStackTrace( System.out ) ;
+			fail( "UploaderException thrown: " + cex.getLocalizedMessage() ) ;
+		}
+		finally {
+			exitTrace( "==>>_test18_Create_test01obsdatecol()" ) ;
 		}
 		
 	}
