@@ -1,0 +1,22 @@
+Processing a Spreadsheet and Start Date for Observations...
+
+Can anyone see gross disadvantages to the following?
+
+At present some of the columns within a sheet may have a date value. A column entitled “DEATH” could have a date as a value. For columns with a date value, the assumption made so far is that the date is the fact's start date (eg: “DEATH” occurred on “19780103” ).
+
+But that leaves all the other column types with no obvious start date! The assumption I have made so far is that the date of processing the sheet (ie: “today”) is the default start date for all facts of these column types. Not very acceptable and now we definitely need to replace it if we accept multiple spreadsheet files at different times.
+
+Proposal:
+1. Continue processing columns with date values as described above.
+2. Have a default observation date supplied on submission which would apply to all other facts within the given spreadsheet.
+3. Have a special column (eg: OBSERVATION_DATE) which could potentially supply an observation start date for all the facts for a given patient (other than those covered by point 1 above).
+
+There should be a protocol attached to the above:
+(a) Point (1) is solid; it cannot be bent.
+(b) Point (2) is OK but is not enforced.
+(c) Point (3) is OK but is not enforced. If it is there, we use it, but if not, we fall back on (2). 
+(d) If (2) and (3) are both missing, the Uploader throws a suitable exception.
+(e) If (2) and (3) are both present, OBSERVATION_DATE takes precedence, and where it's value is missing we use the default value from (2).
+(f) If (3) is present and (2) is missing, but there happens to be a missing value for OBSERVATION_DATE, the Uploader throws an exception.
+
+For later releases, things like OBSERVATION_DATE as the required column name could be driven by configuration settings.
