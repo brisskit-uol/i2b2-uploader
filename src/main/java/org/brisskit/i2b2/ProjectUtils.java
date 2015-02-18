@@ -132,7 +132,7 @@ public class ProjectUtils {
 		}	
 	}
 	
-	public String getValueAsString( Cell cell ) {
+	public String _getValueAsString( Cell cell ) {
 		String value = stringFormat.formatCellValue( cell ) ;
 		if( value != null ) {
 			value = value.trim() ;
@@ -141,7 +141,7 @@ public class ProjectUtils {
 	}
 	
 	
-	public String _getValueAsString( Cell cell ) {
+	public String getValueAsString( Cell cell ) {
 		if( cell == null ) {
 			return "" ;
 		}

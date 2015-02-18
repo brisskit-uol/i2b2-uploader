@@ -9,8 +9,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Date;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.* ;
 
 /**
  * @author jeff
@@ -18,7 +17,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class Encounter {
 
-	private static Log log = LogFactory.getLog( Encounter.class ) ;
+	private static Logger logger = Logger.getLogger( Encounter.class ) ;
 	
 	public static final String ENCOUNTER_MAP_INSERT_COMMAND = 
 			"SET SCHEMA '<DB_SCHEMA_NAME>';" +
@@ -156,7 +155,7 @@ public class Encounter {
 	 * @param entry: the name of the method entered
 	 */
 	public static void enterTrace( String entry ) {
-		I2B2Project.enterTrace( log, entry ) ;
+		I2B2Project.enterTrace( logger, entry ) ;
 	}
 
     /**
@@ -166,7 +165,7 @@ public class Encounter {
      * @param entry: the name of the method exited
      */
     public static void exitTrace( String entry ) {
-    	I2B2Project.exitTrace( log, entry ) ;
+    	I2B2Project.exitTrace( logger, entry ) ;
 	}
 
 

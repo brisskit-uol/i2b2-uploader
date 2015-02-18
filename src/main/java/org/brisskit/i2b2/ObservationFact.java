@@ -13,8 +13,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.*;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
@@ -26,7 +26,7 @@ import org.brisskit.i2b2.OntologyBranch.Type;
  */
 public class ObservationFact {
 	
-private static Log log = LogFactory.getLog( ObservationFact.class ) ;
+private static Logger logger = Logger.getLogger( ObservationFact.class ) ;
 
 public static final String OBSERVATION_FACT_INSERT_COMMAND = 
 		"SET SCHEMA '<DB_SCHEMA_NAME>';" +
@@ -140,7 +140,7 @@ public void serializeToDatabase( Connection connection ) throws UploaderExceptio
 
 	}
 	catch( SQLException sqlx ) {
-		log.error( sqlx.getStackTrace() ) ;
+		logger.error( sqlx.getStackTrace() ) ;
 		throw new UploaderException( "Failed to insert into observation fact table:\n" + sqlCmd, sqlx ) ;
 	}
 	finally {
@@ -156,7 +156,7 @@ public void serializeToDatabase( Connection connection ) throws UploaderExceptio
  * @param entry: the name of the method entered
  */
 public static void enterTrace( String entry ) {
-	I2B2Project.enterTrace( log, entry ) ;
+	I2B2Project.enterTrace( logger, entry ) ;
 }
 
 /**
@@ -166,7 +166,7 @@ public static void enterTrace( String entry ) {
  * @param entry: the name of the method exited
  */
 public static void exitTrace( String entry ) {
-	I2B2Project.exitTrace( log, entry ) ;
+	I2B2Project.exitTrace( logger, entry ) ;
 }
 
 public void setEncounter_num(Integer encounter_num) {

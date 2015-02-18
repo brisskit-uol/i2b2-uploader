@@ -19,8 +19,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.* ;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -105,7 +104,7 @@ public class I2B2Project {
 		{ "Vital Status", "PATIENT_VITALSTATUS_COUNT_XML" } 
 	} ;
 	
-	private static Log log = LogFactory.getLog( I2B2Project.class ) ;
+	private static Logger logger = Logger.getLogger( I2B2Project.class ) ;
 	
 	private static StringBuffer logIndent = null ;
 	
@@ -323,11 +322,12 @@ public class I2B2Project {
 	}
 	
 	
+	@SuppressWarnings("unused")
 	private boolean _maxDataRowsExceeded( Sheet dataSheet ) throws UploaderException {
 		enterTrace( "i2b2Project.maxDataRowsExceeded()" ) ;
 		try {
 			int numberOfRows = dataSheet.getLastRowNum() ;			
-			log.debug( "numberOfRows: [" + numberOfRows + "]" ) ;
+			logger.debug( "numberOfRows: [" + numberOfRows + "]" ) ;
 			Iterator<Row> it = dataSheet.iterator() ;
 			int iRowsWithDataPresent = 0 ;
 			while( it.hasNext() ) {
@@ -335,12 +335,12 @@ public class I2B2Project {
 				if( !dataRowEmpty( row ) ) {
 					iRowsWithDataPresent++ ;
 					if( iRowsWithDataPresent > 5000 ) {
-						log.debug( "max data rows exceeded" ) ;
+						logger.debug( "max data rows exceeded" ) ;
 						return true ;
 					}
 				}
 			}
-			log.debug( "max data rows not exceeded" ) ;
+			logger.debug( "max data rows not exceeded" ) ;
 			return false ;
 		}
 		finally {
@@ -353,7 +353,7 @@ public class I2B2Project {
 		enterTrace( "i2b2Project.limitsExceeded()" ) ;
 		try {
 			int numberOfRows = dataSheet.getLastRowNum() ;			
-			log.debug( "numberOfRows: [" + numberOfRows + "]" ) ;
+			logger.debug( "numberOfRows: [" + numberOfRows + "]" ) ;
 			Iterator<Row> it = dataSheet.iterator() ;
 			int iRowsWithDataPresent = 0 ;
 			while( it.hasNext() ) {
@@ -361,12 +361,12 @@ public class I2B2Project {
 				if( !dataRowEmpty( row ) ) {
 					iRowsWithDataPresent++ ;
 					if( iRowsWithDataPresent > 5000 ) {
-						log.debug( "maximum number of data rows exceeded" ) ;
+						logger.debug( "maximum number of data rows exceeded" ) ;
 						return true ;
 					}
 				}
 			}
-			log.debug( "max data rows not exceeded" ) ;
+			logger.debug( "max data rows not exceeded" ) ;
 			return false ;
 		}
 		finally {
@@ -668,7 +668,7 @@ public class I2B2Project {
 				}
 				else {
 					countPatientIdsNull++ ;
-					log.debug( "Row with no id: " + countPatientIdsNull ) ;
+					logger.debug( "Row with no id: " + countPatientIdsNull ) ;
 				}
 																
 			} // end of outer while - processing row
@@ -778,7 +778,7 @@ public class I2B2Project {
 				}
 				else {
 					countPatientIdsNull++ ;
-					log.debug( "Row with no id: " + countPatientIdsNull ) ;
+					logger.debug( "Row with no id: " + countPatientIdsNull ) ;
 				}
 													
 			} // end of outer while - processing row
@@ -925,18 +925,18 @@ public class I2B2Project {
 				// Get the ontology code and make adjustments for units
 				ontCode = utils.getValueAsString( codeCell ) ;
 				if( ontCode.contains( "[" ) ) {
-					log.debug( "concept column value: " + ontCode ) ;
+					logger.debug( "concept column value: " + ontCode ) ;
 					int firstBracket = ontCode.indexOf( "[" ) ;
 					int secondBracket = ontCode.indexOf( "]" ) ;
 					units = ontCode.substring( firstBracket+1, secondBracket ).trim() ;
 					ontCode = ontCode.substring( 0, firstBracket ).trim() ;
-					log.debug( "which yields concept: " + ontCode + " with units: " + units ) ;
+					logger.debug( "which yields concept: " + ontCode + " with units: " + units ) ;
 				}
 								
 				//
 				// We gather values and attempt to diagnose type...
 				values = new HashSet<String>() ;
-				log.debug( "Processing column with colName: [" + colName + "] toolTip: [" + toolTip + "] ontCode: [" + ontCode + "]" ) ;
+				logger.debug( "Processing column with colName: [" + colName + "] toolTip: [" + toolTip + "] ontCode: [" + ontCode + "]" ) ;
 
 				Iterator<Row> rowIt = dataSheet.rowIterator() ;
 				rowIt.next() ; // tab past column names
@@ -949,7 +949,7 @@ public class I2B2Project {
 						Cell dataCell = row.getCell( colIndex ) ;
 						String value = utils.getValueAsString( dataCell ) ;
 						if( utils.isEmpty( value ) ) {
-							log.debug( "Encountered a cell with no value" ) ;
+							logger.debug( "Encountered a cell with no value" ) ;
 							continue ;
 						}
 						//
@@ -1182,12 +1182,12 @@ public class I2B2Project {
 		enterTrace( "I2B2Project.printDuffRowToLog()" ) ;
 		try {
 			int oneBasedArrayNumber = dataRow.getRowNum() + 1 ;
-			log.error( "Printing contents of duff Row: [" + oneBasedArrayNumber + "] ..."  ) ;
+			logger.error( "Printing contents of duff Row: [" + oneBasedArrayNumber + "] ..."  ) ;
 			//
 			// Process the cells for the row...
 			int noCols = dataRow.getLastCellNum() ;
 			if( noCols < 0 ) {
-				log.error( "Row possesses no cells!"  ) ;
+				logger.error( "Row possesses no cells!"  ) ;
 			}
 			else {
 				for( int i=0; i<noCols+1; i++ ) {
@@ -1195,10 +1195,10 @@ public class I2B2Project {
 						Cell cell = dataRow.getCell(i) ;
 						String value = utils.getValueAsString( cell ) ;
 						oneBasedArrayNumber = cell.getColumnIndex() + 1 ;
-						log.error( "  Cell: [" + oneBasedArrayNumber + "] has contents: [" + value + "]"  ) ;
+						logger.error( "  Cell: [" + oneBasedArrayNumber + "] has contents: [" + value + "]"  ) ;
 					}
 					catch( Exception ex ) {
-						log.error( "Unexpected exception thrown in diagnostics. Will continue!", ex ) ;
+						logger.error( "Unexpected exception thrown in diagnostics. Will continue!", ex ) ;
 					}
 					
 				}
@@ -1392,8 +1392,8 @@ public class I2B2Project {
 		int internalPatientNo = -999 ;
 		int oneBasedArrayNumber = dataRow.getRowNum() + 1 ;
 		try {			
-			if( log.isDebugEnabled() ) {
-				log.debug( "dataRow number: [" + oneBasedArrayNumber + "] aligns with sourcePatientNo: [" + sourcePatientNoAsString + "]" ) ;
+			if( logger.isDebugEnabled() ) {
+				logger.debug( "dataRow number: [" + oneBasedArrayNumber + "] aligns with sourcePatientNo: [" + sourcePatientNoAsString + "]" ) ;
 			}
 			//
 			// NB: If the source column is empty, we return -999
@@ -1403,12 +1403,12 @@ public class I2B2Project {
 		}
 		catch( Exception ex ) {		
 			String message = "Failure in getting patient number" ;
-			log.error( message ) ;
-			log.error( "getPatientNumber(Row dataRow) failed", ex ) ;
-			log.error( "dataRow number: [" + oneBasedArrayNumber + "]" ) ;
-			log.error( "patientNumberIndex: [" + patientNumberIndex + "]" ) ;
-			log.error( "sourcePatientNoAsString: [" + sourcePatientNoAsString + "]" ) ;
-			log.error( "internalPatientNo: [" + internalPatientNo + "]" ) ;
+			logger.error( message ) ;
+			logger.error( "getPatientNumber(Row dataRow) failed", ex ) ;
+			logger.error( "dataRow number: [" + oneBasedArrayNumber + "]" ) ;
+			logger.error( "patientNumberIndex: [" + patientNumberIndex + "]" ) ;
+			logger.error( "sourcePatientNoAsString: [" + sourcePatientNoAsString + "]" ) ;
+			logger.error( "internalPatientNo: [" + internalPatientNo + "]" ) ;
 			throw new UploaderException( message, ex ) ;
 		}
 		return internalPatientNo ;
@@ -1445,7 +1445,7 @@ public class I2B2Project {
 		}
 		catch( ParseException  pex) {
 			String message = "Failed to parse column value as a observation start date: " + dateAsString ;
-			log.error( message, pex ) ;
+			logger.error( message, pex ) ;
 			throw new UploaderException( message, pex ) ;
 		}
 		finally {
@@ -1462,11 +1462,11 @@ public class I2B2Project {
 	 * @param entry: the name of the method entered
 	 */
 	public static void enterTrace( String entry ) {
-		enterTrace( log, entry ) ;
+		enterTrace( logger, entry ) ;
 	}
 	
-	public static void enterTrace( Log log, String entry ) {
-		log.trace( getIndent().toString() + "enter: " + entry ) ;
+	public static void enterTrace( Logger logger, String entry ) {
+		logger.trace( getIndent().toString() + "enter: " + entry ) ;
 		indentPlus() ;
 	}
 
@@ -1477,12 +1477,12 @@ public class I2B2Project {
      * @param entry: the name of the method exited
      */
     public static void exitTrace( String entry ) {
-    	exitTrace( log, entry ) ;
+    	exitTrace( logger, entry ) ;
 	}
     
-	public static void exitTrace( Log log, String entry ) {
+	public static void exitTrace( Logger logger, String entry ) {
 		indentMinus() ;
-		log.trace( getIndent().toString() + "exit: " + entry ) ;
+		logger.trace( getIndent().toString() + "exit: " + entry ) ;
 	}
 	
     /**
@@ -1668,7 +1668,7 @@ public class I2B2Project {
 			}
 			catch( SQLException sqlx ) {
 				String message =  "Could not confirm project existed or not. Project id: " + project.getProjectId() ;
-				log.error( message, sqlx ) ;
+				logger.error( message, sqlx ) ;
 				if( connection != null ) {
 					try { 
 						connection.rollback() ; 

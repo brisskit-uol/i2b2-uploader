@@ -8,8 +8,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.* ;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
@@ -18,7 +18,7 @@ import junit.framework.TestCase;
 
 public class I2B2ProjectTests extends TestCase {
 	
-	private static Log log = LogFactory.getLog( I2B2ProjectTests.class ) ;
+	private static Logger logger = Logger.getLogger( I2B2ProjectTests.class ) ;
 
 	public I2B2ProjectTests(String name) {
 		super(name);
@@ -68,7 +68,7 @@ public class I2B2ProjectTests extends TestCase {
 			fail( "Created project with greater than max rows." ) ;
 		}
 		catch( UploaderException cex ) {			
-			log.debug( cex.getLocalizedMessage() ) ;			
+			logger.debug( cex.getLocalizedMessage() ) ;			
 		}
 		finally {
 			exitTrace( "==>>test02_SpreadsheetBeyondMaxRows()" ) ;
@@ -331,28 +331,28 @@ public class I2B2ProjectTests extends TestCase {
 			assertNotNull( "toolTips should not be null", toolTips ) ;
 			assertNotNull( "ontologyCodes should not be null", ontologyCodes ) ;
 			
-			log.debug( "Column names: " ) ;
+			logger.debug( "Column names: " ) ;
 			Iterator<Cell> it = columnNames.cellIterator() ;
 			while( it.hasNext() ) {
 				Cell cell = it.next() ;
-				log.debug( cell.getStringCellValue() ) ;
+				logger.debug( cell.getStringCellValue() ) ;
 			}
 			
-			log.debug( "Tool tips: " ) ;
+			logger.debug( "Tool tips: " ) ;
 			it = toolTips.cellIterator() ;
 			while( it.hasNext() ) {
 				Cell cell = it.next() ;
-				log.debug( cell.getStringCellValue() ) ;
+				logger.debug( cell.getStringCellValue() ) ;
 			}
 			
-			log.debug( "Codes: " ) ;
+			logger.debug( "Codes: " ) ;
 			it = ontologyCodes.cellIterator() ;
 			while( it.hasNext() ) {
 				Cell cell = it.next() ;
-				log.debug( cell.getStringCellValue() ) ;
+				logger.debug( cell.getStringCellValue() ) ;
 			}
 			
-			log.debug( "========= Values: " ) ;
+			logger.debug( "========= Values: " ) ;
 			DataFormatter df = new DataFormatter() ;
 			Iterator<Row> rowIt = project.getSheetOne().rowIterator() ;
 			rowIt.next() ; // tab past column names
@@ -360,11 +360,11 @@ public class I2B2ProjectTests extends TestCase {
 			rowIt.next() ; // tab past codes
 			while( rowIt.hasNext() ) {
 				Row row = rowIt.next() ;
-				log.debug( ">>> values for row number: " + row.getRowNum() ) ;
+				logger.debug( ">>> values for row number: " + row.getRowNum() ) ;
 				it = row.cellIterator() ;
 				while( it.hasNext() ) {
 					Cell cell = it.next() ;
-					log.debug( df.formatCellValue( cell ).trim() ) ;		
+					logger.debug( df.formatCellValue( cell ).trim() ) ;		
 				}
 			}
 					
@@ -391,7 +391,7 @@ public class I2B2ProjectTests extends TestCase {
 			project.processSpreadsheet( spreadsheetFile ) ;
 		}
 		catch( UploaderException cex ) {
-			log.error( "Failed to process spreadsheet with lots of empty rows.", cex ) ;
+			logger.error( "Failed to process spreadsheet with lots of empty rows.", cex ) ;
 			fail( "Failed to process spreadsheet with lots of empty rows." ) ;
 						
 		}
@@ -456,7 +456,7 @@ public class I2B2ProjectTests extends TestCase {
 		try {
 			translatedString = OntologyBranch.formEnumeratedValue( awkwardString ) ;
 			if( !translatedString.equals( expectedString ) ) {
-				log.debug( "translatedString: " + translatedString ) ;
+				logger.debug( "translatedString: " + translatedString ) ;
 				fail( "Could not translate special characters. Before and after strings did not match." ) ;
 			}
 		}
@@ -471,8 +471,8 @@ public class I2B2ProjectTests extends TestCase {
 	}
 	
 	
-	public void _test16_CreateBiomed2() { 
-		enterTrace( "==>>_test17_CreateBiomed2()" ) ;
+	public void test16_CreateBiomed2_duffdatecolumn() { 
+		enterTrace( "==>>test16_CreateBiomed2_duffdatecolumn()" ) ;
 		File spreadsheetFile1 = new File(getClass().getClassLoader().getResource( "spreadsheets/Biomed2.xlsx").getFile() ) ;
 		String projectId = "biomed2" ;
 		try {
@@ -486,14 +486,14 @@ public class I2B2ProjectTests extends TestCase {
 			I2B2Project project = I2B2Project.Factory.newInstance( projectId ) ;
 			//
 			// Process the first spreadsheet...
-			project.processSpreadsheet( spreadsheetFile1 ) ;
+			project.processSpreadsheet( spreadsheetFile1 ) ;		
+			fail( "Should not be able to process a spreadsheet with a duff numeric/date column." ) ;
 		}
 		catch( UploaderException cex ) {			
 			cex.printStackTrace( System.out ) ;
-			fail( "UploaderException thrown: " + cex.getLocalizedMessage() ) ;
 		}
 		finally {
-			exitTrace( "==>>_test17_CreateBiomed2()" ) ;
+			exitTrace( "==>>test16_CreateBiomed2_duffdatecolumn()" ) ;
 		}
 		
 	}
@@ -562,7 +562,7 @@ public class I2B2ProjectTests extends TestCase {
 	 * @param entry: the name of the method entered
 	 */
 	public static void enterTrace( String entry ) {
-		I2B2Project.enterTrace( log, entry ) ;
+		I2B2Project.enterTrace( logger, entry ) ;
 	}
 
     /**
@@ -572,7 +572,7 @@ public class I2B2ProjectTests extends TestCase {
      * @param entry: the name of the method exited
      */
     public static void exitTrace( String entry ) {
-    	I2B2Project.exitTrace( log, entry ) ;
+    	I2B2Project.exitTrace( logger, entry ) ;
 	}
 	
 }

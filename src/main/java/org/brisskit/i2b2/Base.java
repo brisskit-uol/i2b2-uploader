@@ -7,13 +7,12 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.* ;
 
 public class Base {
 	
-	private static Log log = LogFactory.getLog( Base.class ) ;
-
+	private static Logger logger = Logger.getLogger( Base.class ) ;
+	
 	//
 	// These are the keys (or partial keys) to properties held within the config.properties file...	
 	final static String ENVIRONMENT = "env" ;
@@ -54,17 +53,17 @@ public class Base {
 				pg_db_p = props.getProperty( env + "." + PG_DB_P );
 				jboss_deploy_dir = props.getProperty( env + "." + JBOSS_DEPLOYMENT_DIRECTORY );
 
-				log.info(env + "." + PG_DB_NAME + "= " + pg_db_name);				;
-				log.info(env + "." + PG_DB_U + "= " + pg_db_u);
-				log.info(env + "." + PG_DB_P + "= " + pg_db_p);	
-				log.info(env + "." + PG_DB_URL + "= " + pg_db_url);
-				log.info(env + "." + JBOSS_DEPLOYMENT_DIRECTORY + "= " + jboss_deploy_dir);
+				logger.info(env + "." + PG_DB_NAME + "= " + pg_db_name);				;
+				logger.info(env + "." + PG_DB_U + "= " + pg_db_u);
+				logger.info(env + "." + PG_DB_P + "= " + pg_db_p);	
+				logger.info(env + "." + PG_DB_URL + "= " + pg_db_url);
+				logger.info(env + "." + JBOSS_DEPLOYMENT_DIRECTORY + "= " + jboss_deploy_dir);
 
 				try { 
 					configPropertiesStream.close() ; 
 				}
 				catch( IOException iox ) {
-					log.warn( "Could not close configPropertiesStream", iox ) ;
+					logger.warn( "Could not close configPropertiesStream", iox ) ;
 				}
 			}
 			
@@ -90,7 +89,7 @@ public class Base {
 			Class.forName(DRIVER_CLASS_NAME).newInstance();
 		} 
 		catch( Exception ex ) {
-			log.error( "Check classpath. Cannot load db driver: " + DRIVER_CLASS_NAME ) ;
+			logger.error( "Check classpath. Cannot load db driver: " + DRIVER_CLASS_NAME ) ;
 			throw new UploaderException( ex ) ;
 		}
 
@@ -99,7 +98,7 @@ public class Base {
 				con = DriverManager.getConnection( DB_CONN_STRING, USER_NAME, PASSWORD ) ;
 			} 
 			catch (SQLException sqlex) {
-				log.error( "Driver loaded, but cannot connect to db: " + DB_CONN_STRING ) ;
+				logger.error( "Driver loaded, but cannot connect to db: " + DB_CONN_STRING ) ;
 				throw new UploaderException( sqlex ) ;
 			}
 		}
@@ -121,19 +120,19 @@ public class Base {
 			return con;
 		}
 		catch( InstantiationException iex ) {
-			log.error( "Cannot load db driver: " + "org.postgresql.Driver", iex ) ;
+			logger.error( "Cannot load db driver: " + "org.postgresql.Driver", iex ) ;
 			throw new UploaderException( iex ) ;
 		}
 		catch( IllegalAccessException iax ) {
-			log.error( "Cannot load db driver: " + "org.postgresql.Driver", iax ) ;
+			logger.error( "Cannot load db driver: " + "org.postgresql.Driver", iax ) ;
 			throw new UploaderException( iax ) ;
 		}
 		catch( ClassNotFoundException cnfex ) {
-			log.error( "Cannot load db driver: " + "org.postgresql.Driver", cnfex ) ;
+			logger.error( "Cannot load db driver: " + "org.postgresql.Driver", cnfex ) ;
 			throw new UploaderException( cnfex ) ;
 		}
 		catch( SQLException sqlex ) {
-			log.error( "Driver loaded, but cannot connect to db: " + "jdbc:postgresql://" + pg_db_url + "/"+ pg_db_name +"?user=" + pg_db_u+ "&password=" + pg_db_p ) ;
+			logger.error( "Driver loaded, but cannot connect to db: " + "jdbc:postgresql://" + pg_db_url + "/"+ pg_db_name +"?user=" + pg_db_u+ "&password=" + pg_db_p ) ;
 			throw new UploaderException( sqlex ) ;
 		}
 		finally {
@@ -148,7 +147,7 @@ public class Base {
 	 * @param entry: the name of the method entered
 	 */
 	public static void enterTrace( String entry ) {
-		I2B2Project.enterTrace( log, entry ) ;
+		I2B2Project.enterTrace( logger, entry ) ;
 	}
 
     /**
@@ -158,6 +157,6 @@ public class Base {
      * @param entry: the name of the method exited
      */
     public static void exitTrace( String entry ) {
-    	I2B2Project.exitTrace( log, entry ) ;
+    	I2B2Project.exitTrace( logger, entry ) ;
 	}
 }

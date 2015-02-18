@@ -9,8 +9,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Date;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.* ;
 
 /**
  * @author jeff
@@ -19,7 +18,7 @@ import org.apache.commons.logging.LogFactory;
 public class PatientDimension {
 
 	
-	private static Log log = LogFactory.getLog( PatientDimension.class ) ;
+	private static Logger logger = Logger.getLogger( PatientDimension.class ) ;
 	
 	public static final String PATIENT_DIM_INSERT_COMMAND = 
 			"SET SCHEMA '<DB_SCHEMA_NAME>';" +
@@ -152,14 +151,14 @@ public class PatientDimension {
 		    else {
 		    	String message = "Failed to detect whether the appropriate patient already exists in the db.\n" +
 		    			         " Retrieved no result." ;
-				log.error( message ) ;
+				logger.error( message ) ;
 				throw new UploaderException( message ) ;
 		    }
 			return exists ;
 		}
 		catch( SQLException sqlx ) {
 			String message = "Failed to detect whether the appropriate patient already exists in the db." ;
-			log.error( message, sqlx ) ;
+			logger.error( message, sqlx ) ;
 			throw new UploaderException( message, sqlx ) ;
 		}
 		finally {
@@ -175,7 +174,7 @@ public class PatientDimension {
 	 * @param entry: the name of the method entered
 	 */
 	public static void enterTrace( String entry ) {
-		I2B2Project.enterTrace( log, entry ) ;
+		I2B2Project.enterTrace( logger, entry ) ;
 	}
 
     /**
@@ -185,7 +184,7 @@ public class PatientDimension {
      * @param entry: the name of the method exited
      */
     public static void exitTrace( String entry ) {
-    	I2B2Project.exitTrace( log, entry ) ;
+    	I2B2Project.exitTrace( logger, entry ) ;
 	}
 
 

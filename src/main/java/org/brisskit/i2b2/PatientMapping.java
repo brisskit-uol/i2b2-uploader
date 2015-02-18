@@ -8,8 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.* ;
 
 /**
  * @author jeff
@@ -17,7 +16,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class PatientMapping {
 
-	private static Log log = LogFactory.getLog( PatientMapping.class ) ;
+	private static Logger logger = Logger.getLogger( PatientMapping.class ) ;
 	
 	public static final String PATIENT_MAP_INSERT_COMMAND = 
 			"SET SCHEMA '<DB_SCHEMA_NAME>';" +
@@ -110,7 +109,7 @@ public class PatientMapping {
 		}
 		catch( SQLException sqlx ) {
 			String message = "Failed to detect whether the appropriate patient mapping already exists in the db." ;
-			log.error( message, sqlx ) ;
+			logger.error( message, sqlx ) ;
 			throw new UploaderException( message, sqlx ) ;
 		}
 		finally {
@@ -126,7 +125,7 @@ public class PatientMapping {
 	 * @param entry: the name of the method entered
 	 */
 	public static void enterTrace( String entry ) {
-		I2B2Project.enterTrace( log, entry ) ;
+		I2B2Project.enterTrace( logger, entry ) ;
 	}
 
     /**
@@ -136,7 +135,7 @@ public class PatientMapping {
      * @param entry: the name of the method exited
      */
     public static void exitTrace( String entry ) {
-    	I2B2Project.exitTrace( log, entry ) ;
+    	I2B2Project.exitTrace( logger, entry ) ;
 	}
 
 
