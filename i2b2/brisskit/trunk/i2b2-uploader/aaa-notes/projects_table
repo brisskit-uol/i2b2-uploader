@@ -1,0 +1,14 @@
+create user i2b2;
+alter user i2b2 with superuser;
+alter user i2b2 with PASSWORD 'i2b2';
+
+CREATE TABLE i2b2portal.projects
+(
+  project_id serial NOT NULL,
+  project_name character varying(45) NOT NULL,
+  username character varying(45) NOT NULL,
+  CONSTRAINT project_id_pkey PRIMARY KEY (project_id)
+)
+WITH (
+  OIDS=FALSE
+);

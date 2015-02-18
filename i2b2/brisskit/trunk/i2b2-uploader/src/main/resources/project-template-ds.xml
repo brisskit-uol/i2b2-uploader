@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ====================================================================== -->
+<!--                                                                        -->
+<!--  JBoss Server Configuration                                            -->
+<!--                                                                        -->
+<!-- ====================================================================== -->
+<datasources>
+
+	<datasource jta="false" jndi-name="java:/_projectId_DS"
+		pool-name="_projectId_DS" enabled="true" use-ccm="false">
+		<connection-url>jdbc:postgresql://_pg_db_url_/_pg_db_name_?searchpath=_DB_SCHEMA_NAME_</connection-url>
+		<driver-class>org.postgresql.Driver</driver-class>
+		<driver>postgresql-9.2-1002.jdbc4.jar</driver>
+		<security>
+			<user-name>_DB_USER_NAME_</user-name>
+			<password>_DB_PASSWORD_</password>
+		</security>
+		<validation>
+			<validate-on-match>false</validate-on-match>
+			<background-validation>false</background-validation>
+		</validation>
+		<statement>
+			<share-prepared-statements>false</share-prepared-statements>
+		</statement>
+	</datasource>
+
+</datasources>
