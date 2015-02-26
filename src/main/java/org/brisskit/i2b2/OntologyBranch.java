@@ -1124,7 +1124,7 @@ public class OntologyBranch {
     		enterTrace( "OntologyBranch.Factory.newInstance(using DB)" ) ;
     		OntologyBranch ob = null ;
     		try {
-    			Connection connection = Base.getSimpleConnectionPG() ;
+    			Connection connection = utils.getDbAccess().getSimpleConnectionPG() ;
     			Statement st = connection.createStatement() ;
     			String sqlCmd = CONCEPT_CODE_SQL_SELECT_COMMAND ;
     			sqlCmd = sqlCmd.replace( "<DB_SCHEMA_NAME>", projectId ) ;

@@ -5,12 +5,18 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 
 public class ProjectUtils {
+	
+	//
+	// 
+	private CreateDBPG dbAccess = new CreateDBPG() ;
 	
 	//
 	// Postgres example of TIMESTAMP ’2004-10-19 10:23:54’
@@ -31,9 +37,12 @@ public class ProjectUtils {
 	private SimpleDateFormat yyyymmdd = new SimpleDateFormat( "yyyy-MM-dd" ) ;
 	private SimpleDateFormat ddmmyyyy = new SimpleDateFormat( "dd-MM-yyyy" ) ;
 	
+//	private Pattern pattern_yyyymmddThhmmss1 = Pattern.compile( "^(\\d{4})\\-(\\d{2})\\-(\\d{2}.T.(\\d{2}):(\\d{2}):(\\d{2})$" ) ;
+//	private Pattern pattern_yyyymmddhhmmss1 = Pattern.compile( "^(\\d{4})\\-(\\d{2})\\-(\\d{2}.(\\d{2}):(\\d{2}):(\\d{2})$" ) ;
+//	private Pattern pattern_yyyymmddThhmmss2 = Pattern.compile( "^(\\d{4})\\/(\\d{2})\\/(\\d{2}.T.(\\d{2}):(\\d{2}):(\\d{2})$" ) ;
+//	private Pattern pattern_yyyymmddhhmmss2 = Pattern.compile( "^(\\d{4})\\/(\\d{2})\\/(\\d{2}.(\\d{2}):(\\d{2}):(\\d{2})$" ) ;
 	
-	
-	
+//	^(0?[1-9]|[12][0-9]|3[01])[\/\-](0?[1-9]|1[012])[\/\-]\d{4}$	
 	
 	private SimpleDateFormat[] longCellDateFormats =
 		{
@@ -54,6 +63,10 @@ public class ProjectUtils {
 	private SimpleDateFormat cellDateTimeFormat = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss" ) ;
 	
 	private FormulaEvaluator formulaeEvaluator = null ;
+	
+	
+	public ProjectUtils() throws UploaderException {
+	}
 	
 	
 	public String enfoldNullableString( String value ) {	
@@ -132,7 +145,7 @@ public class ProjectUtils {
 		}	
 	}
 	
-	public String _getValueAsString( Cell cell ) {
+	public String getValueAsString( Cell cell ) {
 		String value = stringFormat.formatCellValue( cell ) ;
 		if( value != null ) {
 			value = value.trim() ;
@@ -141,7 +154,7 @@ public class ProjectUtils {
 	}
 	
 	
-	public String getValueAsString( Cell cell ) {
+	public String _getValueAsString( Cell cell ) {
 		if( cell == null ) {
 			return "" ;
 		}
@@ -277,6 +290,14 @@ public class ProjectUtils {
 	
 	public String formatDate( Date date ) {
 		return dateFormat.format( date ) ;
+	}
+
+	public CreateDBPG getDbAccess() {
+		return dbAccess;
+	}
+
+	public void setDbAccess(CreateDBPG dbAccess) {
+		this.dbAccess = dbAccess;
 	}
 	
 }

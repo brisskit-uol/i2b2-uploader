@@ -106,7 +106,7 @@ public class I2B2Project {
 	
 	private static Logger logger = Logger.getLogger( I2B2Project.class ) ;
 	
-	private static StringBuffer logIndent = null ;
+	private static StringBuffer logIndent = new StringBuffer() ;
 	
 	private String projectId ;
     private File spreadsheetFile ;
@@ -142,9 +142,11 @@ public class I2B2Project {
 //    private ArrayList<PatientMapping> patientMaps = new ArrayList<PatientMapping>() ;
     private ArrayList<ObservationFact> observatonFacts = new ArrayList<ObservationFact>() ;
     
-    private ProjectUtils utils = new ProjectUtils() ;
+    private ProjectUtils utils ;
     
-	protected I2B2Project() {}
+	protected I2B2Project() throws UploaderException {
+		utils = new ProjectUtils() ;		
+	}
     
     //
     // Removed admin userid and password.
@@ -157,8 +159,14 @@ public class I2B2Project {
     private I2B2Project( String projectId ) throws UploaderException {
     	enterTrace( "I2B2Project()" ) ;
     	this.projectId = projectId ;
-    	CreateDBPG.setUp() ;
+    	utils = new ProjectUtils() ;
     	exitTrace( "I2B2Project()" ) ;
+    }
+    
+    public void dispose() throws UploaderException {
+    	enterTrace( "I2B2Project.dispose()" ) ;
+    	utils.getDbAccess().dispose() ;
+    	exitTrace( "I2B2Project.dispose()" ) ;
     }
     
     
@@ -582,7 +590,7 @@ public class I2B2Project {
 			String headingName = null ;
 			String path = null ;
 			String sqlCmd = null ;
-			Statement st = Base.getSimpleConnectionPG().createStatement() ;
+			Statement st = this.utils.getDbAccess().getSimpleConnectionPG().createStatement() ;
 			for( int i=0; i<STANDARD_BREAKDOWNS.length; i++ ) {
 				breakdownName = STANDARD_BREAKDOWNS[i][0] ;
 				//
@@ -658,7 +666,7 @@ public class I2B2Project {
 				//
 				// Write mapping to i2b2
 				if( pMap.getPatient_ide() != null ) {
-					Connection connection = Base.getSimpleConnectionPG() ;
+					Connection connection = this.utils.getDbAccess().getSimpleConnectionPG() ;
 					if( !pMap.mappingExists( connection ) ) {
 						pMap.serializeToDatabase( connection ) ;
 					}
@@ -771,7 +779,7 @@ public class I2B2Project {
 				//
 				// Write patient dimension to i2b2...
 				if( pDim.getPatient_num() != null ) {
-					Connection connection = Base.getSimpleConnectionPG() ;
+					Connection connection = this.utils.getDbAccess().getSimpleConnectionPG() ;
 					if( !pDim.patientExists( connection ) ) {
 						pDim.serializeToDatabase( connection ) ;
 					}
@@ -864,7 +872,7 @@ public class I2B2Project {
 		
 				//
 				// Write encounter mapping and visit dimension to i2b2
-				encounter.serializeToDatabase( Base.getSimpleConnectionPG() ) ;
+				encounter.serializeToDatabase( this.utils.getDbAccess().getSimpleConnectionPG() ) ;
 				
 				//
 				// Record the mapping between external id and internal id...
@@ -1035,7 +1043,7 @@ public class I2B2Project {
 														   , lookups
 														   , utils ) ;
 				if( obThat == null ) {				
-					obThis.serializeToDatabase( Base.getSimpleConnectionPG() ) ;
+					obThis.serializeToDatabase( this.utils.getDbAccess().getSimpleConnectionPG() ) ;
 				}
 				//
 				// But if this is an existing ontology, 
@@ -1044,7 +1052,7 @@ public class I2B2Project {
 					//
 					// If there's a difference, we need to write the differences...
 					if( !obThis.equals( obThat ) ) {
-						obThis.serializeDifferencesToDatabase( Base.getSimpleConnectionPG()
+						obThis.serializeDifferencesToDatabase( this.utils.getDbAccess().getSimpleConnectionPG() 
 								                             , obThat ) ;
 					}
 				}
@@ -1164,7 +1172,7 @@ public class I2B2Project {
 						
 						//
 						// Write fact to i2b2...
-						of.serializeToDatabase( Base.getSimpleConnectionPG() ) ;
+						of.serializeToDatabase( this.utils.getDbAccess().getSimpleConnectionPG() ) ;
 						
 					}
 					
@@ -1466,8 +1474,14 @@ public class I2B2Project {
 	}
 	
 	public static void enterTrace( Logger logger, String entry ) {
-		logger.trace( getIndent().toString() + "enter: " + entry ) ;
-		indentPlus() ;
+		if( false ) {
+			if( logger.isTraceEnabled() ) {
+				synchronized( logIndent ) {
+					logger.trace( logIndent.toString() + "enter: " + entry ) ;
+					indentPlus() ;
+		    	}
+			}	
+		}					
 	}
 
     /**
@@ -1481,44 +1495,31 @@ public class I2B2Project {
 	}
     
 	public static void exitTrace( Logger logger, String entry ) {
-		indentMinus() ;
-		logger.trace( getIndent().toString() + "exit: " + entry ) ;
+		if( false ) {
+			if( logger.isTraceEnabled() ) {
+				synchronized( logIndent ) {
+					indentMinus() ;
+					logger.trace( logIndent.toString() + "exit: " + entry ) ;
+		    	}
+			}	
+		}			
 	}
 	
     /**
      * Utility method used to maintain the structured trace log.
      */
-    public static void indentPlus() {
-		getIndent().append( ' ' ) ;
+    private static void indentPlus() {
+    	logIndent.append( ' ' ) ;		
 	}
 	
     /**
      * Utility method used to maintain the structured trace log.
      */
-    public static void indentMinus() {
-        if( logIndent.length() > 0 ) {
-            getIndent().deleteCharAt( logIndent.length()-1 ) ;
-        }
+    private static void indentMinus() {
+    	if( logIndent.length() > 0 ) {
+    		logIndent.deleteCharAt( logIndent.length()-1 ) ;
+    	}        
 	}
-	
-    /**
-     * Utility method used for indenting the structured trace log.
-     */
-    public static StringBuffer getIndent() {
-	    if( logIndent == null ) {
-	       logIndent = new StringBuffer() ;	
-	    }
-	    return logIndent ;	
-	}
-    
-    @SuppressWarnings("unused")
-	private static void resetIndent() {
-        if( logIndent != null ) { 
-            if( logIndent.length() > 0 ) {
-               logIndent.delete( 0, logIndent.length() )  ;
-            }
-        }   
-    }
 	
 	public String getProjectId() {
 		return projectId;
@@ -1571,18 +1572,46 @@ public class I2B2Project {
 		
 		public static I2B2Project newInstance( String projectId ) throws UploaderException {
 			enterTrace( "I2B2Project.Factory.newInstance()" ) ;
+			projectId = projectId.toLowerCase() ;
 			I2B2Project project = new I2B2Project( projectId.toLowerCase() ) ;
 			try {
 				if( projectExists( project ) ) {
 					project.newProject = false ;
 				}
 				else {
-					CreateDBPG.createI2B2Database( projectId );
+					project.utils.getDbAccess().createI2B2Database( projectId ) ;
 				}
 				return project ;
 			}
 			finally {
 				exitTrace( "I2B2Project.Factory.newInstance()" ) ;
+			}
+		}
+		
+		
+		public static void deleteIfProjectExists( String projectId ) throws UploaderException {
+			enterTrace( "I2B2Project.Factory.deleteIfProjectExists(String)" ) ;
+			try {
+				projectId = projectId.toLowerCase() ;
+				I2B2Project project = new I2B2Project( projectId ) ;
+				deleteIfProjectExists( project ) ;
+			}	
+			finally {
+				exitTrace( "I2B2Project.Factory.deleteIfProjectExists(String)" ) ;
+			}
+		}
+		
+		
+		public static void deleteIfProjectExists( I2B2Project project ) throws UploaderException {
+			enterTrace( "I2B2Project.Factory.deleteIfProjectExists(I2B2Project)" ) ;
+			try {
+				if( projectExists( project ) ) {
+					delete( project ) ;
+				}
+				project.dispose() ;
+			}	
+			finally {
+				exitTrace( "I2B2Project.Factory.deleteIfProjectExists(I2B2Project)" ) ;
 			}
 		}
 		
@@ -1593,6 +1622,7 @@ public class I2B2Project {
 				projectId = projectId.toLowerCase() ;
 				I2B2Project project = new I2B2Project( projectId ) ;
 				delete( project ) ;
+				project.dispose() ;
 			}	
 			finally {
 				exitTrace( "I2B2Project.Factory.delete(String)" ) ;
@@ -1605,7 +1635,7 @@ public class I2B2Project {
 			Connection connection = null ;
 			try {
 				if( projectExists( project.getProjectId() ) ) {
-					connection = Base.getSimpleConnectionPG() ;
+					connection = project.utils.getDbAccess().getSimpleConnectionPG() ;
 //					connection.setTransactionIsolation( Connection.TRANSACTION_SERIALIZABLE ) ;
 //					connection.setAutoCommit( false ) ;
 					String sqlCmd = COMPLETELY_DELETE_PROJECT_SQL_COMMAND ;							
@@ -1617,7 +1647,7 @@ public class I2B2Project {
 //					connection.commit() ;
 //					connection.setTransactionIsolation( Connection.TRANSACTION_SERIALIZABLE ) ;
 //					connection.setAutoCommit( true ) ;
-					CreateDBPG.undeployFromJBoss( project.getProjectId() ) ;
+					project.utils.getDbAccess().undeployFromJBoss( project.getProjectId() ) ;
 				}	
 				else {
 					throw new UploaderException( "Cannot delete non-existent project: " + project.getProjectId() ) ;
@@ -1644,7 +1674,7 @@ public class I2B2Project {
 				// (If either of these returns true, the project exists in our terms)...
 				String sqlPMCmd = "select * from i2b2pm.pm_project_data where project_id = '<PROJECT_ID>' ;" ;
 				sqlPMCmd = sqlPMCmd.replaceAll( "<PROJECT_ID>", project.getProjectId() ) ;
-				connection = Base.getSimpleConnectionPG() ;
+				connection = project.utils.getDbAccess().getSimpleConnectionPG() ;
 //				connection.setTransactionIsolation( Connection.TRANSACTION_SERIALIZABLE ) ;
 //				connection.setAutoCommit( false ) ;
 				Statement st = connection.createStatement() ;
@@ -1686,10 +1716,14 @@ public class I2B2Project {
 		
 		
 		public static boolean projectExists( String projectId ) throws UploaderException {
-			enterTrace( "I2B2Project.Factory.projectExists(I2B2Project)" ) ;		
+			enterTrace( "I2B2Project.Factory.projectExists(I2B2Project)" ) ;	
+			projectId = projectId.toLowerCase() ;
+			boolean exists ;
 			try {
 				I2B2Project project = new I2B2Project( projectId ) ;
-				return projectExists( project ) ;
+				exists = projectExists( project ) ;
+				project.dispose() ;
+				return exists ;
 			}
 			finally {
 				exitTrace( "I2B2Project.Factory.projectExists(I2B2Project)" ) ;

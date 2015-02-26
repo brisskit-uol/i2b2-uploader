@@ -26,16 +26,21 @@ public class Base {
 	final static String JBOSS_DATASET_DEFINITION_TEMPLATE = "jboss_dsfile_template" ;
 			
 	/* Properties */
-	static Properties props = new Properties();
-	protected static String pg_db_name;
-	protected static String pg_db_url;	
-	protected static String jboss_deploy_dir ;
-	protected static String pg_db_u;
-	protected static String pg_db_p;
+	protected Properties props = new Properties();
+	protected String pg_db_name;
+	protected String pg_db_url;	
+	protected String jboss_deploy_dir ;
+	protected String pg_db_u;
+	protected String pg_db_p;
 	
-	public static Connection con;
+	protected Connection connection;
+	private boolean disposed = false ;
 	
-	static public void setUp() throws UploaderException {
+	public Base() throws UploaderException {
+		this.setUp() ;
+	}
+	
+	private void setUp() throws UploaderException {
 		enterTrace( "Base.setUp()" ) ; 
 		InputStream configPropertiesStream = null ;
 		try {
@@ -75,49 +80,25 @@ public class Base {
 		}
 		
 	}
-	
-	
-	static public Connection _getSimpleConnectionPG() throws UploaderException {
-		enterTrace( "getSimpleConnectionPG()" ) ;
-		
-		String DB_CONN_STRING = "jdbc:postgresql://" + pg_db_url + "/"+ pg_db_name +"?user=" + pg_db_u+ "&password=" + pg_db_p;
-		String DRIVER_CLASS_NAME = "org.postgresql.Driver";
-		String USER_NAME = pg_db_u;
-		String PASSWORD = pg_db_p;
 
+	
+	public Connection getSimpleConnectionPG() throws UploaderException {
+//		enterTrace( "Base.getSimpleConnectionPG()" ) ;
 		try {
-			Class.forName(DRIVER_CLASS_NAME).newInstance();
-		} 
-		catch( Exception ex ) {
-			logger.error( "Check classpath. Cannot load db driver: " + DRIVER_CLASS_NAME ) ;
-			throw new UploaderException( ex ) ;
-		}
-
-		if (con == null) {
-			try {
-				con = DriverManager.getConnection( DB_CONN_STRING, USER_NAME, PASSWORD ) ;
-			} 
-			catch (SQLException sqlex) {
-				logger.error( "Driver loaded, but cannot connect to db: " + DB_CONN_STRING ) ;
-				throw new UploaderException( sqlex ) ;
+			if( disposed ) {
+				String message = "Attempting to use JDBC connection after dispose call." ;
+				logger.error( message ) ;
+				throw new UploaderException( message ) ;
 			}
-		}
-		exitTrace( "getSimpleConnectionPG()" ) ;
-		return con;
-	}
-	
-	static public Connection getSimpleConnectionPG() throws UploaderException {
-		enterTrace( "getSimpleConnectionPG()" ) ;
-		try {
-			if (con == null) {
+			if( connection == null ) {
 				
 				Class.forName( "org.postgresql.Driver" ).newInstance();
 				
-				con = DriverManager.getConnection( "jdbc:postgresql://" + pg_db_url + "/"+ pg_db_name +"?user=" + pg_db_u+ "&password=" + pg_db_p 
+				connection = DriverManager.getConnection( "jdbc:postgresql://" + pg_db_url + "/"+ pg_db_name +"?user=" + pg_db_u+ "&password=" + pg_db_p 
 						                         , pg_db_name
 						                         , pg_db_p ) ;
 			}
-			return con;
+			return connection;
 		}
 		catch( InstantiationException iex ) {
 			logger.error( "Cannot load db driver: " + "org.postgresql.Driver", iex ) ;
@@ -136,8 +117,35 @@ public class Base {
 			throw new UploaderException( sqlex ) ;
 		}
 		finally {
-			exitTrace( "getSimpleConnectionPG()" ) ;
+//			exitTrace( "Base.getSimpleConnectionPG()" ) ;
 		}	
+	}
+	
+	
+	public void dispose() throws UploaderException {
+		enterTrace( "Base.dispose()" ) ;
+		try {
+			if( disposed ) {
+				return ;
+			}
+			// Try to commit any outstanding transaction
+			try{ 
+				this.connection.commit() ; 
+			}
+			catch( SQLException sqlxcommit ) {
+				;
+			}
+			this.connection.close() ;
+			this.disposed = true ;
+		}
+		catch( SQLException sqlx ) {
+			String message = "Did not successfully close JDBC connection on dispose call" ;
+			logger.error( message, sqlx ) ;
+			throw new UploaderException( message, sqlx ) ;
+		}
+		finally {
+			exitTrace( "Base.dispose()" ) ;
+		}
 	}
 	
 	/**
