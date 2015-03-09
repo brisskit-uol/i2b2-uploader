@@ -3,14 +3,18 @@
  */
 package org.brisskit.i2b2;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.* ;
 
+import java.lang.reflect.Array;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -42,13 +46,13 @@ public class OntologyBranch {
 	    }
 	}
 	
+
 	//
 	// I have my doubts about some of the final columns in the create statement
 	// for the ontology tables. The below are missing them.
-	public static final String METADATA_SQL_INSERT_COMMAND = 
-			"SET SCHEMA '<DB_SCHEMA_NAME>';" +
-			"" +
-			"INSERT INTO <DB_SCHEMA_NAME>.<PROJECT_METADATA_TABLE>" +
+	public static final String METADATA_INSERT_SQL_KEY = "METADATA_INSERT_SQL" ;
+	public static final String METADATA_INSERT_SQL = 
+			"INSERT INTO <PROJECT_METADATA_TABLE>" +
 			                "( C_HLEVEL" +
 			                ", C_FULLNAME" +
 			                ", C_NAME" +
@@ -71,28 +75,41 @@ public class OntologyBranch {
 			                ", IMPORT_DATE" +
 			                ", SOURCESYSTEM_CD" +
 			                ", VALUETYPE_CD ) " +
-	         "VALUES( <HLEVEL>" +
-	               ", <FULLNAME>" +
-	               ", <NAME>" +
-	               ", <SYNONYM_CD>" +         // 1 char
-	               ", <VISUALATTRIBUTES>" +   // 3 chars
+	         "VALUES( ?" +
+	               ", ?" +
+	               ", ?" +
+	               ", ?" +         // 1 char
+	               ", ?" +   // 3 chars
 	               ", NULL" +				  // totalnum
-	               ", <BASECODE>" +
-	               ", <METADATAXML>" +
+	               ", ?" +
+	               ", ?" +
 	               ", 'concept_cd'" +
 	               ", 'concept_dimension'" +
 	               ", 'concept_path'" +
-	               ", <COLUMNDATATYPE>" +
-	               ", <OPERATOR>" +
-	               ", <DIMCODE>" +
+	               ", ?" +
+	               ", ?" +
+	               ", ?" +
 	               ", NULL" +				  // comment
-	               ", <TOOLTIP>" +
+	               ", ?" +
 	               ", '@'" +				  // applied path
 	               ", now()" +
 	               ", now()" +
 	               ", now()" +
-	               ", <SOURCESYSTEM_CD>" +
+	               ", ?" +
 	               ", NULL ) ;" ;			  // valuetype_cd
+	
+	public static final int METADATA_INDEX_HLEVEL = 1 ;
+	public static final int METADATA_INDEX_FULLNAME = 2 ;
+	public static final int METADATA_INDEX_NAME = 3 ;
+	public static final int METADATA_INDEX_SYNONYM_CD = 4 ;
+	public static final int METADATA_INDEX_VISUALATTRIBUTES = 5 ;
+	public static final int METADATA_INDEX_BASECODE = 6 ;
+	public static final int METADATA_INDEX_METADATAXML = 7 ;
+	public static final int METADATA_INDEX_COLUMNDATATYPE = 8 ;
+	public static final int METADATA_INDEX_OPERATOR = 9 ;
+	public static final int METADATA_INDEX_DIMCODE = 10 ;
+	public static final int METADATA_INDEX_TOOLTIP = 11 ;
+	public static final int METADATA_INDEX_SOURCESYSTEM_CD = 12 ;
 	
 	//
 	//
@@ -143,16 +160,15 @@ public class OntologyBranch {
 	// NB:
 	// (1) The ontcode can be extended for numeric enumerations.
 	// (2) We are only interested in Leaf nodes.
-	public static final String CONCEPT_CODE_SQL_SELECT_COMMAND = 
-			"SELECT * FROM <DB_SCHEMA_NAME>.<PROJECT_METADATA_TABLE> " +
-			"WHERE C_BASECODE LIKE '<BASECODE>%' AND C_VISUALATTRIBUTES LIKE 'L%'" +
+	public static final String CONCEPT_CODE_SELECT_SQL_KEY = "CONCEPT_CODE_SELECT_SQL" ;
+	public static final String CONCEPT_CODE_SELECT_SQL = 
+			"SELECT * FROM <PROJECT_METADATA_TABLE> " +
+			"WHERE C_BASECODE LIKE ? AND C_VISUALATTRIBUTES LIKE 'L%'" +
 			"ORDER BY C_BASECODE;" ;
 	
-
-	public static final String CONCEPT_DIM_SQL_INSERT_COMMAND = 
-			"SET SCHEMA '<DB_SCHEMA_NAME>';" +
-			"" +
-			"INSERT INTO <DB_SCHEMA_NAME>.CONCEPT_DIMENSION" +
+	public static final String CONCEPT_DIMENSION_INSERT_SQL_KEY = "CONCEPT_DIMENSION_INSERT_SQL" ;
+	public static final String CONCEPT_DIMENSION_INSERT_SQL = 
+			"INSERT INTO CONCEPT_DIMENSION" +
 			       "( CONCEPT_PATH" +    // 	VARCHAR(700) NOT NULL
 			       ", CONCEPT_CD" +      // 	VARCHAR(50) NULL
 			       ", NAME_CHAR" +	     //  	VARCHAR(2000) NULL
@@ -162,15 +178,40 @@ public class OntologyBranch {
 			       ", IMPORT_DATE" +     //  	TIMESTAMP NULL
 			       ", SOURCESYSTEM_CD" + //		VARCHAR(50) NULL
 			       ", UPLOAD_ID )" +	 //		INT NULL
-			"VALUES ( <CONCEPT_PATH>" +
-	               ", <CONCEPT_CD>" +
-	               ", <NAME_CHAR>" +
+			"VALUES ( ?" +
+	               ", ?" +
+	               ", ?" +
 	               ", NULL" +  			// concept blob       
 	               ", now()" +
 	               ", now()" +
 	               ", now()" +
-	               ", <SOURCESYSTEM_CD>" +
+	               ", ?" +
 	               ", NULL ) ;" ;		// upload id
+	
+	public static final int CONCEPT_DIMENSION_INDEX_CONCEPT_PATH = 1 ;
+	public static final int CONCEPT_DIMENSION_INDEX_CONCEPT_CD = 2 ;
+	public static final int CONCEPT_DIMENSION_INDEX_NAME_CHAR = 3 ;
+	public static final int CONCEPT_DIMENSION_INDEX_SOURCESYSTEM_CD = 4 ;
+	
+	public static final String CONCEPT_COUNT_SELECT_SQL_KEY = "CONCEPT_COUNT_SELECT_SQL" ;
+	public static final String CONCEPT_COUNT_SELECT_SQL = 
+			"SELECT COUNT(*) FROM <PROJECT_METADATA_TABLE> WHERE C_FULLNAME = ?" ;
+	
+	public static final String BREAKDOWNS_INSERT_SQL_KEY = "BREAKDOWNS_INSERT_SQL" ;
+	public static final String BREAKDOWNS_INSERT_SQL = 
+			"INSERT INTO QT_BREAKDOWN_PATH" +
+			                "( NAME" +
+			                ", VALUE" +
+			                ", CREATE_DATE" +
+			                ", UPDATE_DATE" +
+			                ", USER_ID ) " +
+	         "VALUES( ?" +
+	               ", ?" +
+	               ", now()" +
+	               ", now()" +
+	               ", NULL ) ;" ;
+	
+	
 	
 	
 	public static final String[][] SPECIAL_CHARS_TRANSLATION_TABLE  = {		
@@ -229,6 +270,8 @@ public class OntologyBranch {
 	//
 	// 
 	private ProjectUtils utils ;
+//	private PreparedStatement preparedStatment = 
+//				utils.getDbAccess().getSimpleConnectionPG().prepareStatement( "" ) ;
 	//
 	// The range of values encountered within the spreadsheet for this particular column...
 	private HashSet<String> values ;
@@ -237,6 +280,12 @@ public class OntologyBranch {
 	private Map<String,String> lookups ;
 	
 	private OntologyBranch() {}
+	
+	private OntologyBranch( String projectId
+			              , ProjectUtils utils ) {
+		this.projectId = projectId ;
+		this.utils = utils ;
+	}
 	
 	private OntologyBranch( String projectId
 	  		              , String colName
@@ -261,34 +310,36 @@ public class OntologyBranch {
 	}
 	
 	
-	public void serializeToDatabase( Connection connection ) throws UploaderException {
+	public void serializeToDatabase() throws UploaderException {
 		enterTrace( "OntologyBranch.serializeToDatabase()" ) ;
-		try {			
-			insertRoot( connection ) ;
+		try {		
+			if( this.colName.equalsIgnoreCase( "weight" ) ) {
+				logger.debug( "time for a debug" ) ;
+			}
+			insertRoot() ;
 			
 			switch( type ) {
 			case NUMERIC:
 				if( units.equalsIgnoreCase( "enum" ) ) {
-					insertEnumeratedNumeric( connection ) ;
+					insertEnumeratedNumeric() ;
 				}
 				else {
-					insertNumeric( connection ) ;
+					insertNumeric() ;
 				}				
 				break ;
 			case DATE:
-				insertDate( connection ) ;
+				insertDate() ;
 				break ;
 			case STRING:
 			default:
 				if( units.equalsIgnoreCase( "text" ) ) {
-					insertSearchableText( connection ) ;
+					insertSearchableText() ;
 				}
 				else {
-					insertEnumeratedString( connection ) ;
+					insertEnumeratedString() ;
 				}				
 				break;
 			}
-
 		}
 		finally {
 			exitTrace( "OntologyBranch.serializeToDatabase()" ) ;
@@ -296,8 +347,7 @@ public class OntologyBranch {
 	}
 	
 	
-	public void serializeDifferencesToDatabase( Connection connection
-											  , OntologyBranch that ) throws UploaderException {
+	public void serializeDifferencesToDatabase( OntologyBranch that ) throws UploaderException {
 		enterTrace( "OntologyBranch.serializeDifferencesToDatabase()" ) ;
 		try {	
 			//
@@ -308,7 +358,10 @@ public class OntologyBranch {
 				logger.error( message ) ;
 				throw new UploaderException( message ) ;
 			}
-				
+			
+			logger.debug( "\nontThis colName: [" + this.colName + "] \nontThat colName: [" + that.getColName() + "]" ) ;
+			logger.debug( "\nontThis units: [" + this.units + "] \nontThat units: [" + that.getUnits() + "]" ) ;	
+			logger.debug( "\nontThis type: [" + this.type + "] \nontThat type: [" + that.getType() + "]" ) ;
 			//
 			// If we get this far in the process, all additions must be enumerations...
 			if( units.equalsIgnoreCase( "enum" ) ) {
@@ -319,13 +372,13 @@ public class OntologyBranch {
 				// Insert the differences...
 				switch ( this.type ) {
 				case NUMERIC:
-					insertEnumeratedNumeric( connection ) ;
+					insertEnumeratedNumeric() ;
 					break;
 				case STRING:
-					insertEnumeratedString( connection ) ;
+					insertEnumeratedString() ;
 					break;
 				case DATE:
-					insertDate( connection ) ;
+					insertDate() ;
 				default:
 					String message = "Differences must be enumerations (numerics or strings) or dates. Type was: " + this.type ;
 					logger.error( message ) ;
@@ -336,11 +389,10 @@ public class OntologyBranch {
 				logger.debug( "units as text with column name: " + this.colName ) ;
 			}
 			else {
-				String message = "Differences must be marked as enumerations. Units were: " + units ;
+				String message = "Differences must be marked as enumerations. Units were: [" + units + "]";
 				logger.error( message ) ;
 				throw new UploaderException() ;
-			}
-					
+			}		
 		}
 		finally {
 			exitTrace( "OntologyBranch.serializeDifferencesToDatabase()" ) ;
@@ -428,31 +480,29 @@ public class OntologyBranch {
 	}
 	
 	
-	private void insertRoot( Connection connection ) throws UploaderException {
+	private void insertRoot() throws UploaderException {
 		enterTrace( "OntologyBranch.insertRoot()" ) ;
+		PreparedStatement ps = null ;
 		try {
 			
 			String fullName = "\\" + projectId + "\\" ;		
-			if( !nodeExists( connection, fullName ) ) {
-				String sqlCmd = METADATA_SQL_INSERT_COMMAND ;							
-				sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", projectId ) ;
-				sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;			
-				sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 0 ) ) ;
-				sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( fullName ) ) ;
-				sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( projectId ) ) ;
-				sqlCmd = sqlCmd.replace( "<SYNONYM_CD>", utils.enfoldString( "N" ) ) ;
-				sqlCmd = sqlCmd.replace( "<VISUALATTRIBUTES>", utils.enfoldString( "FA" ) ) ;
-				sqlCmd = sqlCmd.replace( "<BASECODE>", "NULL" ) ;
-				sqlCmd = sqlCmd.replace( "<METADATAXML>", "NULL" ) ;
-				sqlCmd = sqlCmd.replace( "<COLUMNDATATYPE>", utils.enfoldString( "T" ) ) ;
-				sqlCmd = sqlCmd.replace( "<OPERATOR>", utils.enfoldString( "LIKE" ) ) ;
-				sqlCmd = sqlCmd.replace( "<DIMCODE>", utils.enfoldString( fullName ) ) ;
-				sqlCmd = sqlCmd.replace( "<TOOLTIP>", utils.enfoldNullableString( fullName ) ) ;
-				sqlCmd = sqlCmd.replace( "<SOURCESYSTEM_CD>", utils.enfoldNullableString( projectId ) ) ;					
-				Statement st = connection.createStatement();
-				st.execute( sqlCmd ) ;
-			}
-			
+			if( !nodeExists( fullName ) ) {
+				ps = utils.getPsHolder().getPreparedStatement( METADATA_INSERT_SQL_KEY ) ;
+				fillMetadataPS( ps
+							  , 0
+							  , fullName
+							  , projectId
+							  , "N"
+							  , "FA"
+							  , null
+							  , null
+							  , "T"
+							  , "LIKE"
+							  , fullName
+							  , fullName
+							  , projectId ) ;					
+				ps.execute() ;
+			}			
 		}
 		catch( SQLException sqlx ) {
 			sqlx.printStackTrace() ;
@@ -463,44 +513,91 @@ public class OntologyBranch {
 		}
 	}
 	
-	private void insertNumeric( Connection connection ) throws UploaderException {
+	
+	private void fillMetadataPS( PreparedStatement ps 
+							   , int hlevel 
+							   , String fullName
+							   , String name
+							   , String synonymCd
+							   , String visualAttributes
+							   , String baseCode
+							   , String metadataxml
+							   , String columnDataType 
+							   , String operator
+							   , String dimcode
+							   , String tooltip
+							   , String sourceSystemId ) 
+									  throws SQLException {
+		ps.setInt( 1, hlevel ) ;
+		ps.setString( 2, fullName ) ;
+		ps.setString( 3, name ) ;
+		ps.setString( 4, synonymCd ) ;
+		ps.setString( 5, visualAttributes ) ;
+		if( baseCode == null ) {
+			ps.setNull( 6, java.sql.Types.VARCHAR ) ;
+		}
+		else {
+			ps.setString( 6, baseCode ) ;
+		}
+		if( metadataxml == null ) {
+			ps.setNull( 7, java.sql.Types.LONGVARCHAR ) ;
+		}
+		else {
+			ps.setString( 7, metadataxml ) ;
+		}
+		ps.setString( 8, columnDataType ) ;
+		ps.setString( 9, operator ) ;
+		ps.setString( 10, dimcode ) ;
+		if( tooltip == null ) {
+			ps.setNull( 11, java.sql.Types.VARCHAR ) ;
+		}
+		else {
+			ps.setString( 11, tooltip ) ;
+		}
+		if( sourceSystemId == null ) {
+			ps.setNull( 12, java.sql.Types.VARCHAR ) ;
+		}
+		else {
+			ps.setString( 12, sourceSystemId ) ;
+		}
+
+	}
+	
+	private void insertNumeric() throws UploaderException {
 		enterTrace( "OntologyBranch.insertNumeric()" ) ;
-		try {
-			
+		try {			
 			String fullName = "\\" + projectId + "\\" + colName + "\\" ;
-			if( !nodeExists( connection, fullName ) ) {				
-				String sqlCmd = METADATA_SQL_INSERT_COMMAND ;				
+			if( !nodeExists( fullName ) ) {	
+				PreparedStatement ps = utils.getPsHolder().getPreparedStatement( METADATA_INSERT_SQL_KEY ) ;			
 				String date = utils.formatDate( new Date() ) ;
+				
 				String metadataxml = METADATAXML ;
 				metadataxml = metadataxml.replace( "<date-time-goes-here>", date + " 00:00:00" ) ;
 				metadataxml = metadataxml.replace( "<code-name-goes-here>", ontCode ) ;
 				metadataxml = metadataxml.replace( "<name-goes-here>", colName ) ;
 				metadataxml = metadataxml.replace( "<data-type-goes-here>", "PosFloat" ) ; 
-				metadataxml = metadataxml.replace( "<units-go-here>", units ) ;
-				
+				metadataxml = metadataxml.replace( "<units-go-here>", units ) ;				
 				logger.debug( "For ontCode " + ontCode + " numeric units are: " + units ) ;
 				
-				sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", projectId ) ;
-				sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;				
-				sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 1 ) ) ;
-				sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( fullName ) ) ;
-				sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( colName ) ) ;
-				sqlCmd = sqlCmd.replace( "<SYNONYM_CD>", utils.enfoldString( "N" ) ) ;
-				sqlCmd = sqlCmd.replace( "<VISUALATTRIBUTES>", utils.enfoldString( "LA" ) ) ;
-				sqlCmd = sqlCmd.replace( "<BASECODE>", utils.enfoldString( ontCode ) ) ;
-				sqlCmd = sqlCmd.replace( "<METADATAXML>", utils.enfoldNullableString( metadataxml ) ) ;
-				sqlCmd = sqlCmd.replace( "<COLUMNDATATYPE>", utils.enfoldString( "T" ) ) ;
-				sqlCmd = sqlCmd.replace( "<OPERATOR>", utils.enfoldString( "LIKE" ) ) ;
-				sqlCmd = sqlCmd.replace( "<DIMCODE>", utils.enfoldString( fullName ) ) ;
-				sqlCmd = sqlCmd.replace( "<TOOLTIP>", utils.enfoldNullableString( fullName ) ) ;
-				sqlCmd = sqlCmd.replace( "<SOURCESYSTEM_CD>", utils.enfoldNullableString( projectId ) ) ;				
-				Statement st = connection.createStatement();				
-				st.execute( sqlCmd ) ;
+				fillMetadataPS( ps
+							  , 1
+							  , fullName
+							  , colName
+							  , "N"
+							  , "LA"
+							  , ontCode
+							  , metadataxml
+							  , "T"
+							  , "LIKE"
+							  , fullName
+							  , toolTip
+							  , projectId ) ;
+				
+				ps.execute() ;
 				//
 				// Insert concept into concept dimension...
-				insertIntoConceptDimension( st, fullName, ontCode, colName ) ;
-			}
-			
+				insertIntoConceptDimension( fullName, ontCode, colName ) ;
+			}			
 		}
 		catch( SQLException sqlx ) {
 			throw new UploaderException( "Failed to insert decimal branches into metadata table.", sqlx ) ;
@@ -511,7 +608,7 @@ public class OntologyBranch {
 	}
 	
 	
-	private void insertEnumeratedNumeric( Connection connection ) throws UploaderException {
+	private void insertEnumeratedNumeric() throws UploaderException {
 		enterTrace( "OntologyBranch.insertEnumeratedNumeric(Connection,boolean)" ) ;
 		try {
 			//
@@ -523,27 +620,22 @@ public class OntologyBranch {
 			//
 			// Insert the base code...
 			String fullName = "\\" + projectId + "\\" + colName + "\\" ;
-			String sqlCmd = null ;
-			Statement st = connection.createStatement(); ; 
-			ResultSet rs = null ;
-				
-			if( !nodeExists( connection, fullName ) ) {
-				sqlCmd = METADATA_SQL_INSERT_COMMAND ;					
-				sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", projectId ) ;
-				sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;									
-				sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 1 ) ) ;
-				sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( fullName ) ) ;
-				sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( colName ) ) ;
-				sqlCmd = sqlCmd.replace( "<SYNONYM_CD>", utils.enfoldString( "N" ) ) ;
-				sqlCmd = sqlCmd.replace( "<VISUALATTRIBUTES>", utils.enfoldString( "FA" ) ) ;
-				sqlCmd = sqlCmd.replace( "<BASECODE>", "NULL" ) ;
-				sqlCmd = sqlCmd.replace( "<METADATAXML>", "NULL" ) ;
-				sqlCmd = sqlCmd.replace( "<COLUMNDATATYPE>", utils.enfoldString( "T" ) ) ;
-				sqlCmd = sqlCmd.replace( "<OPERATOR>", utils.enfoldString( "LIKE" ) ) ;
-				sqlCmd = sqlCmd.replace( "<DIMCODE>", utils.enfoldString( fullName ) ) ;
-				sqlCmd = sqlCmd.replace( "<TOOLTIP>", utils.enfoldNullableString( toolTip ) ) ;
-				sqlCmd = sqlCmd.replace( "<SOURCESYSTEM_CD>", utils.enfoldNullableString( projectId ) ) ;
-				st.execute( sqlCmd ) ;
+			PreparedStatement ps = utils.getPsHolder().getPreparedStatement( METADATA_INSERT_SQL_KEY ) ;	
+			if( !nodeExists( fullName ) ) {
+				fillMetadataPS( ps
+						      , 1
+						      , fullName
+						      , colName
+						      , "N"
+						      , "FA"
+						      , null
+						      , null
+						      , "T"
+						      , "LIKE"
+						      , fullName
+						      , fullName
+						      , projectId ) ;
+				ps.execute() ;
 			}
 			
 			//
@@ -591,29 +683,26 @@ public class OntologyBranch {
 				for( int j=lowestValue; j<highestValue+1; j++ ) {
 					String paddedValue = String.format( formatString, j ) ;
 					endPointFullName = fullName + paddedValue + "\\" ;					
-					if( !nodeExists( connection, endPointFullName ) ) {
-						sqlCmd = METADATA_SQL_INSERT_COMMAND ;						
-						sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", projectId ) ;
-						sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;					
-						sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 2 ) ) ;
-						sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( endPointFullName ) ) ;
-						sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( colName + ":" + paddedValue ) ) ;
-						sqlCmd = sqlCmd.replace( "<SYNONYM_CD>", utils.enfoldString( "N" ) ) ;
-						sqlCmd = sqlCmd.replace( "<VISUALATTRIBUTES>", utils.enfoldString( "LA" ) ) ;
-						sqlCmd = sqlCmd.replace( "<BASECODE>", utils.enfoldString( ontCode + ":" + j ) ) ;
-						sqlCmd = sqlCmd.replace( "<METADATAXML>", "NULL" ) ;
-						sqlCmd = sqlCmd.replace( "<COLUMNDATATYPE>", utils.enfoldString( "T" ) ) ;
-						sqlCmd = sqlCmd.replace( "<OPERATOR>", utils.enfoldString( "LIKE" ) ) ;
-						sqlCmd = sqlCmd.replace( "<DIMCODE>", utils.enfoldString( endPointFullName ) ) ;
-						sqlCmd = sqlCmd.replace( "<TOOLTIP>", utils.enfoldNullableString( toolTip + ":" + paddedValue ) ) ;
-						sqlCmd = sqlCmd.replace( "<SOURCESYSTEM_CD>", utils.enfoldNullableString( projectId ) ) ;
-						st.execute( sqlCmd ) ;
+					if( !nodeExists( endPointFullName ) ) {
+						fillMetadataPS( ps
+									  , 2
+									  , endPointFullName
+									  , colName + ":" + paddedValue
+									  , "N"
+									  , "LA"
+									  , ontCode + ":" + j
+									  , null
+									  , "T"
+									  , "LIKE"
+									  , endPointFullName
+									  , toolTip + ":" + paddedValue
+									  , projectId ) ;					
+						ps.execute() ;
 						//
 						// Insert concept into concept dimension...
-						insertIntoConceptDimension( st
-								, endPointFullName
-								, ontCode + ":" + j
-								, colName + ":" + j ) ;						
+						insertIntoConceptDimension( endPointFullName
+												  , ontCode + ":" + j
+												  , colName + ":" + j ) ;						
 					}
 					
 				} // end inner for
@@ -634,23 +723,21 @@ public class OntologyBranch {
 					String upper = String.format( formatString, i+9 ) ;
 					rangeShortName = lower + "-" + upper ;
 					rangeFullName = fullName + rangeShortName + "\\" ;	
-					if( !nodeExists( connection, rangeFullName ) ) {			
-						sqlCmd = METADATA_SQL_INSERT_COMMAND ;							
-						sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", projectId ) ;
-						sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;						
-						sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 2 ) ) ;
-						sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( rangeFullName ) ) ;
-						sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( colName + ":" + rangeShortName ) ) ;
-						sqlCmd = sqlCmd.replace( "<SYNONYM_CD>", utils.enfoldString( "N" ) ) ;
-						sqlCmd = sqlCmd.replace( "<VISUALATTRIBUTES>", utils.enfoldString( "FA" ) ) ;
-						sqlCmd = sqlCmd.replace( "<BASECODE>", "NULL" ) ;
-						sqlCmd = sqlCmd.replace( "<METADATAXML>", "NULL" ) ;
-						sqlCmd = sqlCmd.replace( "<COLUMNDATATYPE>", utils.enfoldString( "T" ) ) ;
-						sqlCmd = sqlCmd.replace( "<OPERATOR>", utils.enfoldString( "LIKE" ) ) ;
-						sqlCmd = sqlCmd.replace( "<DIMCODE>", utils.enfoldString( rangeFullName ) ) ;
-						sqlCmd = sqlCmd.replace( "<TOOLTIP>", utils.enfoldNullableString( toolTip + ": " + rangeShortName ) ) ;
-						sqlCmd = sqlCmd.replace( "<SOURCESYSTEM_CD>", utils.enfoldNullableString( projectId ) ) ;
-						st.execute( sqlCmd ) ;	
+					if( !nodeExists( rangeFullName ) ) {	
+						fillMetadataPS( ps
+									  , 2
+									  , rangeFullName
+									  , colName + ":" + rangeShortName
+									  , "N"
+									  , "FA"
+									  , null
+									  , null
+									  , "T"
+									  , "LIKE"
+									  , rangeFullName
+									  , toolTip + ": " + rangeShortName
+									  , projectId ) ;
+						ps.execute() ;						
 					}	
 					
 					//
@@ -660,36 +747,33 @@ public class OntologyBranch {
 						String paddedValue = String.format( formatString, j ) ;
 						// inclusion of colon is an error (but still works)
 						endPointFullName = rangeFullName + paddedValue + "\\" ;	
-						if( !nodeExists( connection, endPointFullName ) ) {
-							sqlCmd = METADATA_SQL_INSERT_COMMAND ;								
-							sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", projectId ) ;
-							sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;						
-							sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 3 ) ) ;
-							sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( endPointFullName ) ) ;
-							sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( colName + ":" + paddedValue ) ) ;
-							sqlCmd = sqlCmd.replace( "<SYNONYM_CD>", utils.enfoldString( "N" ) ) ;
-							sqlCmd = sqlCmd.replace( "<VISUALATTRIBUTES>", utils.enfoldString( "LA" ) ) ;
-							sqlCmd = sqlCmd.replace( "<BASECODE>", utils.enfoldString( ontCode + ":" + j ) ) ;
-							sqlCmd = sqlCmd.replace( "<METADATAXML>", "NULL" ) ;
-							sqlCmd = sqlCmd.replace( "<COLUMNDATATYPE>", utils.enfoldString( "T" ) ) ;
-							sqlCmd = sqlCmd.replace( "<OPERATOR>", utils.enfoldString( "LIKE" ) ) ;
-							sqlCmd = sqlCmd.replace( "<DIMCODE>", utils.enfoldString( endPointFullName ) ) ;
-							sqlCmd = sqlCmd.replace( "<TOOLTIP>", utils.enfoldNullableString( toolTip + ":" + paddedValue ) ) ;
-							sqlCmd = sqlCmd.replace( "<SOURCESYSTEM_CD>", utils.enfoldNullableString( projectId ) ) ;							
-							st.execute( sqlCmd ) ;
+						if( !nodeExists( endPointFullName ) ) {
+							fillMetadataPS( ps
+										  , 3
+										  , endPointFullName
+										  , colName + ":" + paddedValue
+										  , "N"
+										  , "LA"
+										  , ontCode + ":" + j
+										  , null
+										  , "T"
+										  , "LIKE"
+										  , endPointFullName
+										  , toolTip + ":" + paddedValue
+										  , projectId ) ;
+							ps.execute() ;
 							//
 							// Insert concept into concept dimension...
-							insertIntoConceptDimension( st
-									, endPointFullName
-									, ontCode + ":" + j
-									, colName + ":" + j ) ;
+							insertIntoConceptDimension( endPointFullName
+													  , ontCode + ":" + j
+													  , colName + ":" + j ) ;
 						}
 						
 					} // end inner for
 									
 				} // end outer for
 				
-			}	
+			}
 			
 		}
 		catch( SQLException sqlx ) {
@@ -701,19 +785,32 @@ public class OntologyBranch {
 	}
 	
 	
-	private void insertIntoConceptDimension(  Statement statement
-											, String conceptPath
-											, String conceptCode
-											, String conceptName ) throws UploaderException {
+	private void insertIntoConceptDimension( String conceptPath
+										   , String conceptCode
+										   , String conceptName ) throws UploaderException {
 		enterTrace( "OntologyBranch.insertIntoConceptDimension()" ) ;
 		try {
-			String sqlCmd = CONCEPT_DIM_SQL_INSERT_COMMAND ;
-			sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", projectId ) ;			
-			sqlCmd = sqlCmd.replace( "<CONCEPT_PATH>", utils.enfoldString( conceptPath ) ) ;
-			sqlCmd = sqlCmd.replace( "<CONCEPT_CD>", utils.enfoldNullableString( conceptCode ) ) ;
-			sqlCmd = sqlCmd.replace( "<NAME_CHAR>", utils.enfoldNullableString( conceptName ) ) ;
-			sqlCmd = sqlCmd.replace( "<SOURCESYSTEM_CD>", utils.enfoldNullableString( projectId ) ) ;
-			statement.execute( sqlCmd ) ;			
+			PreparedStatement ps = utils.getPsHolder().getPreparedStatement( CONCEPT_DIMENSION_INSERT_SQL_KEY ) ;
+			ps.setString( 1, conceptPath ) ;
+			if( conceptCode == null ) {
+				ps.setNull( 2, java.sql.Types.VARCHAR ) ;
+			}
+			else {
+				ps.setString( 2, conceptCode ) ;
+			}
+			if( conceptName == null ) {
+				ps.setNull( 3, java.sql.Types.VARCHAR ) ;
+			}
+			else {
+				ps.setString( 3, conceptName ) ;
+			}
+			if( projectId == null ) {
+				ps.setNull( 4, java.sql.Types.VARCHAR ) ;
+			}
+			else {
+				ps.setString( 4, projectId ) ;
+			}
+			ps.addBatch() ;
 		}
 		catch( SQLException sqlx ) {
 			throw new UploaderException( "Failed to insert concept into concept dimension.", sqlx ) ;
@@ -724,8 +821,8 @@ public class OntologyBranch {
 	}
 	
 	
-	private void insertDate( Connection connection ) throws UploaderException {
-		enterTrace( "OntologyBranch.insertDate(Connection,boolean)" ) ;
+	private void insertDate() throws UploaderException {
+		enterTrace( "OntologyBranch.insertDate()" ) ;
 		try {
 			//
 			// A date is really an instance of an ontological code occurring.
@@ -736,29 +833,27 @@ public class OntologyBranch {
 			//
 			// Insert the base code...
 			String fullName = "\\" + projectId + "\\" + colName + "\\" ;
-			if( !nodeExists( connection, fullName ) ) {
-				String sqlCmd = METADATA_SQL_INSERT_COMMAND ;					
-				sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", projectId ) ;
-				sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;					
-				sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 1 ) ) ;
-				sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( fullName ) ) ;
-				sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( colName ) ) ;
-				sqlCmd = sqlCmd.replace( "<SYNONYM_CD>", utils.enfoldString( "N" ) ) ;
-				sqlCmd = sqlCmd.replace( "<VISUALATTRIBUTES>", utils.enfoldString( "LA" ) ) ;
-				sqlCmd = sqlCmd.replace( "<BASECODE>", utils.enfoldString( ontCode ) ) ;
-				sqlCmd = sqlCmd.replace( "<METADATAXML>", "NULL" ) ;
-				sqlCmd = sqlCmd.replace( "<COLUMNDATATYPE>", utils.enfoldString( "T" ) ) ;
-				sqlCmd = sqlCmd.replace( "<OPERATOR>", utils.enfoldString( "LIKE" ) ) ;
-				sqlCmd = sqlCmd.replace( "<DIMCODE>", utils.enfoldString( fullName ) ) ;
-				sqlCmd = sqlCmd.replace( "<TOOLTIP>", utils.enfoldNullableString( toolTip ) ) ;
-				sqlCmd = sqlCmd.replace( "<SOURCESYSTEM_CD>", utils.enfoldNullableString( projectId ) ) ;					
-				Statement st = connection.createStatement();					
-				st.execute( sqlCmd ) ;
+			if( !nodeExists( fullName ) ) {
+				PreparedStatement ps = utils.getPsHolder().getPreparedStatement( METADATA_INSERT_SQL_KEY ) ;
+				fillMetadataPS( ps
+							  , 1
+							  , fullName
+							  , colName
+							  , "N"
+							  , "LA"
+							  , ontCode
+							  , null
+							  , "T"
+							  , "LIKE"
+							  , fullName
+							  , toolTip
+							  , projectId ) ;
+				ps.execute() ;
 				//
 				// Insert concept into concept dimension...
-				insertIntoConceptDimension( st, fullName, ontCode, colName ) ;
+				insertIntoConceptDimension( fullName, ontCode, colName ) ;
 			}
-	
+
 		}
 		catch( SQLException sqlx ) {
 			throw new UploaderException( "Failed to insert date branches into metadata table.", sqlx ) ;
@@ -769,15 +864,14 @@ public class OntologyBranch {
 	}
 	
 	
-	private void insertSearchableText( Connection connection ) throws UploaderException {
+	private void insertSearchableText() throws UploaderException {
 		enterTrace( "OntologyBranch.insertSearchableText()" ) ;
 		try {
-			
-			Statement st = connection.createStatement() ;
-			String sqlCmd = null ;
+
 			String fullName = "\\" + projectId + "\\" + colName + "\\" ;
-			if( !nodeExists( connection, fullName ) ) {
-				sqlCmd = METADATA_SQL_INSERT_COMMAND ;
+			if( !nodeExists( fullName ) ) {
+				PreparedStatement ps = utils.getPsHolder().getPreparedStatement( METADATA_INSERT_SQL_KEY ) ;
+				
 				String date = utils.formatDate( new Date() ) ;
 				String metadataxml = METADATAXML ;
 				metadataxml = metadataxml.replace( "<date-time-goes-here>", date + " 00:00:00" ) ;
@@ -785,27 +879,25 @@ public class OntologyBranch {
 				metadataxml = metadataxml.replace( "<name-goes-here>", colName ) ;
 				metadataxml = metadataxml.replace( "<data-type-goes-here>", "String" ) ; 
 				metadataxml = metadataxml.replace( "<units-go-here>", "" ) ;
-
 				logger.debug( "For ontCode " + ontCode + " units are: " + units ) ;
 
-				sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", projectId ) ;
-				sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;			
-				sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 1 ) ) ;
-				sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( fullName ) ) ;
-				sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( colName ) ) ;
-				sqlCmd = sqlCmd.replace( "<SYNONYM_CD>", utils.enfoldString( "N" ) ) ;
-				sqlCmd = sqlCmd.replace( "<VISUALATTRIBUTES>", utils.enfoldString( "LA" ) ) ;
-				sqlCmd = sqlCmd.replace( "<BASECODE>", utils.enfoldString( ontCode ) ) ;
-				sqlCmd = sqlCmd.replace( "<METADATAXML>", utils.enfoldNullableString( metadataxml ) ) ;
-				sqlCmd = sqlCmd.replace( "<COLUMNDATATYPE>", utils.enfoldString( "T" ) ) ;
-				sqlCmd = sqlCmd.replace( "<OPERATOR>", utils.enfoldString( "LIKE" ) ) ;
-				sqlCmd = sqlCmd.replace( "<DIMCODE>", utils.enfoldString( fullName ) ) ;
-				sqlCmd = sqlCmd.replace( "<TOOLTIP>", utils.enfoldNullableString( fullName ) ) ;
-				sqlCmd = sqlCmd.replace( "<SOURCESYSTEM_CD>", utils.enfoldNullableString( projectId ) ) ;				
-				st.execute( sqlCmd ) ;
+				fillMetadataPS( ps
+							  , 1
+							  , fullName
+							  , colName
+							  , "N"
+							  , "LA"
+							  , ontCode
+							  , metadataxml
+							  , "T"
+							  , "LIKE"
+							  , fullName
+							  , toolTip
+							  , projectId ) ;
+				ps.execute() ;
 				//
 				// Insert concept into concept dimension...
-				insertIntoConceptDimension( st, fullName, ontCode, colName ) ;
+				insertIntoConceptDimension( fullName, ontCode, colName ) ;
 			}
 
 		}
@@ -821,7 +913,7 @@ public class OntologyBranch {
 	//
 	// Need to cater for lookups for bottom leaves
 	// The subcategory would be replaced
-	private void insertEnumeratedString( Connection connection ) throws UploaderException {
+	private void insertEnumeratedString() throws UploaderException {
 		enterTrace( "OntologyBranch.insertEnumeratedString(Connection)" ) ;
 		try {
 			if( colName.equalsIgnoreCase( "CL_STATUS" ) 
@@ -838,26 +930,23 @@ public class OntologyBranch {
 			
 			//
 			// Insert the base code...
-			Statement st = connection.createStatement() ;
-			String sqlCmd = null ;
-			String fullName = "\\" + projectId + "\\" + colName + "\\" ;	
-			if( !nodeExists( connection, fullName ) ) {
-				sqlCmd = METADATA_SQL_INSERT_COMMAND ;			
-				sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", projectId ) ;
-				sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;		
-				sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 1 ) ) ;
-				sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( fullName ) ) ;
-				sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( colName ) ) ;
-				sqlCmd = sqlCmd.replace( "<SYNONYM_CD>", utils.enfoldString( "N" ) ) ;
-				sqlCmd = sqlCmd.replace( "<VISUALATTRIBUTES>", utils.enfoldString( "FA" ) ) ;
-				sqlCmd = sqlCmd.replace( "<BASECODE>", "NULL" ) ;
-				sqlCmd = sqlCmd.replace( "<METADATAXML>", "NULL" ) ;
-				sqlCmd = sqlCmd.replace( "<COLUMNDATATYPE>", utils.enfoldString( "T" ) ) ;
-				sqlCmd = sqlCmd.replace( "<OPERATOR>", utils.enfoldString( "LIKE" ) ) ;
-				sqlCmd = sqlCmd.replace( "<DIMCODE>", utils.enfoldString( fullName ) ) ;
-				sqlCmd = sqlCmd.replace( "<TOOLTIP>", utils.enfoldNullableString( toolTip ) ) ;
-				sqlCmd = sqlCmd.replace( "<SOURCESYSTEM_CD>", utils.enfoldNullableString( projectId ) ) ;
-				st.execute( sqlCmd ) ;
+			String fullName = "\\" + projectId + "\\" + colName + "\\" ;
+			PreparedStatement ps = utils.getPsHolder().getPreparedStatement( METADATA_INSERT_SQL_KEY ) ;
+			if( !nodeExists( fullName ) ) {
+				fillMetadataPS( ps
+							  , 1
+							  , fullName
+							  , colName
+							  , "N"
+							  , "FA"
+							  , null
+							  , null
+							  , "T"
+							  , "LIKE"
+							  , fullName
+							  , toolTip
+							  , projectId ) ;		
+				ps.execute() ;
 			}
 					
 			//
@@ -887,28 +976,25 @@ public class OntologyBranch {
 				fullName = formEnumeratedFullName ( projectId, colName, lookup ) ;
 				name = formEnumeratedName( lookup ) ;
 
-				if( !nodeExists( connection, fullName ) ) {
-					sqlCmd = METADATA_SQL_INSERT_COMMAND ;
-					sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", projectId ) ;
-					sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;	
-					sqlCmd = sqlCmd.replace( "<HLEVEL>", utils.enfoldInteger( 2 ) ) ;
-					sqlCmd = sqlCmd.replace( "<FULLNAME>", utils.enfoldString( fullName ) ) ;
-					sqlCmd = sqlCmd.replace( "<NAME>", utils.enfoldString( name ) ) ;
-					sqlCmd = sqlCmd.replace( "<SYNONYM_CD>", utils.enfoldString( "N" ) ) ;
-					sqlCmd = sqlCmd.replace( "<VISUALATTRIBUTES>", utils.enfoldString( "LA" ) ) ;
-					sqlCmd = sqlCmd.replace( "<BASECODE>", utils.enfoldString( baseCode ) ) ;
-					sqlCmd = sqlCmd.replace( "<METADATAXML>", "NULL" ) ;
-					sqlCmd = sqlCmd.replace( "<COLUMNDATATYPE>", utils.enfoldString( "T" ) ) ;
-					sqlCmd = sqlCmd.replace( "<OPERATOR>", utils.enfoldString( "LIKE" ) ) ;
-					sqlCmd = sqlCmd.replace( "<DIMCODE>", utils.enfoldString( fullName ) ) ;
-					sqlCmd = sqlCmd.replace( "<TOOLTIP>", utils.enfoldNullableString( toolTip ) ) ;
-					sqlCmd = sqlCmd.replace( "<SOURCESYSTEM_CD>", utils.enfoldNullableString( projectId ) ) ;						
-					st.execute( sqlCmd ) ;				
+				if( !nodeExists( fullName ) ) {
+					fillMetadataPS( ps
+								  , 2
+								  , fullName
+								  , name
+								  , "N"
+								  , "LA"
+								  , baseCode
+								  , null
+								  , "T"
+								  , "LIKE"
+								  , fullName
+								  , toolTip
+								  , projectId ) ;
+					ps.execute() ;			
 					//
 					// Insert concept into concept dimension...
 					conceptName = formEnumeratedConceptName( colName, lookup) ;
-					insertIntoConceptDimension( st
-											  , fullName
+					insertIntoConceptDimension( fullName
 											  , baseCode
 											  , conceptName ) ;		
 				}
@@ -965,16 +1051,15 @@ public class OntologyBranch {
 	}
 	
 	
-	public boolean nodeExists( Connection connection, String fullName ) throws UploaderException {
+	public boolean nodeExists( String fullName ) throws UploaderException {
 		enterTrace( "OntologyBranch.nodeExists()" ) ;
 		boolean exists = false ;
 		try {
 			//
 			// See whether the base code exists in the db...
-			Statement st = connection.createStatement() ;
-			st.executeQuery( "select count(*) from " + projectId + "." + projectId 
-				           + " where C_FULLNAME = '" + fullName +   "' ;") ;				
-		    ResultSet rs = st.getResultSet() ;
+			PreparedStatement ps = utils.getPsHolder().getPreparedStatement( CONCEPT_COUNT_SELECT_SQL_KEY ) ;
+			ps.setString( 1, fullName ) ;
+			ResultSet rs = ps.executeQuery() ;			
 		    if( rs.next() ) {
 		    	int count = rs.getInt(1) ;
 			    if( count > 0 ) {
@@ -1122,20 +1207,25 @@ public class OntologyBranch {
 								    			, Map<String,String> lookups
 								    			, ProjectUtils utils ) throws UploaderException {
     		enterTrace( "OntologyBranch.Factory.newInstance(using DB)" ) ;
-    		OntologyBranch ob = null ;
+    		OntologyBranch ob = new OntologyBranch( projectId, utils ) ;
     		try {
-    			Connection connection = utils.getDbAccess().getSimpleConnectionPG() ;
-    			Statement st = connection.createStatement() ;
-    			String sqlCmd = CONCEPT_CODE_SQL_SELECT_COMMAND ;
-    			sqlCmd = sqlCmd.replace( "<DB_SCHEMA_NAME>", projectId ) ;
-				sqlCmd = sqlCmd.replace( "<PROJECT_METADATA_TABLE>", projectId ) ;
-    			sqlCmd = sqlCmd.replace( "<BASECODE>",  ontCode ) ;
-    			ResultSet rs = st.executeQuery( sqlCmd ) ;
-    			if( rs.next() ) {
-    				ob = new OntologyBranch() ;
+    			PreparedStatement ps = utils.getPsHolder()
+    								 		.getPreparedStatement( CONCEPT_CODE_SELECT_SQL_KEY ) ;
+    			ps.setString( 1, ontCode + "%" ) ;
+    			ResultSet rs = ps.executeQuery() ;
+    			if( !rs.next() ) {
+    				//
+        			// NB: Returning a object null indicates this code does not exist in the database:
+    				ob = null ;
+    			}
+    			else {
     				ob.projectId = projectId ;
     				ob.colName = colName ;
     				ob.ontCode = ontCode ; 
+    				logger.debug( "\n" +
+    						"ontCode: " + ontCode + "\n" +
+    						"rs ontCode: " + rs.getString( "C_BASECODE" ) 
+    				) ;
     				ob.toolTip = tooltip ;
     				ob.lookups = lookups ;
     				ob.utils = utils ;    				
@@ -1191,7 +1281,7 @@ public class OntologyBranch {
         					} // end while
     					}  					
     				}
-    			}			
+    			}	
     			rs.close() ;
     			//
     			// NB: Returning null indicates this code does not exist in the database:

@@ -33,6 +33,8 @@ public class CreateDBPG extends Base {
 		"pm.sql"
 	} ;
 	
+	private static final String SET_SCHEMA_CMD = "SET SCHEMA '<DB_SCHEMA_NAME>';" ;
+	
 	private static Logger logger = Logger.getLogger( CreateDBPG.class ) ;
 	
 	private static boolean insertProceduresDone = false ;
@@ -62,6 +64,25 @@ public class CreateDBPG extends Base {
 			exitTrace( "CreateDBPG.createI2B2Database()" ) ;
 		}
 
+	}
+	
+	
+	public void setSchema( String schemaName ) throws UploaderException {
+		enterTrace( "CreateDBPG.setSchema()" ) ;
+		try {
+			String sqlCmd = SET_SCHEMA_CMD ;
+			sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", schemaName ) ;
+			Statement st = connection.createStatement() ;	
+			connection.setAutoCommit( true ) ;
+			st.execute( sqlCmd ) ;
+		}
+		catch( SQLException sqlex ) {
+			logger.error( "CreateDBPG.setSchema(): ", sqlex ) ;
+			throw new UploaderException( "Error whilst setting database schema: " + schemaName, sqlex ) ;
+		}
+		finally {
+			exitTrace( "CreateDBPG.setSchema()" ) ;
+		}		
 	}
 
 	
@@ -102,22 +123,21 @@ public class CreateDBPG extends Base {
 			connection.setTransactionIsolation( Connection.TRANSACTION_SERIALIZABLE ) ;
 			connection.setAutoCommit( false ) ;
 
-			for (int i = 0; i < inst.length; i++) {
-				if (!inst[i].trim().equals("")) {
+			for( int i = 0; i < inst.length; i++ ) {
+				if( inst[i].trim().length() > 0 ) {
 
 					try {
 						logger.debug( inst[i] ) ;
-						st.executeUpdate(inst[i]);
-						logger.debug( "OK" ) ;					
-					} catch (Exception e) {
+						st.addBatch( inst[i] ) ;					
+					} 
+					catch( Exception e ) {
 						logger.error( "ERROR on statement : " + inst[i] ) ;
 						throw e ;
 					}
-
-					// logger.debug( ">>"+inst[i] ) ;
+					
 				}
 			}
-			
+			st.executeBatch() ;
 			connection.commit() ;
 			connection.setTransactionIsolation( Connection.TRANSACTION_SERIALIZABLE ) ;
 			connection.setAutoCommit( true ) ;

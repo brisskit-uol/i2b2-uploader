@@ -4,6 +4,7 @@
 package org.brisskit.i2b2;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DecimalFormat;
@@ -12,6 +13,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
+
+//import java.sql.Date;
 
 import org.apache.log4j.*;
 
@@ -28,10 +31,9 @@ public class ObservationFact {
 	
 private static Logger logger = Logger.getLogger( ObservationFact.class ) ;
 
-public static final String OBSERVATION_FACT_INSERT_COMMAND = 
-		"SET SCHEMA '<DB_SCHEMA_NAME>';" +
-		"" +
-		"INSERT INTO <DB_SCHEMA_NAME>.OBSERVATION_FACT" +
+public static final String OBSERVATION_FACT_INSERT_SQL_KEY = "OBSERVATION_FACT_INSERT_SQL" ;
+public static final String OBSERVATION_FACT_INSERT_SQL = 
+		"INSERT INTO OBSERVATION_FACT" +
                "( " +
                "  ENCOUNTER_NUM" +    		// INT NOT NULL,
                ", PATIENT_NUM   " +  		// INT NOT NULL,
@@ -55,26 +57,28 @@ public static final String OBSERVATION_FACT_INSERT_COMMAND =
 	           ", UPLOAD_ID" +          	// INT NULL,  
 			   ") " +
 		 "VALUES( " +
-		       "  <ENCOUNTER_NUM>" +
-			   ", <PATIENT_NUM>" +
-			   ", <CONCEPT_CD>" +
-			   ", <PROVIDER_ID>" +         
-			   ", <START_DATE>" +   
-			   ", <VALTYPE_CD>" +
-			   ", <TVAL_CHAR>" +
-			   ", <NVAL_NUM>" +
-			   ", <VALUEFLAG_CD>" +
-			   ", <QUANTITY_NUM>" +
-			   ", <UNITS_CD>" +
-			   ", <END_DATE>" +
-			   ", <LOCATION_CD>" +
+		       "  ?" +
+			   ", ?" +
+			   ", ?" +
+			   ", ?" +         
+			   ", ?" +   
+			   ", ?" +
+			   ", ?" +
+			   ", ?" +
+			   ", ?" +
+			   ", ?" +
+			   ", ?" +
+			   ", ?" +
+			   ", ?" +
 			   ", NULL" +					// observation blob
-			   ", <CONFIDENCE_NUM>" +
+			   ", ?" +
 			   ", now()" +
 			   ", now()" +
 			   ", now()" +
-			   ", <SOURCESYSTEM_CD>" +
+			   ", ?" +
 			   ", NULL ) ;" ;				// upload id
+
+private PreparedStatement batchUsedPreparedStatement ;
 
 private ProjectUtils utils ;
 
@@ -85,7 +89,7 @@ private Integer encounter_num = null ;
 private Integer patient_num = null ;
 private String concept_cd = null ;
 private String provider_id = null ;
-private Date start_date = null ;
+private java.util.Date start_date = null ;
 private String valtype_cd = null ;
 private String tval_char = null ;
 private Double nval_num = null ;
@@ -102,46 +106,84 @@ public ObservationFact( ProjectUtils utils ) {
 	this.utils = utils ;
 }
 
-public void serializeToDatabase( Connection connection ) throws UploaderException {
+ 
+public void serializeToDatabase() throws UploaderException {
 	enterTrace( "ObservationFact.serializeToDatabase()" ) ;
-	
-	String sqlCmd = OBSERVATION_FACT_INSERT_COMMAND ;
-	
 	try {
-		
-		sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", schema_name ) ;
-		
-		sqlCmd = sqlCmd.replace( "<ENCOUNTER_NUM>", utils.enfoldInteger( encounter_num ) ) ;		
-		sqlCmd = sqlCmd.replace( "<PATIENT_NUM>", utils.enfoldInteger( patient_num ) ) ;
-		sqlCmd = sqlCmd.replace( "<CONCEPT_CD>", utils.enfoldString( concept_cd ) ) ;
-		sqlCmd = sqlCmd.replace( "<PROVIDER_ID>", utils.enfoldString( provider_id ) ) ;		
-		sqlCmd = sqlCmd.replace( "<START_DATE>", utils.enfoldDate( start_date ) ) ;
-		// MODIFIER_CD  missed out ( not null but has a default value of '@' )
-		// INSTANCE_NUM missed out ( not null but has a default value of 1 )
-		sqlCmd = sqlCmd.replace( "<VALTYPE_CD>", utils.enfoldNullableString( valtype_cd ) ) ;
-		sqlCmd = sqlCmd.replace( "<TVAL_CHAR>", utils.enfoldNullableString( tval_char ) ) ;
-		sqlCmd = sqlCmd.replace( "<NVAL_NUM>", utils.enfoldNullableDecimal( nval_num ) ) ;
-		sqlCmd = sqlCmd.replace( "<VALUEFLAG_CD>", utils.enfoldNullableString( valueflag_cd ) ) ;
-		sqlCmd = sqlCmd.replace( "<QUANTITY_NUM>", utils.enfoldNullableDecimal( quantity_num ) ) ;
-		sqlCmd = sqlCmd.replace( "<UNITS_CD>", utils.enfoldNullableString( units_cd ) ) ;		
-		sqlCmd = sqlCmd.replace( "<END_DATE>", utils.enfoldNullableDate( end_date ) ) ;		
-		sqlCmd = sqlCmd.replace( "<LOCATION_CD>", utils.enfoldNullableString( location_cd ) ) ;
-		// OBSERVATION_BLOB missed out
-		sqlCmd = sqlCmd.replace( "<CONFIDENCE_NUM>", utils.enfoldNullableDecimal( confidence_num ) ) ;
-		// UPDATE_DATE    defaults to now()
-		// DOWNLOAD_DATE  defaults to now()
-		// IMPORT_DATE    defaults to now()		
-		sqlCmd = sqlCmd.replace( "<SOURCESYSTEM_CD>", utils.enfoldNullableString( sourcesystem_cd ) ) ;
-		// UPLOAD_ID missed out
-		
-		Statement st = connection.createStatement();
-		
-		st.execute( sqlCmd ) ;
+		PreparedStatement ps = utils.getPsHolder().getPreparedStatement( OBSERVATION_FACT_INSERT_SQL_KEY ) ;
+				    
+		ps.setInt( 1, encounter_num ) ;
+		ps.setInt( 2, patient_num ) ;
+		ps.setString( 3, concept_cd ) ;
+		ps.setString( 4, provider_id ) ;
+		ps.setTimestamp( 5, new java.sql.Timestamp( start_date.getTime() ) ) ;
+		if( valtype_cd == null ) {
+			ps.setNull( 6, java.sql.Types.VARCHAR ) ;
+		}
+		else {
+			ps.setString( 6, valtype_cd ) ;
+		}
+		if( tval_char == null ) {
+			ps.setNull( 7, java.sql.Types.VARCHAR ) ;
+		}
+		else {
+			ps.setString( 7, tval_char ) ;
+		}
+		if( nval_num == null ) {
+			ps.setNull( 8, java.sql.Types.DOUBLE ) ; 
+		}
+		else {
+			ps.setDouble( 8, nval_num ) ;
+		}
+		if( valueflag_cd == null ) {
+			ps.setNull( 9, java.sql.Types.VARCHAR ) ;
+		}
+		else {
+			ps.setString( 9, valueflag_cd ) ;
+		}
+		if( quantity_num == null ) {
+			ps.setNull( 10, java.sql.Types.DOUBLE ) ;
+		}
+		else {
+			ps.setDouble( 10, quantity_num ) ;
+		}		
+		if( units_cd == null ) {
+			ps.setNull( 11, java.sql.Types.VARCHAR ) ;     
+		}
+		else {
+			ps.setString( 11, units_cd ) ;
+		}
+		if( end_date == null ) {
+			ps.setNull( 12, java.sql.Types.TIMESTAMP ) ;     // end_date
+		}
+		else {
+			ps.setTimestamp( 12, new java.sql.Timestamp( end_date.getTime() ) ) ;
+		}
+		if( location_cd == null ) {
+			ps.setNull( 13, java.sql.Types.VARCHAR ) ;    
+		}
+		else {
+			ps.setString( 13, location_cd ) ;
+		}
+		if( confidence_num == null ) {
+			ps.setNull( 14, java.sql.Types.DOUBLE ) ;    
+		}
+		else {
+			ps.setDouble( 14, confidence_num ) ; 
+		}
+		if( sourcesystem_cd == null ) {
+			ps.setNull( 15, java.sql.Types.VARCHAR ) ;  
+		}
+		else {
+			ps.setString( 15, sourcesystem_cd ) ;
+		}
+
+		ps.addBatch() ;
 
 	}
 	catch( SQLException sqlx ) {
 		logger.error( sqlx.getStackTrace() ) ;
-		throw new UploaderException( "Failed to insert into observation fact table:\n" + sqlCmd, sqlx ) ;
+		throw new UploaderException( "Failed to insert into observation fact table", sqlx ) ;
 	}
 	finally {
 		exitTrace( "ObservationFact.serializeToDatabase()" ) ;

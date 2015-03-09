@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -39,21 +40,6 @@ import org.brisskit.i2b2.OntologyBranch.Type;
  */
 public class I2B2Project {
 		
-	public static final String BREAKDOWNS_SQL_INSERT_COMMAND = 
-			"SET SCHEMA '<DB_SCHEMA_NAME>';" +
-			"" +
-			"INSERT INTO <DB_SCHEMA_NAME>.QT_BREAKDOWN_PATH" +
-			                "( NAME" +
-			                ", VALUE" +
-			                ", CREATE_DATE" +
-			                ", UPDATE_DATE" +
-			                ", USER_ID ) " +
-	         "VALUES( <LONG_NAME>" +
-	               ", <PATH>" +
-	               ", now()" +
-	               ", now()" +
-	               ", NULL ) ;" ;	
-	
 	/*
 	 * This set of commands will delete a project AND ALL OF ITS DATA!!!
 	 */
@@ -188,13 +174,13 @@ public class I2B2Project {
     	enterTrace( "I2B2Project.processSpreadsheet(File,Date)" ) ;
     	try {
     		this.spreadsheetFile = spreadSheetFile ;
-    			readSpreadsheet() ;
-    			produceOntology() ;
-    			producePatientMapping() ;
-    			producePatientDimension() ;
-    			produceEncounters( defaultObservationDate ) ;
-    			produceFacts( defaultObservationDate ) ;
-    			newProject = false ;    		
+    		readSpreadsheet() ;
+    		produceOntology() ;
+    		producePatientMapping() ;
+    		producePatientDimension() ;
+    		produceEncounters( defaultObservationDate ) ;
+    		produceFacts( defaultObservationDate ) ;
+    		newProject = false ;    		
     	}
     	catch( Exception ex ) {
     		if( ex instanceof UploaderException ) {
@@ -203,6 +189,7 @@ public class I2B2Project {
     		throw new UploaderException( "Internal Error.", ex ) ;
     	}
     	finally {
+    		this.utils.getPsHolder().empty() ;
     		exitTrace( "I2B2Project.processSpreadsheet(File,Date)" ) ;
     	}
     }
@@ -210,7 +197,13 @@ public class I2B2Project {
 	
 	protected void readSpreadsheet() throws UploaderException {
 		enterTrace( "readSpreadsheet()" ) ;
+		logger.debug( "===>> Reading spreadsheet" ) ;
 		try {
+			//
+			//
+//			if( spreadsheetFile.length() > 50000000 ) {
+//				throw new UploaderException( "The spreadsheet file exceeds the maximum allowed." ) ;
+//			}
 			//
 			// We read the file and create the workbook
 			InputStream inp = new FileInputStream( spreadsheetFile ) ;
@@ -235,13 +228,13 @@ public class I2B2Project {
 			}
 			//
 			// Check we do not have too many data rows and columns...
-			if( numberRows > 5000 || numberColumns > 50 ) {
-				if( limitsExceeded( dataSheet ) ) {
-					//
-					// The exception for columns exceeded is thrown lower in the code.
-					throw new UploaderException( "The workbook exceeds the maximum of 5000 rows containing data." ) ;
-				}			
-			}		 	    
+//			if( numberRows > 5000 || numberColumns > 50 ) {
+//				if( limitsExceeded( dataSheet ) ) {
+//					//
+//					// The exception for columns exceeded is thrown lower in the code.
+//					throw new UploaderException( "The workbook exceeds the maximum of 5000 rows containing data." ) ;
+//				}			
+//			}		 	    
 		    
 	    	//
 	    	// Injest any lookups and breakdowns described in additional sheets...
@@ -589,8 +582,8 @@ public class I2B2Project {
 			String breakdownName = null ;
 			String headingName = null ;
 			String path = null ;
-			String sqlCmd = null ;
-			Statement st = this.utils.getDbAccess().getSimpleConnectionPG().createStatement() ;
+			PreparedStatement ps = 
+					utils.getPsHolder().getPreparedStatement( OntologyBranch.BREAKDOWNS_INSERT_SQL_KEY ) ;
 			for( int i=0; i<STANDARD_BREAKDOWNS.length; i++ ) {
 				breakdownName = STANDARD_BREAKDOWNS[i][0] ;
 				//
@@ -605,12 +598,10 @@ public class I2B2Project {
 				//
 				// Only write them to the DB if a new project...
 				headingName = breakdowns.get( breakdownName ) ;
-				path = "\\\\" + projectId + "\\" + projectId + "\\" + headingName + "\\" ;
-				sqlCmd = BREAKDOWNS_SQL_INSERT_COMMAND ;				
-				sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", projectId ) ;
-				sqlCmd = sqlCmd.replace( "<LONG_NAME>", utils.enfoldString( STANDARD_BREAKDOWNS[i][1] ) ) ;
-				sqlCmd = sqlCmd.replace( "<PATH>", utils.enfoldString( path ) ) ;				
-				st.execute( sqlCmd ) ;				
+				path = "\\\\" + projectId + "\\" + projectId + "\\" + headingName + "\\" ;				
+				ps.setString( 1, STANDARD_BREAKDOWNS[i][1] ) ;
+				ps.setString( 2, path ) ;
+				ps.addBatch() ;
 			}			
 		}
 		catch( SQLException sqlex ) {
@@ -622,11 +613,54 @@ public class I2B2Project {
 	}
 	
 	
+//	private void buildBreakdowns() throws UploaderException {
+//		enterTrace( "i2b2Project.buildBreakdowns()" ) ;
+//		try {
+//			String breakdownName = null ;
+//			String headingName = null ;
+//			String path = null ;
+//			String sqlCmd = null ;
+//			Statement st = this.utils.getDbAccess().getSimpleConnectionPG().createStatement() ;
+//			for( int i=0; i<STANDARD_BREAKDOWNS.length; i++ ) {
+//				breakdownName = STANDARD_BREAKDOWNS[i][0] ;
+//				//
+//				// The following conditional caters for the situation where
+//				// no breakdown sheet has been provided at all...
+//				if( !breakdowns.containsKey( breakdownName ) ) {
+//					breakdowns.put( STANDARD_BREAKDOWNS[i][0], STANDARD_BREAKDOWNS[i][0] ) ;
+//				}
+//				if( !newProject ) {
+//					continue ;
+//				}
+//				//
+//				// Only write them to the DB if a new project...
+//				headingName = breakdowns.get( breakdownName ) ;
+//				path = "\\\\" + projectId + "\\" + projectId + "\\" + headingName + "\\" ;
+//				sqlCmd = BREAKDOWNS_SQL_INSERT_COMMAND ;				
+//				sqlCmd = sqlCmd.replaceAll( "<DB_SCHEMA_NAME>", projectId ) ;
+//				sqlCmd = sqlCmd.replace( "<LONG_NAME>", utils.enfoldString( STANDARD_BREAKDOWNS[i][1] ) ) ;
+//				sqlCmd = sqlCmd.replace( "<PATH>", utils.enfoldString( path ) ) ;				
+//				st.execute( sqlCmd ) ;				
+//			}			
+//		}
+//		catch( SQLException sqlex ) {
+//			throw new UploaderException( sqlex ) ;
+//		}
+//		finally {
+//			exitTrace( "i2b2Project.buildBreakdowns()" ) ;
+//		}
+//	}
+	
+	
 	protected void producePatientMapping() throws UploaderException {
 		enterTrace( "producePatientMapping()" ) ;
+		logger.debug( "===>> Producing patient mapping" ) ;
 		String value = null ;
 		String name = null ;
 		int countPatientIdsNull = 0 ;
+		int cycleCommitCount = 1000 ;
+		int cycleCount = 0 ;
+		Connection connection = utils.getDbAccess().getSimpleConnectionPG() ;
 		try {
 			Iterator<Row> rowIt = dataSheet.iterator() ;
 			//
@@ -634,6 +668,16 @@ public class I2B2Project {
 			rowIt.next() ;
 			rowIt.next() ;
 			rowIt.next() ;
+			//
+			// Begin a transaction ...
+			connection.setTransactionIsolation( Connection.TRANSACTION_SERIALIZABLE ) ;
+			connection.setAutoCommit( false ) ;
+			PreparedStatementHolder psHolder = utils.getPsHolder() ;
+			psHolder.setPreparedStatement( PatientMapping.PATIENT_MAP_INSERT_SQL_KEY
+					 					 , PatientMapping.PATIENT_MAP_INSERT_SQL
+					 					 , true ) ; // I want the auto generated keys
+			psHolder.setPreparedStatement( PatientMapping.PATIENT_MAP_SELECT_SQL_KEY
+					 					 , PatientMapping.PATIENT_MAP_SELECT_SQL ) ;
 			//
 			// Process data rows...
 			while( rowIt.hasNext() ) {
@@ -643,7 +687,6 @@ public class I2B2Project {
 				}
 				
 				PatientMapping	pMap = new PatientMapping( utils ) ;
-				pMap.setSchema_name( projectId ) ;
 				pMap.setSourcesystem_id( projectId ) ;
 				
 				Iterator<Cell> cellIt = dataRow.iterator() ;
@@ -666,9 +709,14 @@ public class I2B2Project {
 				//
 				// Write mapping to i2b2
 				if( pMap.getPatient_ide() != null ) {
-					Connection connection = this.utils.getDbAccess().getSimpleConnectionPG() ;
-					if( !pMap.mappingExists( connection ) ) {
-						pMap.serializeToDatabase( connection ) ;
+					
+					if( !pMap.mappingExists() ) {
+						pMap.serializeToDatabase() ;
+						cycleCount++ ;
+						if( cycleCount == cycleCommitCount ) {
+							connection.setSavepoint() ;
+							cycleCount = 0 ;
+						}
 					}
 					//
 					// Record the mapping between external id and internal id...
@@ -681,6 +729,20 @@ public class I2B2Project {
 																
 			} // end of outer while - processing row
 			
+			connection.commit() ;
+			connection.setAutoCommit( true ) ;
+			
+		}
+		catch( SQLException sqlex ) {
+			try{ 
+				connection.rollback() ; 
+			} 
+			catch( SQLException rbex ) {
+				logger.error( "Rollback failed in I2B2Project.producePatientMapping()" ) ;
+			}
+			String message = "Failure inserting patient mapping" ;
+			logger.error( message, sqlex ) ;
+			throw new UploaderException( message, sqlex ) ;
 		}
 		finally {
 			exitTrace( "producePatientMapping()" ) ;
@@ -690,11 +752,15 @@ public class I2B2Project {
 	
 	protected void producePatientDimension() throws UploaderException {
 		enterTrace( "producePatientDimension()" ) ;
+		logger.debug( "===>> Producing patient dimension" ) ;
 		String value = null ;
 		String code = null ;
 		String name = null ;
 		String sourceSystemPatientID = null ;
 		int countPatientIdsNull = 0 ;
+		int cycleCommitCount = 1000 ;
+		int cycleCount = 0 ;
+		Connection connection = utils.getDbAccess().getSimpleConnectionPG() ;
 		try {
 			Iterator<Row> rowIt = dataSheet.rowIterator() ;
 			//
@@ -702,6 +768,15 @@ public class I2B2Project {
 			rowIt.next() ;
 			rowIt.next() ;
 			rowIt.next() ;
+			//
+			// Begin a transaction ...
+			connection.setTransactionIsolation( Connection.TRANSACTION_SERIALIZABLE ) ;
+			connection.setAutoCommit( false ) ;
+			PreparedStatementHolder psHolder = utils.getPsHolder() ;
+			psHolder.setPreparedStatement( PatientDimension.PATIENT_DIM_INSERT_SQL_KEY
+					 					 , PatientDimension.PATIENT_DIM_INSERT_SQL ) ;
+			psHolder.setPreparedStatement( PatientDimension.PATIENT_DIM_SELECT_SQL_KEY
+					 					 , PatientDimension.PATIENT_DIM_SELECT_SQL ) ;
 			//
 			// Process data rows...
 			while( rowIt.hasNext() ) {
@@ -779,9 +854,13 @@ public class I2B2Project {
 				//
 				// Write patient dimension to i2b2...
 				if( pDim.getPatient_num() != null ) {
-					Connection connection = this.utils.getDbAccess().getSimpleConnectionPG() ;
-					if( !pDim.patientExists( connection ) ) {
-						pDim.serializeToDatabase( connection ) ;
+					if( !pDim.patientExists() ) {
+						pDim.serializeToDatabase() ;
+						cycleCount++ ;
+						if( cycleCount == cycleCommitCount ) {
+							connection.setSavepoint() ;
+							cycleCount = 0 ;
+						}
 					}
 				}
 				else {
@@ -790,8 +869,30 @@ public class I2B2Project {
 				}
 													
 			} // end of outer while - processing row
+			
+			connection.commit() ;
+			connection.setAutoCommit( true ) ;
+		}
+		catch( SQLException sqlex ) {
+			try{ 
+				connection.rollback() ; 
+			} 
+			catch( SQLException rbex ) {
+				logger.error( "Rollback failed in I2B2Project.producePatientMapping()" ) ;
+			}
+			String message = "Failure inserting patient mapping" ;
+			logger.error( message, sqlex ) ;
+			throw new UploaderException( message, sqlex ) ;
 		}
 		catch( ParseException pex ) {
+			if( cycleCount > 0 ) {
+				try{ 
+					connection.rollback() ; 
+				} 
+				catch( SQLException rbex ) {
+					logger.error( "Rollback failed in I2B2Project.producePatientMapping()" ) ;
+				}
+			}
 			throw new UploaderException( "Failed to parse date: " + value, pex ) ;
 		}
 		finally {
@@ -805,9 +906,13 @@ public class I2B2Project {
 	//	Encounter_ide_source =  filename + : + sheet name
 	protected void produceEncounters( Date defaultEncounterStartDate ) throws UploaderException {
 		enterTrace( "produceEncounters()" ) ;
+		logger.debug( "===>> Producing encounters" ) ;
 		String value = null ;
 		String name = null ;
 		Date encounterStartDate = null ;
+		int cycleCommitCount = 1000 ;
+		int cycleCount = 0 ;
+		Connection connection = utils.getDbAccess().getSimpleConnectionPG() ;
 		try {
 			Iterator<Row> rowIt = dataSheet.iterator() ;
 			//
@@ -815,6 +920,16 @@ public class I2B2Project {
 			rowIt.next() ;
 			rowIt.next() ;
 			rowIt.next() ;
+			//
+			// Begin a transaction ...
+			connection.setTransactionIsolation( Connection.TRANSACTION_SERIALIZABLE ) ;
+			connection.setAutoCommit( false ) ;
+			PreparedStatementHolder psHolder = utils.getPsHolder() ;
+			psHolder.setPreparedStatement( Encounter.ENCOUNTER_MAP_INSERT_SQL_KEY
+					 					 , Encounter.ENCOUNTER_MAP_INSERT_SQL
+					 					 , true ) ; // I want the auto generated keys
+			psHolder.setPreparedStatement( Encounter.VISIT_DIM_INSERT_SQL_KEY
+					 					 , Encounter.VISIT_DIM_INSERT_SQL ) ;
 			//
 			// Process data rows...
 			while( rowIt.hasNext() ) {
@@ -824,7 +939,6 @@ public class I2B2Project {
 				}
 				
 				Encounter encounter = new Encounter( utils ) ;
-				encounter.setSchema_name( projectId ) ;
 				encounter.setProject_id( projectId ) ;
 				encounter.setSourcesystem_id( projectId ) ;
 				encounter.setEncounter_ide_status( "?" ) ;
@@ -872,14 +986,32 @@ public class I2B2Project {
 		
 				//
 				// Write encounter mapping and visit dimension to i2b2
-				encounter.serializeToDatabase( this.utils.getDbAccess().getSimpleConnectionPG() ) ;
-				
+				encounter.serializeToDatabase() ;
+				cycleCount++ ;
+				if( cycleCount == cycleCommitCount ) {
+					connection.setSavepoint() ;
+					cycleCount = 0 ;
+				}
 				//
 				// Record the mapping between external id and internal id...
 				this.encounterMappings.put( encounter.getEncounter_ide(), encounter.getEncounter_num() ) ;
 																				
 			} // end of outer while - processing row
 			
+			connection.commit() ;
+			connection.setAutoCommit( true ) ;
+			
+		}
+		catch( SQLException sqlex ) {
+			try{ 
+				connection.rollback() ; 
+			} 
+			catch( SQLException rbex ) {
+				logger.error( "Rollback failed in I2B2Project.produceEncounters()" ) ;
+			}
+			String message = "Failure inserting encounters" ;
+			logger.error( message, sqlex ) ;
+			throw new UploaderException( message, sqlex ) ;
 		}
 		finally {
 			exitTrace( "produceEncounters()" ) ;
@@ -887,8 +1019,10 @@ public class I2B2Project {
 	}
 	
 	
-	protected void produceOntology() throws UploaderException {
+	protected synchronized void produceOntology() throws UploaderException {
 		enterTrace( "produceOntology()" ) ;
+		logger.debug( "===>> Producing ontology" ) ;
+		OntologyBranch obThis = null ;
 		try {
 			Row codesRow = dataSheet.getRow( ONTOLOGY_CODES_ROW_INDEX ) ;
 			String colName = null ;
@@ -914,6 +1048,11 @@ public class I2B2Project {
 				//
 				// The source patient id should not be processed as a fact (and therefore no ontological data)...
 				if( colName.equalsIgnoreCase( "ID" ) ) {
+					continue ;
+				}
+				//
+				// Any observation start date should not be processed as a fact (and therefore no ontological data)...
+				if( colName.equalsIgnoreCase( "OBS_START_DATE" ) ) {
 					continue ;
 				}
 				//
@@ -982,14 +1121,8 @@ public class I2B2Project {
 						String value = it.next() ;
 						if( utils.isNumeric( value ) ) {
 							if( type == null ) {
-								type = Type.NUMERIC ;
+								type = Type.NUMERIC ;					
 							}
-							else if( type == Type.NUMERIC ){
-								; // do nothing
-							}
-							else {
-								type = Type.STRING ;
-							}						
 						}
 						else if( utils.isDate( value ) ) {
 							if( type == null ) {
@@ -1006,6 +1139,9 @@ public class I2B2Project {
 							type = Type.STRING ;
 						}
 					} // end while
+				}
+				if( type == null ) {
+					logger.error( "Could not generate a type" ) ;
 				}
 				
 				//
@@ -1027,10 +1163,26 @@ public class I2B2Project {
 			
 			
 			//
-			// Process ontology branches into the database ...
-			OntologyBranch obThis = null ;
+			// Process ontology branches into the database.
+			// The process begins with starting a transaction...
+			Connection connection = utils.getDbAccess().getSimpleConnectionPG() ;
+			connection.setTransactionIsolation( Connection.TRANSACTION_SERIALIZABLE ) ;
+			connection.setAutoCommit( false ) ;
+			PreparedStatementHolder psHolder = utils.getPsHolder() ;
+			psHolder.setPreparedStatement( OntologyBranch.BREAKDOWNS_INSERT_SQL_KEY
+					 					 , OntologyBranch.BREAKDOWNS_INSERT_SQL ) ;
+			psHolder.setPreparedStatement( OntologyBranch.CONCEPT_CODE_SELECT_SQL_KEY
+					 					 , OntologyBranch.CONCEPT_CODE_SELECT_SQL.replace( "<PROJECT_METADATA_TABLE>", projectId ) ) ;
+			psHolder.setPreparedStatement( OntologyBranch.CONCEPT_COUNT_SELECT_SQL_KEY
+					 					 , OntologyBranch.CONCEPT_COUNT_SELECT_SQL.replace( "<PROJECT_METADATA_TABLE>", projectId ) ) ;
+			psHolder.setPreparedStatement( OntologyBranch.CONCEPT_DIMENSION_INSERT_SQL_KEY
+					 					 , OntologyBranch.CONCEPT_DIMENSION_INSERT_SQL ) ;
+			psHolder.setPreparedStatement( OntologyBranch.METADATA_INSERT_SQL_KEY
+					 					 , OntologyBranch.METADATA_INSERT_SQL.replace( "<PROJECT_METADATA_TABLE>", projectId ) ) ;
 			OntologyBranch obThat = null ;
 			Iterator<OntologyBranch> itOb = ontBranches.values().iterator() ;
+			int cycleCommitCount = 1000 ;
+			int cycleCount = 0 ;
 			while( itOb.hasNext() ) {
 				obThis = itOb.next() ;
 				//
@@ -1043,7 +1195,7 @@ public class I2B2Project {
 														   , lookups
 														   , utils ) ;
 				if( obThat == null ) {				
-					obThis.serializeToDatabase( this.utils.getDbAccess().getSimpleConnectionPG() ) ;
+					obThis.serializeToDatabase() ;   
 				}
 				//
 				// But if this is an existing ontology, 
@@ -1052,10 +1204,22 @@ public class I2B2Project {
 					//
 					// If there's a difference, we need to write the differences...
 					if( !obThis.equals( obThat ) ) {
-						obThis.serializeDifferencesToDatabase( this.utils.getDbAccess().getSimpleConnectionPG() 
-								                             , obThat ) ;
+						obThis.serializeDifferencesToDatabase( obThat ) ;
 					}
 				}
+
+				cycleCount++ ;
+				if( cycleCount == cycleCommitCount ) {
+					psHolder.getPreparedStatement( OntologyBranch.CONCEPT_DIMENSION_INSERT_SQL_KEY ).executeBatch() ;
+					connection.setSavepoint() ;
+					cycleCount = 0 ;
+				}
+							
+			} // end while
+			
+			if( cycleCount > 0 ) {
+				psHolder.getPreparedStatement( OntologyBranch.CONCEPT_DIMENSION_INSERT_SQL_KEY ).executeBatch() ;	
+				connection.setSavepoint() ;
 			}
 			
 			//
@@ -1064,26 +1228,53 @@ public class I2B2Project {
 	    	// in order for breakdowns not to raise errors.
 	    	// So we build all breakdowns here (defaulting if need be)...
 	    	buildBreakdowns() ;
-			
+	    	psHolder.getPreparedStatement( OntologyBranch.BREAKDOWNS_INSERT_SQL_KEY ).executeBatch() ;		
+			connection.commit();
+			connection.setAutoCommit( true ) ;
+		}
+		catch( SQLException sqlex ) {
+			try{ 
+				utils.getDbAccess().getSimpleConnectionPG().rollback() ; 
+			} 
+			catch( SQLException rbex ) {
+				logger.error( "Rollback failed in I2B2Project.produceOntology()" ) ;
+			}
+			String message = "Failure inserting metadata" ;
+			logger.error( message, sqlex ) ;
+			throw new UploaderException( message, sqlex ) ;
 		}
 		finally {
+			//
+			// Attempt (at best) release of SQL prepared statements...
 			exitTrace( "produceOntology()" ) ;
 		}		
 	}
 	
 	
-	protected void produceFacts( Date defaultObservationStartDate ) throws UploaderException {
+	protected synchronized void produceFacts( Date defaultObservationStartDate ) throws UploaderException {
 		enterTrace( "I2B2Project.produceFacts()" ) ;
-		try {
+		logger.debug( "===>> Producing facts" ) ;
+		ObservationFact of = null ;
+		int cycleCommitCount = 1000 ;
+		int cycleCount = 0 ;
+		Connection connection = utils.getDbAccess().getSimpleConnectionPG() ;
+		try {						
 			Iterator<Row> rowIt = dataSheet.iterator() ;
-			Date observationStartDate = null ;
+			Date observationStartDate = null ;		
 			//
 			// Tab past metadata rows...
 			rowIt.next() ;
 			rowIt.next() ;
 			rowIt.next() ;
 			//
-			// Process data rows...
+			// Begin a transaction ...
+			connection.setTransactionIsolation( Connection.TRANSACTION_SERIALIZABLE ) ;
+			connection.setAutoCommit( false ) ;
+			PreparedStatementHolder psHolder = utils.getPsHolder() ;
+			psHolder.setPreparedStatement( ObservationFact.OBSERVATION_FACT_INSERT_SQL_KEY
+					 					 , ObservationFact.OBSERVATION_FACT_INSERT_SQL ) ;
+			//
+			// Process data rows...			
 			while( rowIt.hasNext() ) {
 				Row dataRow = rowIt.next() ;
 				if( dataRowEmpty( dataRow ) ) {
@@ -1137,13 +1328,13 @@ public class I2B2Project {
 						continue ;
 					}
 					else if( ontCode.equalsIgnoreCase( "OBS_START_DATE" ) ) {
+						logger.debug( "Observation start date found as an ont code" ) ;
 						continue ;
 					}
 					else {
 						OntologyBranch ontBranch = getOntologyBranch( ontCode ) ;
 						OntologyBranch.Type type = ontBranch.getType() ;
-						String units = ontBranch.getUnits() ;
-						ObservationFact of = null ;						
+						String units = ontBranch.getUnits() ;					
 						switch ( type ) {
 						case DATE:
 							of = produceDateFact( encounterNumber
@@ -1172,13 +1363,36 @@ public class I2B2Project {
 						
 						//
 						// Write fact to i2b2...
-						of.serializeToDatabase( this.utils.getDbAccess().getSimpleConnectionPG() ) ;
-						
+						of.serializeToDatabase() ;					
 					}
 					
 				} // end of inner while - processing cell	
-				
+			
+				cycleCount++ ;
+				if( cycleCount == cycleCommitCount ) {
+					psHolder.getPreparedStatement( ObservationFact.OBSERVATION_FACT_INSERT_SQL_KEY ).executeBatch() ;
+					connection.setSavepoint() ;
+					cycleCount = 0 ;
+				}
 			} // end of outer while - processing row
+			
+			if( cycleCount > 0 ) {
+				psHolder.getPreparedStatement( ObservationFact.OBSERVATION_FACT_INSERT_SQL_KEY ).executeBatch();		
+			}
+			connection.commit() ;
+			psHolder.getPreparedStatement( ObservationFact.OBSERVATION_FACT_INSERT_SQL_KEY ).close() ;
+			connection.setAutoCommit( true ) ;
+		}
+		catch( SQLException sqlex ) {
+			try{ 
+				connection.rollback() ; 
+			} 
+			catch( SQLException rbex ) {
+				logger.error( "Rollback failed in I2B2Project.produceFacts()" ) ;
+			}
+			String message = "Failure inserting observation facts" ;
+			logger.error( message, sqlex ) ;
+			throw new UploaderException( message, sqlex ) ;
 		}
 		finally {
 			exitTrace( "I2B2Project.produceFacts()" ) ;
@@ -1401,7 +1615,7 @@ public class I2B2Project {
 		int oneBasedArrayNumber = dataRow.getRowNum() + 1 ;
 		try {			
 			if( logger.isDebugEnabled() ) {
-				logger.debug( "dataRow number: [" + oneBasedArrayNumber + "] aligns with sourcePatientNo: [" + sourcePatientNoAsString + "]" ) ;
+//				logger.debug( "dataRow number: [" + oneBasedArrayNumber + "] aligns with sourcePatientNo: [" + sourcePatientNoAsString + "]" ) ;
 			}
 			//
 			// NB: If the source column is empty, we return -999
@@ -1473,6 +1687,7 @@ public class I2B2Project {
 		enterTrace( logger, entry ) ;
 	}
 	
+	@SuppressWarnings("unused")
 	public static void enterTrace( Logger logger, String entry ) {
 		if( false ) {
 			if( logger.isTraceEnabled() ) {
@@ -1494,6 +1709,7 @@ public class I2B2Project {
     	exitTrace( logger, entry ) ;
 	}
     
+	@SuppressWarnings("unused")
 	public static void exitTrace( Logger logger, String entry ) {
 		if( false ) {
 			if( logger.isTraceEnabled() ) {
@@ -1573,7 +1789,7 @@ public class I2B2Project {
 		public static I2B2Project newInstance( String projectId ) throws UploaderException {
 			enterTrace( "I2B2Project.Factory.newInstance()" ) ;
 			projectId = projectId.toLowerCase() ;
-			I2B2Project project = new I2B2Project( projectId.toLowerCase() ) ;
+			I2B2Project project = new I2B2Project( projectId ) ;
 			try {
 				if( projectExists( project ) ) {
 					project.newProject = false ;
@@ -1581,6 +1797,9 @@ public class I2B2Project {
 				else {
 					project.utils.getDbAccess().createI2B2Database( projectId ) ;
 				}
+				//
+				// Switching db schema to project schema for the lifetime of this instance...
+				project.utils.getDbAccess().setSchema( projectId ) ;
 				return project ;
 			}
 			finally {

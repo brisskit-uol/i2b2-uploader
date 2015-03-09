@@ -8,15 +8,21 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 
 public class ProjectUtils {
 	
+	private static Logger logger = Logger.getLogger( ProjectUtils.class ) ;
+	
 	//
 	// 
-	private CreateDBPG dbAccess = new CreateDBPG() ;
+	private CreateDBPG dbAccess ;
+	//
+	//
+	private PreparedStatementHolder psHolder ;
 	
 	//
 	// Postgres example of TIMESTAMP ’2004-10-19 10:23:54’
@@ -27,125 +33,38 @@ public class ProjectUtils {
 	//
 	// The simplest object to format values from a cell into a string...
 	private DataFormatter stringFormat = new DataFormatter() ;
+		
+	private Pattern numericPattern = Pattern.compile( "^-?\\d+(\\.\\d+)?$" ) ;  //match a number with optional '-' and decimal
+	private Pattern integerPattern = Pattern.compile( "^\\d+$" ) ;	
+	
 	//
 	// We are accepting dates in spreadsheet cells only in the following 
 	// long or short formats (to begin with!)...
-	private SimpleDateFormat yyyymmddThhmmss = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss" ) ;
-	private SimpleDateFormat yyyymmddhhmmss = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" ) ;
-	private SimpleDateFormat ddmmyyyyThhmmss = new SimpleDateFormat( "dd-MM-yyyy'T'HH:mm:ss" ) ;
-	private SimpleDateFormat ddmmyyyyhhmmss = new SimpleDateFormat( "dd-MM-yyyy HH:mm:ss" ) ;
-	private SimpleDateFormat yyyymmdd = new SimpleDateFormat( "yyyy-MM-dd" ) ;
-	private SimpleDateFormat ddmmyyyy = new SimpleDateFormat( "dd-MM-yyyy" ) ;
-	
-//	private Pattern pattern_yyyymmddThhmmss1 = Pattern.compile( "^(\\d{4})\\-(\\d{2})\\-(\\d{2}.T.(\\d{2}):(\\d{2}):(\\d{2})$" ) ;
-//	private Pattern pattern_yyyymmddhhmmss1 = Pattern.compile( "^(\\d{4})\\-(\\d{2})\\-(\\d{2}.(\\d{2}):(\\d{2}):(\\d{2})$" ) ;
-//	private Pattern pattern_yyyymmddThhmmss2 = Pattern.compile( "^(\\d{4})\\/(\\d{2})\\/(\\d{2}.T.(\\d{2}):(\\d{2}):(\\d{2})$" ) ;
-//	private Pattern pattern_yyyymmddhhmmss2 = Pattern.compile( "^(\\d{4})\\/(\\d{2})\\/(\\d{2}.(\\d{2}):(\\d{2}):(\\d{2})$" ) ;
-	
-//	^(0?[1-9]|[12][0-9]|3[01])[\/\-](0?[1-9]|1[012])[\/\-]\d{4}$	
-	
-	private SimpleDateFormat[] longCellDateFormats =
-		{
-			new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss" ) ,
-			new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" ) ,
-			new SimpleDateFormat( "dd-MM-yyyy'T'HH:mm:ss" ) ,
-			new SimpleDateFormat( "dd-MM-yyyy HH:mm:ss" )	
+	private Object[][] patternsAndDateFormats = {
+			{ Pattern.compile( "^(\\d{4})\\-(\\d{2})\\-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})$" ) , new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss" ) },
+			{ Pattern.compile( "^(\\d{4})\\/(\\d{2})\\/(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})$" ) , new SimpleDateFormat( "yyyy/MM/dd'T'HH:mm:ss" ) },
+			{ Pattern.compile( "^(\\d{4})\\-(\\d{2})\\-(\\d{2}).(\\d{2}):(\\d{2}):(\\d{2})$" ) , new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" ) },
+			{ Pattern.compile( "^(\\d{4})\\/(\\d{2})\\/(\\d{2}).(\\d{2}):(\\d{2}):(\\d{2})$" ) , new SimpleDateFormat( "yyyy/MM/dd HH:mm:ss" ) },
+			{ Pattern.compile( "^(\\d{4})\\-(\\d{2})\\-(\\d{2})$" ) , new SimpleDateFormat( "yyyy-MM-dd" ) },
+			{ Pattern.compile( "^(\\d{4})\\/(\\d{2})\\/(\\d{2})$" ) , new SimpleDateFormat( "yyyy/MM/dd" ) },
+			{ Pattern.compile( "^(\\d{2})\\-(\\d{2})\\-(\\d{4})T(\\d{2}):(\\d{2}):(\\d{2})$" ) , new SimpleDateFormat( "dd-MM-yyyy'T'HH:mm:ss" ) },
+			{ Pattern.compile( "^(\\d{2})\\/(\\d{2})\\/(\\d{4})T(\\d{2}):(\\d{2}):(\\d{2})$" ) , new SimpleDateFormat( "dd/MM/yyyy'T'HH:mm:ss" ) },
+			{ Pattern.compile( "^(\\d{2})\\-(\\d{2})\\-(\\d{4}).(\\d{2}):(\\d{2}):(\\d{2})$" ) , new SimpleDateFormat( "dd-MM-yyyy HH:mm:ss" ) },
+			{ Pattern.compile( "^(\\d{2})\\/(\\d{2})\\/(\\d{4}).(\\d{2}):(\\d{2}):(\\d{2})$" ) , new SimpleDateFormat( "dd/MM/yyyy HH:mm:ss" ) },
+			{ Pattern.compile( "^(\\d{2})\\-(\\d{2})\\-(\\d{4})$" ) , new SimpleDateFormat( "dd-MM-yyyy" ) },
+			{ Pattern.compile( "^(\\d{2})\\/(\\d{2})\\/(\\d{4})$" ) , new SimpleDateFormat( "dd/MM/yyyy" ) },
 		} ;
-	private SimpleDateFormat[] shortCellDateFormats =
-		{
-			new SimpleDateFormat( "yyyy-MM-dd" ) ,
-			new SimpleDateFormat( "dd-MM-yyyy" ) 	
-		} ;
-	
-	
-	
-	private SimpleDateFormat cellDateFormat = new SimpleDateFormat( "yyyy-MM-dd" ) ;	
-	private SimpleDateFormat cellDateTimeFormat = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss" ) ;
 	
 	private FormulaEvaluator formulaeEvaluator = null ;
 	
-	
-	public ProjectUtils() throws UploaderException {
-	}
-	
-	
-	public String enfoldNullableString( String value ) {	
-		if( value == null ) {
-			return "NULL" ;
-		}
-		else {
-			return "'" + value + "'" ;
-		}	
-	}
-
-	public String enfoldString( String value ) throws UploaderException {	
-		if( value == null ) {
-			throw new UploaderException( "Non-nullable String encountered:\n" + this.toString() ) ;
-		}
-		else {
-			return "'" + value + "'" ;
-		}	
+	public ProjectUtils() {
+		for( int i=0; i<patternsAndDateFormats.length; i++ ) {
+			( (SimpleDateFormat) patternsAndDateFormats[i][1] ).setLenient( false ) ;
+		}		
 	}
 
 
-	public String enfoldNullableDecimal( Double value ) {
-		if( value == null ) {
-			return "NULL" ;
-		}
-		else {
-			return decimalFormat.format( value ) ;
-		}	
-	}
-
-
-	public String enfoldDecimal( Double value ) throws UploaderException {
-		if( value == null ) {
-			throw new UploaderException( "Non-nullable Long encountered:\n" + this.toString() ) ;
-		}
-		else {
-			return decimalFormat.format( value ) ;
-		}	
-	}
-
-
-	public String enfoldNullableInteger( Integer value ) {
-		if( value == null ) {
-			return "NULL" ;
-		}
-		else {
-			return String.valueOf( value ) ;
-		}	
-	}
-
-	public String enfoldInteger( Integer value ) throws UploaderException {
-		if( value == null ) {
-			throw new UploaderException( "Non-nullable Integer encountered:\n" + this.toString() ) ;
-		}
-		else {
-			return String.valueOf( value ) ;
-		}	
-	}
-
-
-	public String enfoldNullableDate( Date value ) {
-		if( value == null ) {
-			return "NULL" ;
-		}
-		else {
-			return "'" + dateFormat.format( value ) + "'" ;
-		}	
-	}
-
-	public String enfoldDate( Date value ) throws UploaderException {
-		if( value == null ) {
-			throw new UploaderException( "Non-nullable Date encountered:\n" + this.toString() ) ;
-		}
-		else {
-			return "'" + dateFormat.format( value ) + "'" ;
-		}	
-	}
-	
-	public String getValueAsString( Cell cell ) {
+	public String _getValueAsString( Cell cell ) {
 		String value = stringFormat.formatCellValue( cell ) ;
 		if( value != null ) {
 			value = value.trim() ;
@@ -154,7 +73,7 @@ public class ProjectUtils {
 	}
 	
 	
-	public String _getValueAsString( Cell cell ) {
+	public String getValueAsString( Cell cell ) {
 		if( cell == null ) {
 			return "" ;
 		}
@@ -165,7 +84,25 @@ public class ProjectUtils {
 									.getCreationHelper()
 									.createFormulaEvaluator() ;
 		}
-		formulaeEvaluator.evaluateInCell( cell ) ;
+		try {
+			formulaeEvaluator.evaluateInCell( cell ) ;
+		}
+		catch( Exception ex ) {
+			StringBuilder b = new StringBuilder() ;
+			b.append( "Formulae evaluator failed. " )
+			 .append( "Cell: ["  ).append( cell.getColumnIndex() )
+			 .append( "] Row: [" ).append( cell.getRowIndex() )
+			 .append( "] Sheet: [" ).append( cell.getSheet().getSheetName() ).append( "]" ) ;
+			logger.error( b.toString(), ex ) ;
+			String value = stringFormat.formatCellValue( cell ) ;
+			if( value != null ) {
+				value = value.trim() ;
+				return value ;
+			}
+			else {
+				return "" ;
+			}
+		}
 		switch ( cell.getCellType() ) {
         case Cell.CELL_TYPE_BOOLEAN:
         case Cell.CELL_TYPE_NUMERIC:
@@ -175,7 +112,6 @@ public class ProjectUtils {
 				value = value.trim() ;
 				return value ;
 			}
-			return "" ;
         default:
             return "" ;
 		}
@@ -201,103 +137,66 @@ public class ProjectUtils {
 	
 	
 	public boolean isNumeric( String value ) {
-		return value.matches("^-?\\d+(\\.\\d+)?$");  //match a number with optional '-' and decimal
-	}
-	
-	
-	public boolean isInteger( String value ) {		
-		return value.matches( "^\\d+$" ) ;
-	}
-	
-	public boolean isDate( String value ) {
-		if( value.matches( "....-..-..*:..:.." ) ) {
-			try {
-				this.yyyymmddThhmmss.parse( value ) ;
-				return true ;
-			}
-			catch( ParseException pex1 ) {
-				try {
-					this.yyyymmddhhmmss.parse( value ) ;
-					return true ;
-				}
-				catch( ParseException pex2 ) {
-					return false ;
-				}
-			}
-		}
-		else if( value.matches( "..-..-....*:..:.." ) ) {
-			try {
-				this.ddmmyyyyThhmmss.parse( value ) ;
-				return true ;
-			}
-			catch( ParseException pex1 ) {
-				try {
-					this.ddmmyyyyhhmmss.parse( value ) ;
-					return true ;
-				}
-				catch( ParseException pex2 ) {
-					return false ;
-				}
-			}
-		}
-		else if( value.matches( "....-..-.." ) ) {
-			try {
-				this.yyyymmdd.parse( value ) ;
-				return true ;
-			}
-			catch( ParseException pex1 ) {
-				return false ;
-			}
-		}
-		else if( value.matches( "..-..-...." ) ) {
-			try {
-				this.ddmmyyyy.parse( value ) ;
-				return true ;
-			}
-			catch( ParseException pex1 ) {
-				return false ;
-			}
-		}
-		return false ;
+		return numericPattern.matcher( value ).matches() ;  //match a number with optional '-' and decimal
 	}
 
 	
-	public Date parseDate( String value ) throws ParseException {
-		if( value.matches( "....-..-..*:..:.." ) ) {
-			try {
-				return this.yyyymmddThhmmss.parse( value ) ;
-			}
-			catch( ParseException pex1 ) {
-				return this.yyyymmddhhmmss.parse( value ) ;
-			}
-		}
-		else if( value.matches( "..-..-....*:..:.." ) ) {
-			try {
-				return this.ddmmyyyyThhmmss.parse( value ) ;
-			}
-			catch( ParseException pex1 ) {
-				return this.ddmmyyyyhhmmss.parse( value ) ;
-			}
-		}
-		else if( value.matches( "....-..-.." ) ) {
-			return this.yyyymmdd.parse( value ) ;
-		}
-		else if( value.matches( "..-..-...." ) ) {
-			return this.ddmmyyyy.parse( value ) ;
-		}
-		throw new ParseException( "String is not a valide date: " + value, 0 ) ;
+	public boolean isInteger( String value ) {		
+		return integerPattern.matcher( value ).matches() ;
 	}
+	
+	
+	public boolean isDate( String value ) {
+		for( int i=0; i<patternsAndDateFormats.length; i++ ) {
+			if( ((Pattern)patternsAndDateFormats[i][0]).matcher(value).matches() ) {
+				return true ;
+			}		
+		}
+		return false ;
+	}
+	
+	
+	public Date parseDate( String value ) throws ParseException {
+		for( int i=0; i<patternsAndDateFormats.length; i++ ) {
+			if( ((Pattern)patternsAndDateFormats[i][0]).matcher(value).matches() ) {
+				return ((SimpleDateFormat)patternsAndDateFormats[i][1]).parse( value ) ;
+			}			
+		}
+		throw new ParseException( "String is not a valid date: " + value, 0 ) ;
+	}
+	
+	
+	public Date parseDateIfDate( String value ) {
+		for( int i=0; i<patternsAndDateFormats.length; i++ ) {
+			if( ((Pattern)patternsAndDateFormats[i][0]).matcher(value).matches() ) {
+				try {
+					return ((SimpleDateFormat)patternsAndDateFormats[i][1]).parse( value ) ;
+				}
+				catch( ParseException pex ) {
+					;
+				}				
+			}			
+		}
+		return null ;
+	}
+
 	
 	public String formatDate( Date date ) {
 		return dateFormat.format( date ) ;
 	}
 
-	public CreateDBPG getDbAccess() {
+	public CreateDBPG getDbAccess() throws UploaderException {
+		if( dbAccess == null ) {
+			this.dbAccess = new CreateDBPG() ;
+		}		
 		return dbAccess;
 	}
 
-	public void setDbAccess(CreateDBPG dbAccess) {
-		this.dbAccess = dbAccess;
+	public PreparedStatementHolder getPsHolder() throws UploaderException {
+		if( psHolder == null ) {
+			this.psHolder = new PreparedStatementHolder( getDbAccess().getSimpleConnectionPG() ) ;
+		}
+		return psHolder;
 	}
 	
 }
