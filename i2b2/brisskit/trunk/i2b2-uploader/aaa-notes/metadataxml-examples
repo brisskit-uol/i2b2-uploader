@@ -1,0 +1,100 @@
+if (v.type.equals("Int"))
+        {
+        metadata = "<?xml version=\"1.0\"?>" + 
+                "<ValueMetadata>" + 
+                "    <Version>3.02</Version>" + 
+                "    <CreationDateTime>08/14/2008 01:22:59</CreationDateTime>" + 
+                //"    <TestID/>" + 
+                "    <TestID>"+v.name+"</TestID>" +
+                //"    <TestName/>" +
+                "    <TestName>"+v.name+"</TestName>" +
+                "    <DataType>PosFloat</DataType>" + 
+                "    <CodeType/>" + 
+                "    <Loinc/>" + 
+                "    <Flagstouse/>" + 
+                "    <Oktousevalues>Y</Oktousevalues>" + 
+                "    <MaxStringLength/>" + 
+                "    <LowofLowValue></LowofLowValue>" + 
+                "    <HighofLowValue></HighofLowValue>" + 
+                "    <LowofHighValue>" +
+                //minimum 
+                "100" +
+                "</LowofHighValue>" +
+                //"100" +
+                "    <HighofHighValue>" +
+                //maximum 
+                "100" +
+                "</HighofHighValue>" + 
+                "    <LowofToxicValue/>" + 
+                "    <HighofToxicValue/>" + 
+                "    <EnumValues/>" + 
+                "    <CommentsDeterminingExclusion>" + 
+                "        <Com/>" + 
+                "    </CommentsDeterminingExclusion>" + 
+                "    <UnitValues>" + 
+                "        <NormalUnits>" +
+                v.unit + //"ratio" +
+                "</NormalUnits>" + 
+                "        <EqualUnits/>" + 
+                "        <ExcludingUnits/>" + 
+                "        <ConvertingUnits>" + 
+                "            <Units/>" + 
+                "            <MultiplyingFactor/>" + 
+                "        </ConvertingUnits>" + 
+                "    </UnitValues>" + 
+                "    <Analysis>" + 
+                "        <Enums/>" + 
+                "        <Counts/>" + 
+                "        <New/>" + 
+                "    </Analysis>" + 
+                "</ValueMetadata>";
+    
+        }
+        
+        if (v.type.equals("Text"))
+        {
+        metadata = "<?xml version=\"1.0\"?>" + 
+                "<ValueMetadata>" + 
+                "    <Version>3.02</Version>" + 
+                "    <CreationDateTime>08/14/2008 01:22:59</CreationDateTime>" +                                 
+                "    <TestID>"+v.name+"</TestID>" +
+                "    <TestName>"+v.name+"</TestName>" +
+                "    <DataType>String</DataType>" + 
+                "    <CodeType/>" + 
+                "    <Loinc/>" + 
+                "    <Flagstouse/>" + 
+                "    <Oktousevalues>Y</Oktousevalues>" + 
+                "    <MaxStringLength/>" + 
+                "    <LowofLowValue></LowofLowValue>" + 
+                "    <HighofLowValue></HighofLowValue>" + 
+                "    <LowofHighValue>" +
+                //minimum + //"100" +
+                "</LowofHighValue>" +
+                //"100" +
+                "    <HighofHighValue>" +
+                //maximum + //"100" +
+                "</HighofHighValue>" + 
+                "    <LowofToxicValue/>" + 
+                "    <HighofToxicValue/>" + 
+                "    <EnumValues/>" + 
+                "    <CommentsDeterminingExclusion>" + 
+                "        <Com/>" + 
+                "    </CommentsDeterminingExclusion>" + 
+                "    <UnitValues>" + 
+                "        <NormalUnits>" +
+                //suffix + //"ratio" +
+                "</NormalUnits>" + 
+                "        <EqualUnits/>" + 
+                "        <ExcludingUnits/>" + 
+                "        <ConvertingUnits>" + 
+                "            <Units/>" + 
+                "            <MultiplyingFactor/>" + 
+                "        </ConvertingUnits>" + 
+                "    </UnitValues>" + 
+                "    <Analysis>" + 
+                "        <Enums/>" + 
+                "        <Counts/>" + 
+                "        <New/>" + 
+                "    </Analysis>" + 
+                "</ValueMetadata>";
+        }
