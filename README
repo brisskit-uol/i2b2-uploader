@@ -1,0 +1,10 @@
+*======================================================================*
+* Uploads a spreadsheet of scientific data in a defined format to i2b2 
+*======================================================================*
+
+*==============*
+* PLEASE NOTE:
+*==============*
+The accompanying shell scripts (mvn-install.sh and mvn-deploy.sh) - or their bat
+equivalents - are the preferred way of building the project.
+They ensure that the licence agreement is copied into the resulting jar.
