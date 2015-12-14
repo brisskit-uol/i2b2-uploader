@@ -102,8 +102,33 @@
                     <target>1.6</target>
                 </configuration>
             </plugin>
-
+            
         </plugins>
+        
+        <resources>
+      		<resource>
+        		<directory>${basedir}</directory>
+        		<targetPath>./</targetPath>
+        		<includes>
+          			<include>licence.doc</include>
+        		</includes>
+      		</resource>
+      		<resource>
+        		<directory>${basedir}/src/main/resources/scripts/db-tables</directory>
+        		<targetPath>./scripts/db-tables</targetPath>
+        		<includes>
+          			<include>*</include>
+        		</includes>       		
+      		</resource>
+      		<resource>
+        		<directory>${basedir}/src/main/resources</directory>
+        		<targetPath>./</targetPath>
+        		<includes>
+          			<include>*</include>
+        		</includes>       		
+      		</resource>
+    	</resources>
+    	
     </build>
 
     <reporting>
