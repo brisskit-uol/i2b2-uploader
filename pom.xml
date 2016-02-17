@@ -8,25 +8,20 @@
     <groupId>org.brisskit.app.i2b2</groupId>
     <name>Create and Populate an i2b2 Project from Excel Spreadsheet</name>
 
-
     
     <!--+
 	    | The distributionManagement element is required for deploying an artifact to a remote repository
-	    | login128.lamp.le.ac.uk
-	    | maven.brisskit.le.ac.uk
-	    | <url>scp://login128.lamp.le.ac.uk/local/brisskit/sonatype-work/nexus/storage/releases</url>
-	    | <url>scp://login128.lamp.le.ac.uk/local/brisskit/sonatype-work/nexus/storage/snapshots</url>
 	    +-->
 	<distributionManagement>
 		<repository>
 			<id>nexus</id>
-			<name>Brisskit Maven Snapshots</name>
-			<url>http://maven.brisskit.le.ac.uk/nexus/content/repositories/releases/</url>
+			<name>Brisskit Maven Releases</name>
+			<url>https://maven.brisskit.le.ac.uk:443/nexus/content/repositories/releases/</url>
 		</repository>
 		<snapshotRepository>
 			<id>nexus</id>
-			<name>Brisskit Maven Releases</name>
-			<url>http://maven.brisskit.le.ac.uk/nexus/content/repositories/snapshots/</url>
+			<name>Brisskit Maven Snapshots</name>
+			<url>https://maven.brisskit.le.ac.uk:443/nexus/content/repositories/snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
     
@@ -173,7 +168,7 @@
    		<repository>
 			<id>nexus</id>
 			<name>Brisskit Maven Repo</name>
-			<url>http://maven.brisskit.le.ac.uk/nexus/content/groups/public</url>
+			<url>https://maven.brisskit.le.ac.uk:443/nexus/content/groups/public</url>
 			<releases>
 				<enabled>false</enabled>
 			</releases>
